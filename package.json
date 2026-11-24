@@ -1,0 +1,28 @@
+{
+  "name": "ohnivo",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Ohnivo - AI builder for Discord communities (web app + bot)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @ohnivo/web",
+    "dev:bot": "npm run dev -w @ohnivo/bot",
+    "build": "npm run build -w @ohnivo/web && npm run build -w @ohnivo/bot",
+    "build:web": "npm run build -w @ohnivo/web",
+    "build:bot": "npm run build -w @ohnivo/bot",
+    "start:bot": "npm run start -w @ohnivo/bot",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "test": "npm run test -w @ohnivo/shared",
+    "test:watch": "npm run test:watch -w @ohnivo/shared"
+  },
+  "engines": {
+    "node": ">=20.11"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  }
+}

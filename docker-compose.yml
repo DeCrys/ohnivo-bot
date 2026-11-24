@@ -1,0 +1,15 @@
+services:
+  bot:
+    build:
+      context: .
+      dockerfile: apps/bot/Dockerfile
+    env_file:
+      - .env
+    environment:
+      # The bot prefers SUPABASE_URL; fall back to the public one.
+      SUPABASE_URL: ${SUPABASE_URL:-${NEXT_PUBLIC_SUPABASE_URL}}
+    restart: unless-stopped
+    # One worker processes one job at a time. Scale horizontally if needed;
+    # claim_apply_job uses FOR UPDATE SKIP LOCKED.
+    deploy:
+      replicas: 1
