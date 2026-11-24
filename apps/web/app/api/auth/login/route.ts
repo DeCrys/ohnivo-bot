@@ -22,10 +22,14 @@ export async function GET(request: Request) {
 
     const state = randomToken(24);
     const value = encodeURIComponent(JSON.stringify({ state, next }));
+    const secure = (() => {
+      try { return new URL(env.NEXT_PUBLIC_APP_URL).protocol === "https:"; }
+      catch { return env.NODE_ENV === "production"; }
+    })();
     cookies().set(OAUTH_STATE_COOKIE, value, {
       httpOnly: true,
       sameSite: "lax",
-      secure: env.NODE_ENV === "production",
+      secure,
       path: "/",
       maxAge: 10 * 60,
     });
