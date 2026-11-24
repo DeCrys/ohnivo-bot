@@ -12,18 +12,10 @@ export const OAUTH_STATE_COOKIE = "ohnivo_oauth_state";
 export const LOCALE_COOKIE = "ohnivo_locale";
 export const SESSION_TTL_DAYS = 30;
 
-function isSecure(): boolean {
-  try {
-    return new URL(env.NEXT_PUBLIC_APP_URL).protocol === "https:";
-  } catch {
-    return env.NODE_ENV === "production";
-  }
-}
-
 const COOKIE_OPTIONS = {
   httpOnly: true,
   sameSite: "lax" as const,
-  secure: isSecure(),
+  secure: env.NODE_ENV === "production",
   path: "/",
 };
 
