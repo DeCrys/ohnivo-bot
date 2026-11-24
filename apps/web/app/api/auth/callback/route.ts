@@ -18,8 +18,7 @@ interface StatePayload {
 function parseState(raw: string | undefined): StatePayload | null {
   if (!raw) return null;
   try {
-    const decoded = decodeURIComponent(raw);
-    const parsed = JSON.parse(decoded) as Partial<StatePayload>;
+    const parsed = JSON.parse(raw) as Partial<StatePayload>;
     if (typeof parsed.state !== "string" || typeof parsed.next !== "string") return null;
     if (!parsed.next.startsWith("/") || parsed.next.startsWith("//")) return null;
     return { state: parsed.state, next: parsed.next };

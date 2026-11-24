@@ -21,8 +21,7 @@ export async function GET(request: Request) {
     if (session) return NextResponse.redirect(new URL(next, env.NEXT_PUBLIC_APP_URL));
 
     const state = randomToken(24);
-    const value = encodeURIComponent(JSON.stringify({ state, next }));
-    cookies().set(OAUTH_STATE_COOKIE, value, {
+    cookies().set(OAUTH_STATE_COOKIE, JSON.stringify({ state, next }), {
       httpOnly: true,
       sameSite: "lax",
       secure: env.NODE_ENV === "production",
