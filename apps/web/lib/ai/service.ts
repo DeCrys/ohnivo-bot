@@ -10,6 +10,7 @@ import { env, isAiConfigured } from "../env";
 import { AppError } from "../errors";
 import { createAnthropicProvider } from "./anthropic";
 import { createMockProvider } from "./mock";
+import { createNvidiaProvider } from "./nvidia";
 import { extractJson, type AiProvider, type AiTextResult } from "./provider";
 
 export interface ValidatedBlueprint {
@@ -30,8 +31,17 @@ export function getAiProvider(): AiProvider {
     provider = createMockProvider();
   } else if (env.AI_PROVIDER === "anthropic") {
     provider = createAnthropicProvider();
+  } else if (env.AI_PROVIDER === "nvidia") {
+    provider = createNvidiaProvider();
   } else {
-    provider = isAiConfigured() ? createAnthropicProvider() : createMockProvider();
+    // auto
+    if (env.NVIDIA_API_KEY) {
+      provider = createNvidiaProvider();
+    } else if (isAiConfigured()) {
+      provider = createAnthropicProvider();
+    } else {
+      provider = createMockProvider();
+    }
   }
   return provider;
 }

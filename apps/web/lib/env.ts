@@ -13,7 +13,9 @@ const envSchema = z.object({
   SESSION_SECRET: z.string().min(16).optional(),
   ANTHROPIC_API_KEY: z.string().min(1).optional(),
   ANTHROPIC_MODEL: z.string().min(1).default("claude-sonnet-4-5"),
-  AI_PROVIDER: z.enum(["auto", "anthropic", "mock"]).default("auto"),
+  NVIDIA_API_KEY: z.string().min(1).optional(),
+  NVIDIA_MODEL: z.string().min(1).optional(),
+  AI_PROVIDER: z.enum(["auto", "anthropic", "nvidia", "mock"]).default("auto"),
   AI_RATE_LIMIT_PER_HOUR: z.coerce.number().int().positive().default(20),
   STRIPE_SECRET_KEY: z.string().min(1).optional(),
   STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
@@ -58,7 +60,10 @@ export function hasSupabase(): boolean {
 }
 
 export function isAiConfigured(): boolean {
-  return Boolean(env.ANTHROPIC_API_KEY) && env.AI_PROVIDER !== "mock";
+  const hasAnthropic = Boolean(env.ANTHROPIC_API_KEY);
+  const hasNvidia = Boolean(env.NVIDIA_API_KEY);
+  // also allow key read from file in provider
+  return (hasAnthropic || hasNvidia) && env.AI_PROVIDER !== "mock";
 }
 
 export function isStripeConfigured(): boolean {
