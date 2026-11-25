@@ -18,6 +18,7 @@ export function stripePriceDetails(plan: PaidPlanId, interval: BillingInterval) 
   }
 
   return {
+    // Amount changes get a new Stripe price while existing subscriptions keep their price.
     lookupKey: `ohnivo_${plan}_${interval}_${unitAmount}_czk`,
     productName: `Ohnivo ${PLAN_NAMES[plan]} - ${interval === "month" ? "monthly" : "annual"}`,
     unitAmount,
