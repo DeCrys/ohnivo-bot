@@ -61,7 +61,8 @@ async function applySubscription(
   }
   const service = getServiceClient();
   const userId = subscription.metadata.userId ?? fallbackUserId ?? null;
-  const active = ["active", "trialing", "past_due"].includes(subscription.status);
+  // past_due = failed renewal payment: no paid plan until Stripe collects it (then status returns to active).
+  const active = ["active", "trialing"].includes(subscription.status);
   const plan: PaidPlan | "free" = active ? resolved.plan : "free";
 
   await service.from("subscriptions").upsert(
