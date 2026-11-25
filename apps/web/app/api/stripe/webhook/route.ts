@@ -4,7 +4,7 @@ import { PLANS, type BillingInterval } from "@ohnivo/shared";
 import { env } from "@/lib/env";
 import { grantCredits } from "@/lib/credits";
 import { notify } from "@/lib/notifications";
-import { getStripe, planFromPriceId } from "@/lib/stripe";
+import { getStripe } from "@/lib/stripe";
 import { getServiceClient } from "@/lib/supabase/service";
 import type { SubscriptionRow } from "@/lib/types";
 
@@ -25,15 +25,21 @@ function resolvePlan(subscription: Stripe.Subscription): {
   interval: BillingInterval;
 } | null {
   const item = subscription.items.data[0];
-  const fromPrice = item?.price?.id ? planFromPriceId(item.price.id) : null;
-  if (fromPrice) return fromPrice;
-  const metaPlan = subscription.metadata.plan;
-  const metaInterval = subscription.metadata.interval;
-  if (
-    (metaPlan === "starter" || metaPlan === "premium" || metaPlan === "pro") &&
-    (metaInterval === "month" || metaInterval === "year")
-  ) {
-    return { plan: metaPlan, interval: metaInterval };
+  const candidates = [
+    { plan: subscription.metadata.plan, interval: subscription.metadata.interval },
+    {
+      plan: item?.price?.metadata.ohnivo_plan,
+      interval: item?.price?.metadata.ohnivo_interval,
+    },
+  ];
+
+  for (const candidate of candidates) {
+    if (
+      (candidate.plan === "starter" || candidate.plan === "premium" || candidate.plan === "pro") &&
+      (candidate.interval === "month" || candidate.interval === "year")
+    ) {
+      return { plan: candidate.plan, interval: candidate.interval };
+    }
   }
   return null;
 }

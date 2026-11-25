@@ -5,7 +5,7 @@ import { requireApiUser } from "@/lib/auth/session";
 import { env, isStripeConfigured } from "@/lib/env";
 import { AppError } from "@/lib/errors";
 import { assertSameOrigin, errorResponse, parseJson } from "@/lib/http";
-import { getStripe, priceIdFor } from "@/lib/stripe";
+import { getOrCreateStripePrice, getStripe } from "@/lib/stripe";
 import { getServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
@@ -26,10 +26,8 @@ export async function POST(request: Request) {
     const body = await parseJson(request, (value) => bodySchema.parse(value));
     if (!isPaidPlan(body.plan)) throw new AppError("invalid_input", "Unknown plan");
 
-    const priceId = priceIdFor(body.plan, body.interval);
-    if (!priceId) throw new AppError("stripe_missing", "Missing Stripe price id for this plan");
-
     const stripe = getStripe();
+    const priceId = await getOrCreateStripePrice(body.plan, body.interval);
     const service = getServiceClient();
     let customerId = session.user.stripe_customer_id;
 

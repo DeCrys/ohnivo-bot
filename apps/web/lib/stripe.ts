@@ -1,7 +1,8 @@
 import Stripe from "stripe";
-import type { BillingInterval, PlanId } from "@ohnivo/shared";
+import type { BillingInterval } from "@ohnivo/shared";
 import { env } from "./env";
 import { AppError } from "./errors";
+import { stripePriceDetails, type PaidPlanId } from "./stripe-price-data";
 
 let cached: Stripe | null = null;
 
@@ -11,26 +12,35 @@ export function getStripe(): Stripe {
   return cached;
 }
 
-type PaidPlanId = Exclude<PlanId, "free">;
+export async function getOrCreateStripePrice(
+  plan: PaidPlanId,
+  interval: BillingInterval,
+): Promise<string> {
+  const stripe = getStripe();
+  const details = stripePriceDetails(plan, interval);
+  const existing = await stripe.prices.list({
+    active: true,
+    lookup_keys: [details.lookupKey],
+    limit: 1,
+  });
+  if (existing.data[0]) return existing.data[0].id;
 
-export const PLAN_PRICE_ENV: Record<PaidPlanId, Record<BillingInterval, string>> = {
-  starter: { month: "STRIPE_PRICE_STARTER_MONTH", year: "STRIPE_PRICE_STARTER_YEAR" },
-  premium: { month: "STRIPE_PRICE_PREMIUM_MONTH", year: "STRIPE_PRICE_PREMIUM_YEAR" },
-  pro: { month: "STRIPE_PRICE_PRO_MONTH", year: "STRIPE_PRICE_PRO_YEAR" },
-};
-
-export function priceIdFor(plan: PaidPlanId, interval: BillingInterval): string | null {
-  const name = PLAN_PRICE_ENV[plan][interval];
-  return process.env[name] ?? null;
-}
-
-export function planFromPriceId(
-  priceId: string,
-): { plan: PaidPlanId; interval: BillingInterval } | null {
-  for (const plan of Object.keys(PLAN_PRICE_ENV) as PaidPlanId[]) {
-    for (const interval of ["month", "year"] as BillingInterval[]) {
-      if (priceIdFor(plan, interval) === priceId) return { plan, interval };
-    }
-  }
-  return null;
+  const price = await stripe.prices.create(
+    {
+      currency: "czk",
+      unit_amount: details.unitAmount,
+      recurring: { interval },
+      lookup_key: details.lookupKey,
+      product_data: {
+        name: details.productName,
+        metadata: { ohnivo_plan: plan },
+      },
+      metadata: {
+        ohnivo_plan: plan,
+        ohnivo_interval: interval,
+      },
+    },
+    { idempotencyKey: `ohnivo-${details.lookupKey}` },
+  );
+  return price.id;
 }

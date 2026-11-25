@@ -28,12 +28,6 @@ const envSchema = z.object({
   AI_RATE_LIMIT_PER_HOUR: z.coerce.number().int().positive().default(20),
   STRIPE_SECRET_KEY: z.string().min(1).optional(),
   STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
-  STRIPE_PRICE_STARTER_MONTH: z.string().optional(),
-  STRIPE_PRICE_STARTER_YEAR: z.string().optional(),
-  STRIPE_PRICE_PREMIUM_MONTH: z.string().optional(),
-  STRIPE_PRICE_PREMIUM_YEAR: z.string().optional(),
-  STRIPE_PRICE_PRO_MONTH: z.string().optional(),
-  STRIPE_PRICE_PRO_YEAR: z.string().optional(),
 });
 
 export type Env = z.infer<typeof envSchema>;
