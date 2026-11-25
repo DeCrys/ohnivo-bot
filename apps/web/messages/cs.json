@@ -240,6 +240,7 @@
       "build": "Postavit server",
       "edit": "Upravit server",
       "graphics": "Grafika",
+      "allTools": "Všechny AI nástroje",
       "soon": "Brzy",
       "noAccess": "K tomuto serveru nemáš přístup."
     }
@@ -263,6 +264,26 @@
     "grantFailed": "Kredity se nepodařilo připsat. Zkus to znovu."
   },
   "ai": {
+    "hub": {
+      "title": "AI nástroje",
+      "subtitle": "Vyber, s čím chceš na svém serveru pomoct.",
+      "createTitle": "Vytvořit server",
+      "createBody": "Popiš svou komunitu a nech si navrhnout kompletní strukturu Discord serveru.",
+      "editTitle": "Upravit návrh",
+      "editBody": "Pokračuj v úpravách uloženého návrhu serveru.",
+      "creativeTitle": "Kreativní studio",
+      "creativeBody": "Vytvářej ikony, bannery a další grafiku pro svou komunitu.",
+      "restyleTitle": "Přestavět server",
+      "restyleBody": "Předělej stávající server podle nového konceptu.",
+      "workshopTitle": "Dílna modulů",
+      "workshopBody": "Nech si připravit vlastní funkci nebo modul na míru.",
+      "available": "K dispozici",
+      "comingSoon": "Připravujeme",
+      "noDrafts": "Nejprve vytvoř návrh",
+      "recentDrafts": "Poslední návrhy",
+      "noDraftsBody": "Zde se zobrazí návrhy, na kterých jsi naposledy pracoval.",
+      "updated": "Upraveno"
+    },
     "new": {
       "title": "Popiš svou komunitu",
       "subtitle": "Napiš, o čem server je, kdo na něm bude a co nesmí chybět. Čím konkrétnější popis, tím lepší struktura.",
@@ -304,6 +325,7 @@
       "delete": "Smazat",
       "moveUp": "Posunout nahoru",
       "moveDown": "Posunout dolů",
+      "dragToReorder": "Přetáhni pro změnu pořadí",
       "regenerate": "Vygenerovat znovu",
       "refineTitle": "Upřesnit dalším promptem",
       "refinePlaceholder": "Např. přidej kategorii pro tickety a roli VIP, přesuň hlasovky dolů.",

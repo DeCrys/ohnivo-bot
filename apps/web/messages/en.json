@@ -240,6 +240,7 @@
       "build": "Build a server",
       "edit": "Edit server",
       "graphics": "Graphics",
+      "allTools": "All AI tools",
       "soon": "Soon",
       "noAccess": "You do not have access to this server."
     }
@@ -263,6 +264,26 @@
     "grantFailed": "Could not grant credits. Please try again."
   },
   "ai": {
+    "hub": {
+      "title": "AI tools",
+      "subtitle": "Choose how you want to improve your server.",
+      "createTitle": "Create a server",
+      "createBody": "Describe your community and generate a complete Discord server structure.",
+      "editTitle": "Edit a proposal",
+      "editBody": "Continue editing a saved server proposal.",
+      "creativeTitle": "Creative studio",
+      "creativeBody": "Create icons, banners and other artwork for your community.",
+      "restyleTitle": "Restyle a server",
+      "restyleBody": "Rework an existing server around a new concept.",
+      "workshopTitle": "Module workshop",
+      "workshopBody": "Get a custom feature or module built for your community.",
+      "available": "Available",
+      "comingSoon": "Coming soon",
+      "noDrafts": "Create a proposal first",
+      "recentDrafts": "Recent proposals",
+      "noDraftsBody": "Your recently edited proposals will appear here.",
+      "updated": "Updated"
+    },
     "new": {
       "title": "Describe your community",
       "subtitle": "Say what the server is about, who will join and what must not be missing. The more specific, the better the structure.",
@@ -304,6 +325,7 @@
       "delete": "Delete",
       "moveUp": "Move up",
       "moveDown": "Move down",
+      "dragToReorder": "Drag to reorder",
       "regenerate": "Regenerate",
       "refineTitle": "Refine with another prompt",
       "refinePlaceholder": "e.g. Add a ticketing category and a VIP role, move voice channels down.",

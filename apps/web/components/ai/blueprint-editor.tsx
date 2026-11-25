@@ -7,6 +7,7 @@ import {
   ArrowRight,
   ChevronDown,
   ChevronUp,
+  GripVertical,
   Hash,
   Megaphone,
   MessagesSquare,
@@ -27,6 +28,7 @@ import { LIMITS } from "@ohnivo/shared";
 import { Button } from "@/components/ui/button";
 import { Badge, Alert } from "@/components/ui/primitives";
 import { Input, Textarea } from "@/components/ui/field";
+import { moveArrayItem } from "@/lib/array-order";
 import { cn } from "@/lib/utils";
 
 interface BlueprintEditorProps {
@@ -50,6 +52,15 @@ function channelIcon(type: ChannelType) {
   if (type === "forum") return MessagesSquare;
   if (type === "announcement") return Megaphone;
   return Hash;
+}
+
+type ReorderType = "role" | "category" | "channel";
+
+interface ReorderPreview {
+  type: ReorderType;
+  group: number | null;
+  activeIndex: number;
+  order: number[];
 }
 
 export function BlueprintEditor({
@@ -77,6 +88,7 @@ export function BlueprintEditor({
   const [action, setAction] = useState<"refine" | "regenerate" | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
   const [actionSuccess, setActionSuccess] = useState<string | null>(null);
+  const [reorderPreview, setReorderPreview] = useState<ReorderPreview | null>(null);
   const mounted = useRef(false);
 
   function update(mutator: (next: ServerBlueprint) => void) {
@@ -87,6 +99,73 @@ export function BlueprintEditor({
     });
     setDirty(true);
     setActionSuccess(null);
+  }
+
+  function getReorderOrder(type: ReorderType, group: number | null, length: number): number[] {
+    if (reorderPreview?.type === type && reorderPreview.group === group) {
+      return reorderPreview.order;
+    }
+    return Array.from({ length }, (_, index) => index);
+  }
+
+  function beginReorder(
+    event: React.DragEvent<HTMLButtonElement>,
+    type: ReorderType,
+    group: number | null,
+    index: number,
+    length: number,
+  ) {
+    event.dataTransfer.effectAllowed = "move";
+    event.dataTransfer.setData("text/plain", "ohnivo:reorder");
+    const item = event.currentTarget.closest<HTMLElement>("[data-sortable-item]");
+    if (item) {
+      const bounds = item.getBoundingClientRect();
+      event.dataTransfer.setDragImage(
+        item,
+        Math.round(event.clientX - bounds.left),
+        Math.round(event.clientY - bounds.top),
+      );
+    }
+    setReorderPreview({
+      type,
+      group,
+      activeIndex: index,
+      order: Array.from({ length }, (_, itemIndex) => itemIndex),
+    });
+  }
+
+  function previewReorder(type: ReorderType, group: number | null, targetIndex: number) {
+    setReorderPreview((current) => {
+      if (!current || current.type !== type || current.group !== group) return current;
+      const from = current.order.indexOf(current.activeIndex);
+      const to = current.order.indexOf(targetIndex);
+      if (from < 0 || to < 0 || from === to) return current;
+      return { ...current, order: moveArrayItem(current.order, from, to) };
+    });
+  }
+
+  function finishReorder(
+    event: React.DragEvent<HTMLElement>,
+    type: ReorderType,
+    group: number | null,
+    onReorder: (from: number, to: number) => void,
+  ) {
+    const current = reorderPreview;
+    if (!current || current.type !== type) return;
+    if (current.group !== group) {
+      event.preventDefault();
+      event.stopPropagation();
+      setReorderPreview(null);
+      return;
+    }
+
+    event.preventDefault();
+    event.stopPropagation();
+    const targetIndex = current.order.indexOf(current.activeIndex);
+    if (targetIndex >= 0 && targetIndex !== current.activeIndex) {
+      onReorder(current.activeIndex, targetIndex);
+    }
+    setReorderPreview(null);
   }
 
   async function save(current: ServerBlueprint): Promise<boolean> {
@@ -235,11 +314,42 @@ export function BlueprintEditor({
           <p className="text-xs text-spark-100/40">{t("noRoles")}</p>
         ) : (
           <ul className="space-y-1.5">
-            {draft.roles.map((role, index) => (
+            {getReorderOrder("role", null, draft.roles.length).map((index) => {
+              const role = draft.roles[index];
+              if (!role) return null;
+              const isDragging =
+                reorderPreview?.type === "role" && reorderPreview.activeIndex === index;
+              return (
               <li
-                key={`${index}-${role.name}`}
-                className="flex flex-wrap items-center gap-2 rounded-lg border border-line/60 bg-ink-900/60 px-2.5 py-1.5"
+                key={`role-${index}`}
+                data-sortable-item
+                onDragOver={(event) => {
+                  event.preventDefault();
+                  previewReorder("role", null, index);
+                }}
+                onDrop={(event) => {
+                  finishReorder(event, "role", null, (from, to) =>
+                    update((next) => {
+                      next.roles = moveArrayItem(next.roles, from, to);
+                    }),
+                  );
+                }}
+                className={cn(
+                  "flex flex-wrap items-center gap-2 rounded-lg border border-line/60 bg-ink-900/60 px-2.5 py-1.5 transition-all duration-200 hover:border-spark-500/35",
+                  isDragging && "border-dashed border-spark-400/70 bg-spark-500/5 opacity-35",
+                )}
               >
+                <button
+                  type="button"
+                  draggable
+                  aria-label={t("dragToReorder")}
+                  title={t("dragToReorder")}
+                  onDragStart={(event) => beginReorder(event, "role", null, index, draft.roles.length)}
+                  onDragEnd={() => setReorderPreview(null)}
+                  className="cursor-grab rounded p-1 text-spark-100/35 hover:bg-ink-700 hover:text-white active:cursor-grabbing"
+                >
+                  <GripVertical className="h-3.5 w-3.5" />
+                </button>
                 <span
                   className="h-3 w-3 shrink-0 rounded-full border border-white/10"
                   style={{ backgroundColor: role.color }}
@@ -257,33 +367,29 @@ export function BlueprintEditor({
                 <span className="text-[10px] text-spark-100/40">
                   {role.permissions.length} {t("permissions")}
                 </span>
-                <div className="flex gap-0.5">
-                  <IconButton
-                    label={t("moveUp")}
-                    onClick={() =>
-                      update((next) => {
-                        if (index > 0) {
-                          const [item] = next.roles.splice(index, 1);
-                          if (item) next.roles.splice(index - 1, 0, item);
-                        }
-                      })
-                    }
-                  >
-                    <ChevronUp className="h-3.5 w-3.5" />
-                  </IconButton>
-                  <IconButton
-                    label={t("moveDown")}
-                    onClick={() =>
-                      update((next) => {
-                        if (index < next.roles.length - 1) {
-                          const [item] = next.roles.splice(index, 1);
-                          if (item) next.roles.splice(index + 1, 0, item);
-                        }
-                      })
-                    }
-                  >
-                    <ChevronDown className="h-3.5 w-3.5" />
-                  </IconButton>
+                <div className="ml-auto flex items-center gap-0.5">
+                  <div className="sr-only flex gap-0.5 focus-within:not-sr-only">
+                    <IconButton
+                      label={t("moveUp")}
+                      onClick={() =>
+                        update((next) => {
+                          next.roles = moveArrayItem(next.roles, index, index - 1);
+                        })
+                      }
+                    >
+                      <ChevronUp className="h-3.5 w-3.5" />
+                    </IconButton>
+                    <IconButton
+                      label={t("moveDown")}
+                      onClick={() =>
+                        update((next) => {
+                          next.roles = moveArrayItem(next.roles, index, index + 1);
+                        })
+                      }
+                    >
+                      <ChevronDown className="h-3.5 w-3.5" />
+                    </IconButton>
+                  </div>
                   <IconButton
                     label={t("delete")}
                     danger
@@ -293,7 +399,8 @@ export function BlueprintEditor({
                   </IconButton>
                 </div>
               </li>
-            ))}
+              );
+            })}
           </ul>
         )}
       </section>
@@ -314,9 +421,46 @@ export function BlueprintEditor({
           </Button>
         </div>
 
-        {draft.categories.map((category, categoryIndex) => (
-          <div key={`${categoryIndex}-${category.name}`} className="surface p-3">
+        {getReorderOrder("category", null, draft.categories.length).map((categoryIndex) => {
+          const category = draft.categories[categoryIndex];
+          if (!category) return null;
+          const isDragging =
+            reorderPreview?.type === "category" &&
+            reorderPreview.activeIndex === categoryIndex;
+          return (
+          <div
+            key={`category-${categoryIndex}`}
+            data-sortable-item
+            onDragOver={(event) => {
+              event.preventDefault();
+              previewReorder("category", null, categoryIndex);
+            }}
+            onDrop={(event) =>
+              finishReorder(event, "category", null, (from, to) =>
+                update((next) => {
+                  next.categories = moveArrayItem(next.categories, from, to);
+                }),
+              )
+            }
+            className={cn(
+              "surface p-3 transition-all duration-200 hover:border-spark-500/35",
+              isDragging && "border-dashed border-spark-400/70 bg-spark-500/5 opacity-35",
+            )}
+          >
             <div className="flex flex-wrap items-center gap-2">
+              <button
+                type="button"
+                draggable
+                aria-label={t("dragToReorder")}
+                title={t("dragToReorder")}
+                onDragStart={(event) =>
+                  beginReorder(event, "category", null, categoryIndex, draft.categories.length)
+                }
+                onDragEnd={() => setReorderPreview(null)}
+                className="cursor-grab rounded p-1 text-spark-100/35 hover:bg-ink-700 hover:text-white active:cursor-grabbing"
+              >
+                <GripVertical className="h-3.5 w-3.5" />
+              </button>
               <Input
                 value={category.emoji ?? ""}
                 onChange={(event) =>
@@ -340,33 +484,37 @@ export function BlueprintEditor({
                 }
                 className="h-8 max-w-64 flex-1 text-xs font-medium"
               />
-              <div className="flex gap-0.5">
-                <IconButton
-                  label={t("moveUp")}
-                  onClick={() =>
-                    update((next) => {
-                      if (categoryIndex > 0) {
-                        const [item] = next.categories.splice(categoryIndex, 1);
-                        if (item) next.categories.splice(categoryIndex - 1, 0, item);
-                      }
-                    })
-                  }
-                >
-                  <ChevronUp className="h-3.5 w-3.5" />
-                </IconButton>
-                <IconButton
-                  label={t("moveDown")}
-                  onClick={() =>
-                    update((next) => {
-                      if (categoryIndex < next.categories.length - 1) {
-                        const [item] = next.categories.splice(categoryIndex, 1);
-                        if (item) next.categories.splice(categoryIndex + 1, 0, item);
-                      }
-                    })
-                  }
-                >
-                  <ChevronDown className="h-3.5 w-3.5" />
-                </IconButton>
+              <div className="ml-auto flex items-center gap-0.5">
+                <div className="sr-only flex gap-0.5 focus-within:not-sr-only">
+                  <IconButton
+                    label={t("moveUp")}
+                    onClick={() =>
+                      update((next) => {
+                        next.categories = moveArrayItem(
+                          next.categories,
+                          categoryIndex,
+                          categoryIndex - 1,
+                        );
+                      })
+                    }
+                  >
+                    <ChevronUp className="h-3.5 w-3.5" />
+                  </IconButton>
+                  <IconButton
+                    label={t("moveDown")}
+                    onClick={() =>
+                      update((next) => {
+                        next.categories = moveArrayItem(
+                          next.categories,
+                          categoryIndex,
+                          categoryIndex + 1,
+                        );
+                      })
+                    }
+                  >
+                    <ChevronDown className="h-3.5 w-3.5" />
+                  </IconButton>
+                </div>
                 <IconButton
                   label={t("delete")}
                   danger
@@ -378,13 +526,58 @@ export function BlueprintEditor({
             </div>
 
             <ul className="mt-2 space-y-1">
-              {category.channels.map((channel, channelIndex) => {
-                const Icon = channelIcon(channel.type);
-                return (
-                  <li
-                    key={`${channelIndex}-${channel.name}`}
-                    className="flex flex-wrap items-center gap-1.5 rounded-md bg-ink-900/50 px-2 py-1"
-                  >
+              {getReorderOrder("channel", categoryIndex, category.channels.length).map(
+                (channelIndex) => {
+                  const channel = category.channels[channelIndex];
+                  if (!channel) return null;
+                  const Icon = channelIcon(channel.type);
+                  const isDragging =
+                    reorderPreview?.type === "channel" &&
+                    reorderPreview.group === categoryIndex &&
+                    reorderPreview.activeIndex === channelIndex;
+                  return (
+                    <li
+                      key={`channel-${categoryIndex}-${channelIndex}`}
+                      data-sortable-item
+                      onDragOver={(event) => {
+                        event.preventDefault();
+                        previewReorder("channel", categoryIndex, channelIndex);
+                      }}
+                      onDrop={(event) =>
+                        finishReorder(event, "channel", categoryIndex, (from, to) =>
+                          update((next) => {
+                            const target = next.categories[categoryIndex];
+                            if (target) {
+                              target.channels = moveArrayItem(target.channels, from, to);
+                            }
+                          }),
+                        )
+                      }
+                      className={cn(
+                        "flex flex-wrap items-center gap-1.5 rounded-md bg-ink-900/50 px-2 py-1 transition-all duration-200 hover:bg-ink-800/70",
+                        isDragging &&
+                          "border border-dashed border-spark-400/70 bg-spark-500/5 opacity-35",
+                      )}
+                    >
+                    <button
+                      type="button"
+                      draggable
+                      aria-label={t("dragToReorder")}
+                      title={t("dragToReorder")}
+                      onDragStart={(event) =>
+                        beginReorder(
+                          event,
+                          "channel",
+                          categoryIndex,
+                          channelIndex,
+                          category.channels.length,
+                        )
+                      }
+                      onDragEnd={() => setReorderPreview(null)}
+                      className="cursor-grab rounded p-1 text-spark-100/35 hover:bg-ink-700 hover:text-white active:cursor-grabbing"
+                    >
+                      <GripVertical className="h-3 w-3" />
+                    </button>
                     <Icon className="h-3 w-3 shrink-0 text-spark-100/40" />
                     <Input
                       value={channel.emoji ?? ""}
@@ -431,35 +624,43 @@ export function BlueprintEditor({
                         </option>
                       ))}
                     </select>
-                    <div className="ml-auto flex gap-0.5">
-                      <IconButton
-                        label={t("moveUp")}
-                        onClick={() =>
-                          update((next) => {
-                            const channels = next.categories[categoryIndex]?.channels;
-                            if (channels && channelIndex > 0) {
-                              const [item] = channels.splice(channelIndex, 1);
-                              if (item) channels.splice(channelIndex - 1, 0, item);
-                            }
-                          })
-                        }
-                      >
-                        <ChevronUp className="h-3 w-3" />
-                      </IconButton>
-                      <IconButton
-                        label={t("moveDown")}
-                        onClick={() =>
-                          update((next) => {
-                            const channels = next.categories[categoryIndex]?.channels;
-                            if (channels && channelIndex < channels.length - 1) {
-                              const [item] = channels.splice(channelIndex, 1);
-                              if (item) channels.splice(channelIndex + 1, 0, item);
-                            }
-                          })
-                        }
-                      >
-                        <ChevronDown className="h-3 w-3" />
-                      </IconButton>
+                    <div className="ml-auto flex items-center gap-0.5">
+                      <div className="sr-only flex gap-0.5 focus-within:not-sr-only">
+                        <IconButton
+                          label={t("moveUp")}
+                          onClick={() =>
+                            update((next) => {
+                              const target = next.categories[categoryIndex];
+                              if (target) {
+                                target.channels = moveArrayItem(
+                                  target.channels,
+                                  channelIndex,
+                                  channelIndex - 1,
+                                );
+                              }
+                            })
+                          }
+                        >
+                          <ChevronUp className="h-3 w-3" />
+                        </IconButton>
+                        <IconButton
+                          label={t("moveDown")}
+                          onClick={() =>
+                            update((next) => {
+                              const target = next.categories[categoryIndex];
+                              if (target) {
+                                target.channels = moveArrayItem(
+                                  target.channels,
+                                  channelIndex,
+                                  channelIndex + 1,
+                                );
+                              }
+                            })
+                          }
+                        >
+                          <ChevronDown className="h-3 w-3" />
+                        </IconButton>
+                      </div>
                       <IconButton
                         label={t("delete")}
                         danger
@@ -470,9 +671,10 @@ export function BlueprintEditor({
                         <Trash2 className="h-3 w-3" />
                       </IconButton>
                     </div>
-                  </li>
-                );
-              })}
+                    </li>
+                  );
+                },
+              )}
             </ul>
             {category.channels.length === 0 ? (
               <p className="mt-1 px-2 text-[11px] text-spark-100/35">{t("emptyChannels")}</p>
@@ -494,7 +696,8 @@ export function BlueprintEditor({
               <Plus className="h-3 w-3" /> {t("addChannel")}
             </button>
           </div>
-        ))}
+          );
+        })}
       </section>
 
       <section className="surface p-4">

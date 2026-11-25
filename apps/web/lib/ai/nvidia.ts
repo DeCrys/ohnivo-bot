@@ -10,14 +10,18 @@ import type { AiProvider, AiTextResult, GenerateInput, RefineInput } from "./pro
 function getNvidiaKey(): string {
   const key = env.NVIDIA_API_KEY;
   if (key) return key;
-  try {
-    const fs = require("fs");
-    const path = "c:\\Users\\hry15\\Desktop\\nvidia api key.txt";
-    const fileKey = fs.readFileSync(path, "utf8").trim();
-    if (fileKey) return fileKey;
-  } catch {
-    // ignore
+
+  if (env.NODE_ENV === "development") {
+    try {
+      const fs = require("fs");
+      const path = "c:\\Users\\hry15\\Desktop\\nvidia api key.txt";
+      const fileKey = fs.readFileSync(path, "utf8").trim();
+      if (fileKey) return fileKey;
+    } catch {
+      // ignore missing local key file
+    }
   }
+
   throw new AppError("config_missing", "NVIDIA_API_KEY is not configured");
 }
 

@@ -18,12 +18,29 @@ export function GuildSidebar({
 }) {
   const pathname = usePathname();
   const t = useTranslations("dashboard.nav");
+  const ta = useTranslations("ai.hub");
   const tc = useTranslations("common");
+  const aiBase = `/dashboard/${guildId}/ai`;
   const items = [
     { href: `/dashboard/${guildId}`, label: t("home"), icon: Home, exact: true },
-    { href: `/dashboard/${guildId}/ai/new`, label: t("ai"), icon: Sparkles, match: "/ai" },
+    { href: aiBase, label: t("ai"), icon: Sparkles, match: "/ai", ai: true },
     { href: `/dashboard/${guildId}/modules`, label: t("modules"), icon: Blocks, match: "/modules", soon: true },
     { href: `/dashboard/${guildId}/server`, label: t("server"), icon: Server, match: "/server" },
+  ];
+  const aiItems = [
+    {
+      href: `${aiBase}/new`,
+      label: ta("createTitle"),
+      active: pathname === `${aiBase}/new`,
+    },
+    {
+      href: `${aiBase}#recent-drafts`,
+      label: ta("editTitle"),
+      active: pathname.startsWith(`${aiBase}/`) && pathname !== `${aiBase}/new`,
+    },
+    { href: `${aiBase}#creative-studio`, label: ta("creativeTitle"), active: false },
+    { href: `${aiBase}#restyle-server`, label: ta("restyleTitle"), active: false },
+    { href: `${aiBase}#module-workshop`, label: ta("workshopTitle"), active: false },
   ];
 
   return (
@@ -51,20 +68,39 @@ export function GuildSidebar({
             ? pathname === item.href
             : pathname.includes(item.match ?? item.href);
           return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs transition-colors",
-                active
-                  ? "bg-spark-500/15 text-white"
-                  : "text-spark-100/55 hover:bg-ink-800/60 hover:text-white",
-              )}
-            >
-              <item.icon className="h-3.5 w-3.5" />
-              <span className="flex-1">{item.label}</span>
-              {item.soon ? <Badge variant="soon">{tc("comingSoon")}</Badge> : null}
-            </Link>
+            <div key={item.href}>
+              <Link
+                href={item.href}
+                className={cn(
+                  "flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs transition-colors",
+                  active
+                    ? "bg-spark-500/15 text-white"
+                    : "text-spark-100/55 hover:bg-ink-800/60 hover:text-white",
+                )}
+              >
+                <item.icon className="h-3.5 w-3.5" />
+                <span className="flex-1">{item.label}</span>
+                {item.soon ? <Badge variant="soon">{tc("comingSoon")}</Badge> : null}
+              </Link>
+              {item.ai && active ? (
+                <div className="ml-5 mt-1 hidden space-y-1 border-l border-line/70 pl-3 lg:block">
+                  {aiItems.map((aiItem) => (
+                    <Link
+                      key={aiItem.href}
+                      href={aiItem.href}
+                      className={cn(
+                        "block rounded-md px-2.5 py-2 text-[11px] transition-colors",
+                        aiItem.active
+                          ? "bg-spark-500/10 text-white"
+                          : "text-spark-100/45 hover:bg-ink-800/60 hover:text-white",
+                      )}
+                    >
+                      {aiItem.label}
+                    </Link>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           );
         })}
       </nav>

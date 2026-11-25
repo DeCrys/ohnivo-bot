@@ -47,7 +47,8 @@ export function getAiProvider(): AiProvider {
 }
 
 export function isDemoMode(): boolean {
-  return getAiProvider().name.startsWith("mock");
+  if (env.AI_PROVIDER === "mock") return true;
+  return env.AI_PROVIDER === "auto" && !isAiConfigured();
 }
 
 function describeValidationError(error: unknown): string {

@@ -101,7 +101,15 @@ export default async function GuildHomePage({ params }: { params: { guildId: str
       </div>
 
       <section>
-        <h2 className="mb-3 text-sm font-semibold text-white">{tg("aiTitle")}</h2>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <h2 className="text-sm font-semibold text-white">{tg("aiTitle")}</h2>
+          <Link
+            href={`/dashboard/${access.guild.id}/ai`}
+            className="text-xs text-spark-300 hover:text-spark-200"
+          >
+            {tg("allTools")} →
+          </Link>
+        </div>
         <div className="grid gap-3 sm:grid-cols-3">
           {tools.map((tool) => {
             const inner = (
