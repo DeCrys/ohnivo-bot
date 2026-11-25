@@ -141,8 +141,8 @@ export function RoleHierarchyGuide({
               </div>
             ))}
 
-            <div className="my-1 flex items-center gap-2 rounded-md border border-dashed border-[#f0b232]/50 bg-[#f0b232]/5 px-2 py-1.5">
-              <ArrowUp className="h-3.5 w-3.5 shrink-0 animate-bounce text-[#f0b232]" />
+            <div className="role-drag-hint my-1 flex items-center gap-2 rounded-md border border-dashed border-[#f0b232]/50 bg-[#f0b232]/5 px-2 py-1.5">
+              <ArrowUp className="h-3.5 w-3.5 shrink-0 text-[#f0b232]" />
               <span className="text-[10px] font-medium text-[#f0b232]">{t("dragHint")}</span>
             </div>
 

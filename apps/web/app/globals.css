@@ -69,25 +69,47 @@ body {
 
 /*
  * Looping "drag the bot role to the top" demo used by the role hierarchy guide.
- * The clone starts exactly on top of the source row, glides up by the distance
- * measured in JS, holds for a beat, then fades out and starts over.
+ * The clone is picked up from the source row, travels to the slot above the
+ * blocked roles with an ease-out, settles with a small scale-down and holds so
+ * the destination stays readable. The way back is shorter than the lift.
+ * Only transform and opacity animate, so the whole loop stays on the compositor.
  */
 @keyframes role-drag {
-  0%,
-  6% {
+  0% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+    animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  }
+  3% {
     transform: translateY(0) scale(1);
     opacity: 1;
+    animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
   }
-  34%,
-  62% {
-    transform: translateY(var(--role-drag-distance, 0px)) scale(1.02);
+  35% {
+    transform: translateY(var(--role-drag-distance, 0px)) scale(1.03);
     opacity: 1;
+    animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
   }
-  70% {
-    transform: translateY(var(--role-drag-distance, 0px)) scale(1.02);
+  47% {
+    transform: translateY(var(--role-drag-distance, 0px)) scale(1);
+    opacity: 1;
+    animation-timing-function: linear;
+  }
+  61% {
+    transform: translateY(var(--role-drag-distance, 0px)) scale(1);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.4, 0, 1, 1);
+  }
+  75% {
+    transform: translateY(0) scale(0.98);
+    opacity: 1;
+    animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+  }
+  79% {
+    transform: translateY(0) scale(1);
     opacity: 0;
+    animation-timing-function: linear;
   }
-  71%,
   100% {
     transform: translateY(0) scale(1);
     opacity: 0;
@@ -96,22 +118,45 @@ body {
 
 @keyframes role-drag-slot {
   0%,
-  70% {
+  3% {
+    opacity: 1;
+  }
+  4%,
+  75% {
     opacity: 0.25;
   }
-  71%,
+  79%,
   100% {
     opacity: 1;
   }
 }
 
+@keyframes role-drag-hint-pulse {
+  0%,
+  3% {
+    opacity: 0.6;
+  }
+  4%,
+  75% {
+    opacity: 1;
+  }
+  79%,
+  100% {
+    opacity: 0.6;
+  }
+}
+
 .role-drag-clone {
-  animation: role-drag 4.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: role-drag 2.4s linear infinite;
   will-change: transform, opacity;
 }
 
 .role-drag-source {
-  animation: role-drag-slot 4.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  animation: role-drag-slot 2.4s linear infinite;
+}
+
+.role-drag-hint {
+  animation: role-drag-hint-pulse 2.4s linear infinite;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -120,6 +165,11 @@ body {
   }
 
   .role-drag-source {
+    animation: none;
+    opacity: 1;
+  }
+
+  .role-drag-hint {
     animation: none;
     opacity: 1;
   }
