@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import { Coins } from "lucide-react";
 import { PLANS, type BillingInterval, type PlanId } from "@ohnivo/shared";
 import { requireUser } from "@/lib/auth/session";
+import { hasSubscriptionCreditsSince } from "@/lib/billing-checkout";
 import { getCreditBalance } from "@/lib/credits";
 import { isStripeConfigured } from "@/lib/env";
 import { getServiceClient } from "@/lib/supabase/service";
@@ -29,7 +30,7 @@ const KIND_KEYS: Record<string, string> = {
 export default async function BillingPage({
   searchParams,
 }: {
-  searchParams: { checkout?: string; interval?: string; plan?: string };
+  searchParams: { checkout?: string; checkout_started_at?: string; interval?: string; plan?: string };
 }) {
   const session = await requireUser();
   const t = await getTranslations("ai.billing");
@@ -55,6 +56,10 @@ export default async function BillingPage({
 
   const ledger = (ledgerResult.data ?? []) as CreditLedgerRow[];
   const subscription = (subscriptionResult.data as SubscriptionRow | null) ?? null;
+  const checkoutCreditsConfirmed = hasSubscriptionCreditsSince(
+    ledger,
+    searchParams.checkout_started_at,
+  );
   const initialInterval: BillingInterval =
     searchParams.interval === "year" ? "year" : (subscription?.interval ?? "month");
   const plan = session.user.plan as PlanId;
@@ -77,7 +82,9 @@ export default async function BillingPage({
       </div>
 
       {searchParams.checkout === "success" ? (
-        <Alert variant="success">{t("checkoutSuccess")}</Alert>
+        <Alert variant="success">
+          {t(checkoutCreditsConfirmed ? "checkoutSuccess" : "checkoutPending")}
+        </Alert>
       ) : null}
       {searchParams.checkout === "cancelled" ? (
         <Alert variant="warning">{t("checkoutCancelled")}</Alert>

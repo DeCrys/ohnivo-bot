@@ -43,12 +43,13 @@ export async function POST(request: Request) {
     }
 
     const plan = PLANS[body.plan];
+    const checkoutStartedAt = Date.now();
     const checkout = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: customerId,
       client_reference_id: session.user.id,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard/billing?checkout=success`,
+      success_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard/billing?checkout=success&checkout_started_at=${checkoutStartedAt}`,
       cancel_url: `${env.NEXT_PUBLIC_APP_URL}/dashboard/billing?checkout=cancelled`,
       allow_promotion_codes: true,
       metadata: {
