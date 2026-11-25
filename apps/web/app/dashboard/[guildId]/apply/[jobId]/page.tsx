@@ -50,6 +50,7 @@ export default async function ApplyJobPage({
       <ApplyProgress
         job={{
           id: job.id,
+          mode: job.mode,
           status: job.status,
           progress: job.progress,
           summary: job.summary,

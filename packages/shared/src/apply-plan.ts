@@ -1,8 +1,8 @@
 import type { ServerBlueprint } from "./blueprint.js";
 
-export type ApplyMode = "merge" | "append";
+export type ApplyMode = "merge" | "append" | "replace";
 
-export type ApplyStepKind = "role" | "category" | "channel" | "overwrite" | "welcome";
+export type ApplyStepKind = "role" | "category" | "channel" | "overwrite" | "welcome" | "cleanup";
 
 export interface ApplyPlanStep {
   key: string;
@@ -31,8 +31,8 @@ export interface ApplyPlan {
 }
 
 /**
- * Produces the deterministic, ordered operation list used by the bot:
- * roles -> categories -> channels -> overwrites -> welcome message.
+ * Produces the deterministic operation list used by the bot. Replace mode
+ * removes the previous structure only after the new one has been created.
  *
  * Keys are stable for a given blueprint revision and are used for
  * idempotency/resume (created Discord IDs are stored under these keys).
@@ -93,6 +93,14 @@ export function buildApplyPlan(
       channelIndex: welcomeChannel.channelIndex,
       categoryKey: `cat:${welcomeChannel.categoryIndex}`,
       channelKey: `ch:${welcomeChannel.categoryIndex}:${welcomeChannel.channelIndex}`,
+    });
+  }
+
+  if (options.mode === "replace") {
+    steps.push({
+      key: "cleanup:existing",
+      kind: "cleanup",
+      label: "existing structure",
     });
   }
 

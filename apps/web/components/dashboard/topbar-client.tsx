@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 import { useTranslations } from "next-intl";
-import { Bell, ChevronDown, Coins, LogOut, Sparkles, UserRound } from "lucide-react";
+import { Bell, ChevronDown, Coins, LogOut, ShieldCheck, Sparkles, UserRound } from "lucide-react";
 import { LocaleSwitcher } from "./locale-switcher";
 import { cn } from "@/lib/utils";
 
@@ -22,10 +22,18 @@ interface TopbarClientProps {
   unread: number;
   notifications: NotificationItem[];
   user: { name: string; username: string; avatar: string };
+  isAdmin: boolean;
   locale: "cs" | "en";
 }
 
-export function TopbarClient({ balance, unread, notifications, user, locale }: TopbarClientProps) {
+export function TopbarClient({
+  balance,
+  unread,
+  notifications,
+  user,
+  isAdmin,
+  locale,
+}: TopbarClientProps) {
   const t = useTranslations("dashboard");
   const tc = useTranslations("common");
   const router = useRouter();
@@ -148,6 +156,14 @@ export function TopbarClient({ balance, unread, notifications, user, locale }: T
             >
               <Coins className="h-3.5 w-3.5" /> {tc("credits")}
             </Link>
+            {isAdmin ? (
+              <Link
+                href="/dashboard/admin"
+                className="flex items-center gap-2 px-4 py-2.5 text-xs text-spark-100/70 hover:bg-ink-800 hover:text-white"
+              >
+                <ShieldCheck className="h-3.5 w-3.5" /> {t("admin")}
+              </Link>
+            ) : null}
             <a
               href="/api/auth/logout"
               className="flex items-center gap-2 border-t border-line/50 px-4 py-2.5 text-xs text-red-300 hover:bg-ink-800"

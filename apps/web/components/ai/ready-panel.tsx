@@ -7,6 +7,7 @@ import { Coins, Play, X } from "lucide-react";
 import type { ApplyMode } from "@ohnivo/shared";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/primitives";
+import { Input, Label } from "@/components/ui/field";
 import { cn } from "@/lib/utils";
 
 interface ReadyPanelProps {
@@ -29,8 +30,10 @@ export function ReadyPanel({
   const t = useTranslations("ai.ready");
   const te = useTranslations("ai.errors");
   const router = useRouter();
-  const [mode, setMode] = useState<ApplyMode>("merge");
+  const [mode, setMode] = useState<ApplyMode>("append");
   const [seconds, setSeconds] = useState<number | null>(null);
+  const [confirmingReplace, setConfirmingReplace] = useState(false);
+  const [confirmationText, setConfirmationText] = useState("");
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const submitting = useRef(false);
@@ -59,7 +62,10 @@ export function ReadyPanel({
       const response = await fetch(`/api/blueprints/${blueprintId}/apply`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mode }),
+        body: JSON.stringify({
+          mode,
+          confirmReplace: mode === "replace" ? t("replaceConfirmPhrase") : undefined,
+        }),
       });
       const data = (await response.json()) as { jobId?: string; error?: { code: string } };
       if (!response.ok || !data.jobId) {
@@ -85,29 +91,77 @@ export function ReadyPanel({
       <div className="surface p-4">
         <h2 className="text-sm font-semibold text-white">{t("modeTitle")}</h2>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
-          {(["merge", "append"] as const).map((value) => (
+          {(["replace", "append"] as const).map((value) => (
             <button
               key={value}
               type="button"
-              onClick={() => setMode(value)}
+              onClick={() => {
+                setMode(value);
+                setConfirmingReplace(false);
+                setConfirmationText("");
+                setError(null);
+              }}
+              disabled={pending || seconds !== null || confirmingReplace}
               className={cn(
                 "rounded-xl border px-4 py-3 text-left transition-colors",
                 mode === value
                   ? "border-spark-500/60 bg-spark-500/10"
                   : "border-line bg-ink-900/50 hover:border-spark-500/30",
+                "disabled:cursor-not-allowed disabled:opacity-60",
               )}
             >
               <p className="text-xs font-medium text-white">
-                {value === "merge" ? t("modeMerge") : t("modeAppend")}
+                {value === "replace" ? t("modeReplace") : t("modeAppend")}
               </p>
               <p className="mt-1 text-[11px] leading-relaxed text-spark-100/50">
-                {value === "merge" ? t("modeMergeBody") : t("modeAppendBody")}
+                {value === "replace" ? t("modeReplaceBody") : t("modeAppendBody")}
               </p>
             </button>
           ))}
         </div>
         <p className="mt-2 text-[11px] text-spark-100/40">{t("modeHint")}</p>
       </div>
+
+      {confirmingReplace ? (
+        <div className="space-y-3 rounded-xl border border-red-500/30 bg-red-500/5 p-4">
+          <Alert variant="danger" title={t("replaceConfirmTitle")}>
+            {t("replaceConfirmBody")}
+          </Alert>
+          <div>
+            <Label htmlFor="replace-confirmation">{t("replaceConfirmLabel")}</Label>
+            <Input
+              id="replace-confirmation"
+              value={confirmationText}
+              onChange={(event) => setConfirmationText(event.target.value)}
+              autoComplete="off"
+            />
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button
+              variant="danger"
+              disabled={
+                blocked ||
+                confirmationText.trim().toUpperCase() !== t("replaceConfirmPhrase").toUpperCase()
+              }
+              onClick={() => {
+                setConfirmingReplace(false);
+                setSeconds(10);
+              }}
+            >
+              {t("replaceConfirmAction")}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setConfirmingReplace(false);
+                setConfirmationText("");
+              }}
+            >
+              {t("replaceCancel")}
+            </Button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="surface flex flex-wrap items-center justify-between gap-4 p-4">
         <div className="flex items-center gap-6 text-sm">
@@ -133,7 +187,14 @@ export function ReadyPanel({
         ) : (
           <Button
             size="lg"
-            onClick={() => setSeconds(10)}
+            onClick={() => {
+              if (mode === "replace") {
+                setConfirmingReplace(true);
+                setConfirmationText("");
+              } else {
+                setSeconds(10);
+              }
+            }}
             disabled={blocked}
             title={blocked ? t("applyBlocked") : undefined}
           >

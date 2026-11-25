@@ -2,7 +2,7 @@
 # Runs TypeScript directly through tsx so the shared workspace package needs
 # no separate build step.
 
-FROM node:20-alpine
+FROM node:22-alpine
 
 ENV NODE_ENV=production
 WORKDIR /app

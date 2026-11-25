@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
-import { isPaidPlan, CREDIT_COSTS } from "@ohnivo/shared";
+import { CREDIT_COSTS } from "@ohnivo/shared";
+import { canUsePaidAi } from "@/lib/auth/admin";
 import { requireUser } from "@/lib/auth/session";
 import { assertGuildAccess } from "@/lib/guild-access";
 import { getCreditBalance } from "@/lib/credits";
@@ -17,7 +18,7 @@ export default async function NewBlueprintPage({ params }: { params: { guildId: 
   await assertGuildAccess(session.user.id, params.guildId);
   const t = await getTranslations("ai.new");
   const balance = await getCreditBalance(session.user.id);
-  const canUseAi = isPaidPlan(session.user.plan);
+  const canUseAi = canUsePaidAi(session.user);
   const demo = isDemoMode();
 
   return (

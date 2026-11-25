@@ -1,5 +1,12 @@
 import { z } from "zod";
 
+/**
+ * NVIDIA NIM model used when NVIDIA_MODEL is not set. Must be a model the key
+ * actually has access to; older names (e.g. meta/llama-3.1-8b-instant) return
+ * 404 or are end-of-life.
+ */
+export const DEFAULT_NVIDIA_MODEL = "nvidia/nemotron-3.5-bolt-e4b";
+
 const envSchema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
@@ -14,8 +21,10 @@ const envSchema = z.object({
   ANTHROPIC_API_KEY: z.string().min(1).optional(),
   ANTHROPIC_MODEL: z.string().min(1).default("claude-sonnet-4-5"),
   NVIDIA_API_KEY: z.string().min(1).optional(),
-  NVIDIA_MODEL: z.string().min(1).optional(),
+  NVIDIA_MODEL: z.string().min(1).default(DEFAULT_NVIDIA_MODEL),
   AI_PROVIDER: z.enum(["auto", "anthropic", "nvidia", "mock"]).default("auto"),
+  ADMIN_DISCORD_IDS: z.string().optional(),
+  DEV_ADMIN_ENABLED: z.enum(["true", "false"]).default("false"),
   AI_RATE_LIMIT_PER_HOUR: z.coerce.number().int().positive().default(20),
   STRIPE_SECRET_KEY: z.string().min(1).optional(),
   STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),

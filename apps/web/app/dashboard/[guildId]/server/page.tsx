@@ -3,7 +3,7 @@ import { BOT_INSTALL_PERMISSIONS } from "@ohnivo/shared";
 import { requireUser } from "@/lib/auth/session";
 import { assertGuildAccess } from "@/lib/guild-access";
 import { getBotInviteUrl } from "@/lib/discord";
-import { Card } from "@/components/ui/primitives";
+import { Alert, Card } from "@/components/ui/primitives";
 import { buttonClasses } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
@@ -52,6 +52,10 @@ export default async function GuildServerPage({ params }: { params: { guildId: s
           </a>
         ) : null}
       </Card>
+
+      <Alert variant="warning" title={t("roleHierarchyTitle")}>
+        {t("roleHierarchyBody")}
+      </Alert>
     </div>
   );
 }

@@ -13,6 +13,7 @@ export type ApiErrorCode =
   | "config_missing"
   | "guild_not_found"
   | "bot_missing"
+  | "replace_not_ready"
   | "unknown";
 
 const STATUS: Record<ApiErrorCode, number> = {
@@ -30,6 +31,7 @@ const STATUS: Record<ApiErrorCode, number> = {
   config_missing: 500,
   guild_not_found: 404,
   bot_missing: 409,
+  replace_not_ready: 503,
   unknown: 500,
 };
 

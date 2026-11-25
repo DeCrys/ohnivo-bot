@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
 import { requireUser } from "@/lib/auth/session";
+import { isAdminUser } from "@/lib/auth/admin";
 import { getCreditBalance } from "@/lib/credits";
 import { avatarUrl } from "@/lib/discord";
 import { getServiceClient } from "@/lib/supabase/service";
@@ -51,6 +52,7 @@ export async function Topbar() {
             username: session.user.username,
             avatar: avatarUrl(session.user.discord_id, session.user.avatar),
           }}
+          isAdmin={isAdminUser(session.user)}
           locale={locale as "cs" | "en"}
         />
       </div>

@@ -51,6 +51,7 @@ psql $DATABASE_URL -f supabase/migrations/0001_init.sql
 psql $DATABASE_URL -f supabase/migrations/0002_rls.sql
 psql $DATABASE_URL -f supabase/migrations/0003_functions.sql
 psql $DATABASE_URL -f supabase/migrations/0004_realtime.sql
+psql $DATABASE_URL -f supabase/migrations/0005_apply_replace_mode.sql
 ```
 
 5. Discord aplikace
@@ -80,6 +81,20 @@ docker compose up --build
 
 Bez `ANTHROPIC_API_KEY` se používá mock provider s deterministickým výstupem. Všechny toky (generace, validace, náhled, aplikace) fungují.
 
+## AI testování a administrace
+
+- AI klíč nastav pouze server-side v `apps/web/.env.local`; pro Anthropic vyplň `ANTHROPIC_API_KEY` a nastav `AI_PROVIDER=anthropic`, potom restartuj web (`npm run dev`). Nikdy nevkládej klíče do `.env.example` ani do klientského kódu.
+- Lokální administraci zapni v `apps/web/.env.development.local` pomocí `DEV_ADMIN_ENABLED=true`. Je dostupná jen v development režimu a při `NEXT_PUBLIC_APP_URL` na localhost.
+- Po přihlášení otevři `/dashboard/admin`; stránka ukazuje stav AI a dovolí připsat testovací kredity vlastnímu účtu. Administrátor může AI funkce používat i bez předplatného, ale za akce se kredity dál odečítají.
+- V produkci nastav důvěryhodné Discord ID do `ADMIN_DISCORD_IDS` (oddělená čárkami) nebo nastav `users.is_admin` v Supabase. Nepovoluj vývojářský admin režim v produkci.
+
+## Způsob aplikace struktury
+
+- **Nic nemazat, jen přidat** vytvoří navržené role, kategorie a kanály vedle stávajících.
+- **Smazat stávající a vytvořit nový** nejprve vytvoří a ověří novou strukturu, až potom odstraní původní kanály a spravovatelné role. Před spuštěním vyžaduje druhé potvrzení napsáním `SMAZAT` / `DELETE`.
+- Režim nahrazení nevratně odstraní i zprávy a přiřazení smazaných rolí. Zachová `@everyone`, spravované role a role nad nejvyšší rolí bota. Pokud nová stavba selže před úklidem, původní struktura zůstane; případné neodstranitelné objekty se ukážou jako upozornění.
+- Pokud bot nemá oprávnění potřebná pro staff roli, tato oprávnění vynechá. V režimu nahrazení se kvůli tomu úklid zastaví, aby se nesmazala původní struktura.
+
 ## Kreditní plán
 
 - Free: 0 kreditů
@@ -100,7 +115,7 @@ Kredity jsou append-only v `credit_ledger`; atomic `spend_credits` / `grant_cred
 ## Struktura fází
 
 - **Fáze 1**: monorepo, env, Supabase, Discord OAuth, dashboard „Moje servery“, landing, bot invite oprávnění
-- **Fáze 2**: Zod `ServerBlueprint`, AI generace s retry, náhled editor, ready screen s kredity a countdown, bot apply engine s merge/append, rollback, realtime checklist, billing, právní stránky
+- **Fáze 2**: Zod `ServerBlueprint`, AI generace s retry, náhled editor, ready screen s kredity a countdown, bot apply engine s přidáním nebo potvrzeným nahrazením struktury, rollback, realtime checklist, billing, právní stránky
 
 ## Příspěvek
 

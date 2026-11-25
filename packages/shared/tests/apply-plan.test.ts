@@ -73,4 +73,15 @@ describe("apply planner", () => {
     });
     expect(plan.mode).toBe("append");
   });
+
+  it("adds cleanup last only for replace mode", () => {
+    const plan = buildApplyPlan(blueprint, { mode: "replace" });
+    expect(plan.steps.at(-1)).toMatchObject({
+      key: "cleanup:existing",
+      kind: "cleanup",
+    });
+    expect(buildApplyPlan(blueprint, { mode: "append" }).steps).not.toContainEqual(
+      expect.objectContaining({ kind: "cleanup" }),
+    );
+  });
 });

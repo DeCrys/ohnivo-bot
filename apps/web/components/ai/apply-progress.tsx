@@ -17,11 +17,18 @@ import type { ApplyJobStatus, ApplyProgressEntry } from "@ohnivo/shared";
 import { progressCounts } from "@ohnivo/shared";
 import { Badge } from "@/components/ui/primitives";
 import { Mascot } from "@/components/brand/mascot";
+import { RoleHierarchyGuide } from "@/components/ai/role-hierarchy-guide";
 import { Button, buttonClasses } from "@/components/ui/button";
+import {
+  isStaffPermissionFailure,
+  parseOmittedStaffPermissions,
+  parseReplacementBlockers,
+} from "@/lib/apply-errors";
 import { cn, formatDateTime } from "@/lib/utils";
 
 interface JobView {
   id: string;
+  mode: "merge" | "append" | "replace";
   status: ApplyJobStatus;
   progress: ApplyProgressEntry[];
   summary: Record<string, number>;
@@ -49,12 +56,19 @@ const STATUS_STYLES: Record<string, string> = {
 
 export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgressProps) {
   const t = useTranslations("ai.apply");
+  const tf = useTranslations("ai.apply.failure");
   const tc = useTranslations("common");
   const router = useRouter();
   const [job, setJob] = useState<JobView>(initialJob);
   const [cancelling, setCancelling] = useState(false);
 
   const active = job.status === "queued" || job.status === "running";
+  const cleanupProgress = job.progress.find((entry) => entry.kind === "cleanup");
+  const refundWasExpected =
+    job.status === "rolled_back" ||
+    job.status === "cancelled" ||
+    (job.status === "failed" &&
+      (job.mode !== "replace" || !cleanupProgress || cleanupProgress.status === "pending"));
   const counts = progressCounts(job.progress);
   const percent = counts.total === 0 ? 0 : Math.round((counts.done / counts.total) * 100);
 
@@ -95,6 +109,12 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
     return () => clearInterval(timer);
   }, [active, initialJob.id]);
 
+  useEffect(() => {
+    if (!active && initialJob.status !== job.status) {
+      router.refresh();
+    }
+  }, [active, initialJob.status, job.status, router]);
+
   async function cancel() {
     setCancelling(true);
     try {
@@ -116,6 +136,37 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
     if (job.status === "running") return t("runningHint");
     return t("queuedHint");
   }, [job.status, t]);
+
+  // Bot errors are written in the guild locale. Re-render the known preflight
+  // blockers in the dashboard locale so an English UI never shows Czech text.
+  const localizedError = useMemo(() => {
+    if (job.error === "guild_missing") return tf("guildMissing");
+    if (isStaffPermissionFailure(job.error)) {
+      const permissions = [
+        ...new Set(
+          job.progress.flatMap(
+            (entry) =>
+              entry.omittedPermissions ?? parseOmittedStaffPermissions(entry.error) ?? [],
+          ),
+        ),
+      ];
+      return permissions.length > 0
+        ? tf("staffPermissionsFailure", { permissions: permissions.join(", ") })
+        : tf("staffPermissionsFailureGeneric");
+    }
+    const blockers = parseReplacementBlockers(job.error);
+    if (!blockers) return null;
+    const parts = blockers.map((blocker) => {
+      if (blocker.kind === "hierarchy") {
+        return tf("hierarchy", { count: blocker.count, names: blocker.names });
+      }
+      if (blocker.kind === "channels") {
+        return tf("channels", { count: blocker.count, names: blocker.names });
+      }
+      return tf("manageRoles");
+    });
+    return `${tf("intro", { blockers: parts.join("; ") })} ${tf("outro")}`;
+  }, [job.error, tf]);
 
   const terminal = !active;
 
@@ -202,10 +253,21 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
                 {job.status === "rolled_back" ? t("rolledBackBody") : t("failedBody")}
               </p>
               {job.refunded ? <p className="mt-2 text-xs text-emerald-300">{t("refunded")}</p> : null}
+              {refundWasExpected && !job.refunded && job.cost > 0 ? (
+                <p className="mt-2 text-xs text-red-300">{t("refundFailed")}</p>
+              ) : null}
               {job.error ? (
-                <p className="mx-auto mt-3 max-w-xl rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 font-mono text-[11px] text-red-200/80">
-                  {job.error}
+                <p
+                  className={cn(
+                    "mx-auto mt-3 max-w-xl rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-[11px] leading-relaxed text-red-200/80",
+                    !localizedError && "font-mono",
+                  )}
+                >
+                  {localizedError ?? job.error}
                 </p>
+              ) : null}
+              {isRoleHierarchyError(job.error) ? (
+                <RoleHierarchyGuide guildId={guildId} className="mx-auto mt-4 max-w-xl" />
               ) : null}
               <div className="mt-4 flex justify-center gap-2">
                 <Link href={`/dashboard/${guildId}`} className={buttonClasses("secondary", "md")}>
@@ -234,31 +296,46 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
           </span>
         </div>
         <ul className="space-y-0.5">
-          {job.progress.map((entry) => (
-            <li
-              key={entry.key}
-              className={cn(
-                "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs",
-                entry.status === "running" && "bg-ember-500/5",
-              )}
-            >
-              <StatusIcon status={entry.status} />
-              <span className="w-16 shrink-0 text-[10px] uppercase tracking-wide text-spark-100/30">
-                {kindLabel(entry.kind, t)}
-              </span>
-              <span
+          {job.progress.map((entry) => {
+            const omittedPermissions =
+              entry.omittedPermissions ?? parseOmittedStaffPermissions(entry.error);
+            const errorText =
+              entry.status === "failed" || entry.status === "warning"
+                ? omittedPermissions && omittedPermissions.length > 0
+                  ? tf("staffPermissionsSkipped", {
+                      permissions: omittedPermissions.join(", "),
+                    })
+                  : entry.error ?? ""
+                : "";
+            return (
+              <li
+                key={entry.key}
                 className={cn(
-                  "flex-1 truncate",
-                  entry.status === "done" ? "text-spark-100/70" : "text-spark-100/50",
+                  "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs",
+                  entry.status === "running" && "bg-ember-500/5",
                 )}
               >
-                {entry.label}
-              </span>
-              <span className="text-[10px] text-spark-100/25">
-                {entry.status === "failed" ? entry.error ?? "" : ""}
-              </span>
-            </li>
-          ))}
+                <StatusIcon status={entry.status} />
+                <span className="w-16 shrink-0 text-[10px] uppercase tracking-wide text-spark-100/30">
+                  {kindLabel(entry.kind, t)}
+                </span>
+                <span
+                  className={cn(
+                    "flex-1 truncate",
+                    entry.status === "done" ? "text-spark-100/70" : "text-spark-100/50",
+                  )}
+                >
+                  {entry.label}
+                </span>
+                <span
+                  title={errorText || undefined}
+                  className="max-w-[45%] truncate text-right text-[10px] text-spark-100/25"
+                >
+                  {errorText}
+                </span>
+              </li>
+            );
+          })}
         </ul>
         {counts.total === 0 ? (
           <p className="text-xs text-spark-100/40">{tc("loading")}</p>
@@ -282,5 +359,12 @@ function kindLabel(kind: string, t: (key: string) => string): string {
   if (kind === "category") return t("category");
   if (kind === "channel") return t("channel");
   if (kind === "overwrite") return t("overwrite");
+  if (kind === "cleanup") return t("cleanup");
   return t("welcome");
+}
+
+/** The bot reports hierarchy blockers in Czech or English free text. */
+function isRoleHierarchyError(error: string | null): boolean {
+  if (!error) return false;
+  return /hierarchii rolí|role hierarchy|nejvyšší role bota|bot's highest role/i.test(error);
 }

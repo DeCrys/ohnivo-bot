@@ -22,6 +22,7 @@ export const permissionOverwriteSchema = z.object({
 export const blueprintChannelSchema = z.object({
   name: nameSchema,
   type: z.enum(CHANNEL_TYPES).default("text"),
+  emoji: z.string().max(LIMITS.maxEmojiLength).optional().nullable(),
   topic: z.string().max(4000).optional().nullable(),
   nsfw: z.boolean().default(false),
   permissionOverwrites: z.array(permissionOverwriteSchema).max(60).default([]),
@@ -29,7 +30,7 @@ export const blueprintChannelSchema = z.object({
 
 export const blueprintCategorySchema = z.object({
   name: nameSchema,
-  emoji: z.string().max(64).optional().nullable(),
+  emoji: z.string().max(LIMITS.maxEmojiLength).optional().nullable(),
   channels: z.array(blueprintChannelSchema).max(120).default([]),
 });
 
@@ -121,6 +122,27 @@ export function slugifyChannelName(raw: string): string {
     .replace(/-{2,}/g, "-")
     .replace(/^[-_]+|[-_]+$/g, "");
   return ascii.slice(0, LIMITS.maxNameLength);
+}
+
+export function withEmojiPrefix(
+  name: string,
+  emoji: string | null | undefined,
+  separator: string,
+): string {
+  const truncate = (value: string, maxLength: number): string => {
+    let result = "";
+    for (const character of value) {
+      if (result.length + character.length > maxLength) break;
+      result += character;
+    }
+    return result;
+  };
+  const cleanEmoji = emoji?.trim();
+  if (!cleanEmoji) return truncate(name, LIMITS.maxNameLength);
+
+  const prefix = `${cleanEmoji}${separator}`;
+  const body = name.startsWith(prefix) ? name.slice(prefix.length) : name;
+  return `${prefix}${truncate(body, Math.max(0, LIMITS.maxNameLength - prefix.length))}`;
 }
 
 export function normalizeBlueprint(raw: unknown): NormalizedBlueprint {
@@ -345,9 +367,11 @@ export function normalizeBlueprint(raw: unknown): NormalizedBlueprint {
         });
       }
 
+      const emoji = rawChannel.emoji ? cleanText(rawChannel.emoji, LIMITS.maxEmojiLength) : "";
       channels.push({
         name: channelName,
         type,
+        ...(emoji ? { emoji } : {}),
         ...(topic ? { topic } : {}),
         nsfw: type === "text" || type === "forum" ? Boolean(rawChannel.nsfw) : false,
         permissionOverwrites: overwrites,
@@ -355,9 +379,12 @@ export function normalizeBlueprint(raw: unknown): NormalizedBlueprint {
       channelCount += 1;
     }
 
+    const categoryEmoji = rawCategory.emoji
+      ? cleanText(rawCategory.emoji, LIMITS.maxEmojiLength)
+      : "";
     categories.push({
       name: categoryName,
-      ...(rawCategory.emoji ? { emoji: rawCategory.emoji.slice(0, LIMITS.maxEmojiLength) } : {}),
+      ...(categoryEmoji ? { emoji: categoryEmoji } : {}),
       channels,
     });
   }

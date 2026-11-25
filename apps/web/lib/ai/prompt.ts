@@ -27,6 +27,7 @@ Přesný tvar:
         {
           "name": "nazev-kanalu",
           "type": "text" | "voice" | "forum" | "announcement",
+          "emoji": "📢 (nepovinné)",
           "topic": "krátký popis (nepovinné)",
           "nsfw": false,
           "permissionOverwrites": [
@@ -51,6 +52,7 @@ Přesný tvar:
 
 # Konvence
 - Názvy kanálů piš malými písmeny, bez diakritiky, se spojovníky místo mezer (např. "hledam-spoluhrace"). Kategorie mohou mít diakritiku a velká písmena.
+- Kategorie i kanály označuj samostatným polem emoji. U kanálů vybírej jednoduché, tematické emoji; nevkládej emoji do pole name.
 - Kanály typu voice nemají topic ani nsfw. Kanály typu announcement a forum mají smysl jen pro oznámení a delší diskuze.
 - Kategorie drž tématicky pohromadě a seřaď je od nejdůležitějších (pravidla, oznámení) po komunitní a hlasové.
 - Role seřaď od nejvyšší po nejnižší. Běžný člen nesmí mít moderátorská oprávnění.
@@ -68,7 +70,7 @@ Přesný tvar:
 
 # Oprávnění
 Povolená oprávnění pro běžné role: ${permissionList(BASE_ROLE_PERMISSIONS)}
-Staff role (název obsahuje staff, admin, moderátor, vedení, helper, support) mohou navíc: ${permissionList(STAFF_EXTRA_PERMISSIONS)}.
+Staff role (název obsahuje staff, admin, moderátor, majitel, vlastník, zakladatel, vedení, helper, support, owner, founder) mohou navíc: ${permissionList(STAFF_EXTRA_PERMISSIONS)}.
 NIKDY nepřiděluj ADMINISTRATOR, MANAGE_GUILD ani MANAGE_WEBHOOKS. Neznámá oprávnění nepoužívej.
 
 # Limity

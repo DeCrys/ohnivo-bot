@@ -23,6 +23,7 @@ import type {
   RemovedPermission,
   ServerBlueprint,
 } from "@ohnivo/shared";
+import { LIMITS } from "@ohnivo/shared";
 import { Button } from "@/components/ui/button";
 import { Badge, Alert } from "@/components/ui/primitives";
 import { Input, Textarea } from "@/components/ui/field";
@@ -316,7 +317,19 @@ export function BlueprintEditor({
         {draft.categories.map((category, categoryIndex) => (
           <div key={`${categoryIndex}-${category.name}`} className="surface p-3">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-sm">{category.emoji ?? "📁"}</span>
+              <Input
+                value={category.emoji ?? ""}
+                onChange={(event) =>
+                  update((next) => {
+                    const target = next.categories[categoryIndex];
+                    if (target) target.emoji = event.target.value || undefined;
+                  })
+                }
+                placeholder="📁"
+                aria-label={t("categoryEmoji")}
+                maxLength={LIMITS.maxEmojiLength}
+                className="h-8 w-12 px-1 text-center text-sm"
+              />
               <Input
                 value={category.name}
                 onChange={(event) =>
@@ -373,6 +386,19 @@ export function BlueprintEditor({
                     className="flex flex-wrap items-center gap-1.5 rounded-md bg-ink-900/50 px-2 py-1"
                   >
                     <Icon className="h-3 w-3 shrink-0 text-spark-100/40" />
+                    <Input
+                      value={channel.emoji ?? ""}
+                      onChange={(event) =>
+                        update((next) => {
+                          const target = next.categories[categoryIndex]?.channels[channelIndex];
+                          if (target) target.emoji = event.target.value || undefined;
+                        })
+                      }
+                      placeholder="▫️"
+                      aria-label={t("channelEmoji")}
+                      maxLength={LIMITS.maxEmojiLength}
+                      className="h-6 w-9 border-0 bg-transparent px-0 text-center text-[11px]"
+                    />
                     <Input
                       value={channel.name}
                       onChange={(event) =>

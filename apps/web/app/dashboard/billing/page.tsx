@@ -22,6 +22,7 @@ const KIND_KEYS: Record<string, string> = {
   refund: "kindRefund",
   subscription: "kindSubscription",
   grant: "kindGrant",
+  admin_grant: "kindAdminGrant",
   image: "kindImage",
 };
 

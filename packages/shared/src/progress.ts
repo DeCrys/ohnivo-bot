@@ -2,11 +2,12 @@ export type ApplyProgressStatus = "pending" | "running" | "done" | "skipped" | "
 
 export interface ApplyProgressEntry {
   key: string;
-  kind: "role" | "category" | "channel" | "overwrite" | "welcome";
+  kind: "role" | "category" | "channel" | "overwrite" | "welcome" | "cleanup";
   label: string;
   status: ApplyProgressStatus;
   discordId?: string;
   error?: string;
+  omittedPermissions?: string[];
 }
 
 export type ApplyJobStatus =
@@ -26,7 +27,10 @@ export function isActiveJobStatus(status: string): boolean {
 export function progressCounts(progress: readonly ApplyProgressEntry[]) {
   return {
     total: progress.length,
-    done: progress.filter((entry) => entry.status === "done" || entry.status === "skipped").length,
+    done: progress.filter(
+      (entry) =>
+        entry.status === "done" || entry.status === "skipped" || entry.status === "warning",
+    ).length,
     failed: progress.filter((entry) => entry.status === "failed").length,
     warnings: progress.filter((entry) => entry.status === "warning").length,
   };

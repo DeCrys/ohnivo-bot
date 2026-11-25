@@ -5,8 +5,8 @@ import { ArrowLeft, Coins, Image as ImageIcon, Sparkles } from "lucide-react";
 import {
   blueprintStats,
   CREDIT_COSTS,
-  isPaidPlan,
 } from "@ohnivo/shared";
+import { canUsePaidAi } from "@/lib/auth/admin";
 import { requireUser } from "@/lib/auth/session";
 import { assertGuildAccess } from "@/lib/guild-access";
 import { getCreditBalance } from "@/lib/credits";
@@ -51,7 +51,7 @@ export default async function ReadyPage({
   const [balance] = await Promise.all([getCreditBalance(session.user.id)]);
   const stats = blueprintStats(blueprint.data);
   const cost = CREDIT_COSTS.apply;
-  const canUseAi = isPaidPlan(session.user.plan);
+  const canUseAi = canUsePaidAi(session.user);
 
   const summary = [
     { label: t("categories"), value: stats.categories },

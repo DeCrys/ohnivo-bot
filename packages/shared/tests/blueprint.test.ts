@@ -4,6 +4,7 @@ import {
   blueprintStats,
   normalizeBlueprint,
   slugifyChannelName,
+  withEmojiPrefix,
 } from "../src/blueprint.js";
 
 function minimalBlueprint(overrides: Record<string, unknown> = {}) {
@@ -36,6 +37,17 @@ describe("slugifyChannelName", () => {
   });
 });
 
+describe("withEmojiPrefix", () => {
+  it("adds a Discord name prefix without duplicating an existing one", () => {
+    expect(withEmojiPrefix("general", "💬", "│")).toBe("💬│general");
+    expect(withEmojiPrefix("💬│general", "💬", "│")).toBe("💬│general");
+  });
+
+  it("keeps prefixed names within Discord's name limit", () => {
+    expect(withEmojiPrefix("a".repeat(100), "📣", "│").length).toBe(100);
+  });
+});
+
 describe("blueprint validation", () => {
   it("parses a valid blueprint and fills defaults", () => {
     const parsed = blueprintSchema.parse(minimalBlueprint());
@@ -62,6 +74,22 @@ describe("blueprint validation", () => {
     ]);
     expect(issues.some((issue) => issue.code === "channel_name_slugified")).toBe(true);
     expect(issues.some((issue) => issue.code === "duplicate_channel_renamed")).toBe(true);
+  });
+
+  it("preserves cleaned category and channel emojis", () => {
+    const raw = minimalBlueprint({
+      categories: [
+        {
+          name: "Komunita",
+          emoji: " 💬 ",
+          channels: [{ name: "obecny-chat", type: "text", emoji: " 📢 " }],
+        },
+      ],
+    });
+
+    const { blueprint } = normalizeBlueprint(raw);
+    expect(blueprint.categories[0]?.emoji).toBe("💬");
+    expect(blueprint.categories[0]?.channels[0]?.emoji).toBe("📢");
   });
 
   it("enforces the global channel limit", () => {

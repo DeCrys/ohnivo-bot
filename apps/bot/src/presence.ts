@@ -28,9 +28,12 @@ export async function syncPresence(client: Client): Promise<void> {
         .not("id", "in", `(${quoted(ids)})`);
       if (absentError) logger.warn("Presence update (absent) failed", absentError.message);
     } else {
+      // Supabase rejects unfiltered updates, so target only rows that are
+      // still flagged as present.
       const { error } = await supabase
         .from("guilds")
-        .update({ bot_present: false, bot_present_checked_at: stamp() });
+        .update({ bot_present: false, bot_present_checked_at: stamp() })
+        .eq("bot_present", true);
       if (error) logger.warn("Presence update failed", error.message);
     }
   } catch (error) {

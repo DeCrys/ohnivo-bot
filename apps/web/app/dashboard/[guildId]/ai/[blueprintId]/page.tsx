@@ -2,7 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
-import { CREDIT_COSTS, isPaidPlan } from "@ohnivo/shared";
+import { CREDIT_COSTS } from "@ohnivo/shared";
+import { canUsePaidAi } from "@/lib/auth/admin";
 import { requireUser } from "@/lib/auth/session";
 import { assertGuildAccess } from "@/lib/guild-access";
 import { getCreditBalance } from "@/lib/credits";
@@ -83,7 +84,7 @@ export default async function BlueprintPreviewPage({
         initialRemoved={blueprint.removed_permissions ?? []}
         refineCost={CREDIT_COSTS.refine}
         regenerateCost={CREDIT_COSTS.generate}
-        canUseAi={isPaidPlan(session.user.plan)}
+        canUseAi={canUsePaidAi(session.user)}
         balance={balance}
       />
     </div>

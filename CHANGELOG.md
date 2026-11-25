@@ -1,8 +1,24 @@
 # Changelog
 
+## Oprava oprávnění bota – 2026-11-25
+
+### Opraveno
+- Bot s oprávněním **Administrator** teď správně pozná, že smí přidělit všechna staff oprávnění. Dřív se kontroloval jen syrový bitfield (`permissions.bitfield`), který se u Administratora nerozšiřuje, takže build nesmyslně selhal na „bot nemůže přidělit některá požadovaná oprávnění staff rolím“.
+- Instalační odkaz bota (`BOT_INSTALL_PERMISSIONS`) nově žádá všechna staff oprávnění, která bot přiděluje rolím. Discord nedovolí botovi rozdávat oprávnění, která sám nemá, takže bez toho nešly postavit role moderátorů/staffu.
+- Nahrazení (`replace`) už nezastaví celou stavbu kvůli staff oprávněním, která bot nemá. Oprávnění se vynechají, stavba doběhne a uživatel dostane srozumitelné upozornění s výčtem vynechaných oprávnění.
+- Preflight před stavbou: pokud botovi chybí `Spravovat kanály` nebo `Spravovat role`, job hned selže s výčtem chybějících oprávnění a odkazem na nové pozvání bota; kredity se vrátí.
+- Role jako `Majitel`, `Vlastník`, `Zakladatel`, `Šéf`, `Ředitel`, `Owner` nebo `Founder` se teď považují za staff. Dřív je heuristika podle názvu neznala, takže AI sice dala `Majitel`ovi `KICK_MEMBERS`/`BAN_MEMBERS`/`MANAGE_MESSAGES`, ale normalizace je vyhodnotila jako „odebratá oprávnění“ a zahodila. Názvy rolí se navíc porovnávají bez diakritiky (`Moderátor` = `Moderator`, `Vlastník` = `Vlastnik`).
+- Apply stránka má nového grafického průvodce pro chybu hierarchie rolí: mock Discord seznamu rolí (červené role nad botem, zelená role bota, šipka „přetáhni Ohnivo sem“), tři kroky a odkazy na Discord a dokumentaci. Zobrazí se automaticky, když job selže na hierarchii rolí. Role `Ohnivo` se v mocku sama animovaně přetahuje nahoru nad blokované role (smyčka, respektuje `prefers-reduced-motion`).
+- Chybové hlášky z bota se v dashboardu zobrazují v jazyce UI, ne v jazyce serveru. Bot píše chyby podle locale guildy (často `cs`), takže anglické UI dřív ukazovalo český text. Nový `apps/web/lib/apply-errors.ts` rozpozná preflight chyby nahrazení (hierarchie rolí, kanály bez `Manage Channels`, chybějící `Manage Roles`) v češtině i angličtině a `apply-progress.tsx` je znovu vykreslí přes překlady `ai.apply.failure` včetně správného českého plurálu (1 role / 3 role / 7 rolí).
+
 ## Phase 2 – 2026-11-24
 
 ### Přidáno
+- Administrace pro AI testování: lokální vývojářský přístup, kontrola konfigurace AI a auditované připsání testovacích kreditů
+- Administrátoři mohou v AI builderu a apply flow testovat i bez předplatného; nadále platí odečet kreditů
+- Apply nabízí pouze režim přidání nebo potvrzeného nahrazení; nahrazení nejdřív vytvoří novou strukturu a až poté odstraní původní kanály a spravovatelné role
+- Snapshot původní struktury pro bezpečné opakování úklidu; `@everyone`, spravované role a role nad botem se zachovají
+- Staff oprávnění, která bot sám nemá, se bezpečně vynechají; replace se při jejich výskytu zastaví ještě před smazáním původní struktury
 - AI builder: `ServerBlueprint` Zod schémata, normalizace, limity, systémový prompt v češtině, JSON-only výstup
 - Validace blueprintu s jedním retry, odezva chyb, refund při selhání
 - Editor náhledu s přejmenováním, mazáním, přesunem, regenerací, upřesněním promptem

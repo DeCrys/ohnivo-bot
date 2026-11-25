@@ -14,8 +14,13 @@ type BlueprintDraft = Omit<ServerBlueprint, "roles" | "categories" | "welcome" |
   rules: string[];
 };
 
-function channel(name: string, type: ServerBlueprint["categories"][number]["channels"][number]["type"], topic?: string) {
-  return { name, type, ...(topic ? { topic } : {}), nsfw: false, permissionOverwrites: [] };
+function channel(
+  name: string,
+  type: ServerBlueprint["categories"][number]["channels"][number]["type"],
+  topic?: string,
+  emoji?: string,
+) {
+  return { name, type, ...(emoji ? { emoji } : {}), ...(topic ? { topic } : {}), nsfw: false, permissionOverwrites: [] };
 }
 
 function buildForType(prompt: string): BlueprintDraft {
@@ -59,25 +64,42 @@ function buildForType(prompt: string): BlueprintDraft {
           name: "Přivítání",
           emoji: "✨",
           channels: [
-            channel("oznameni", "announcement", "Novinky ze serveru"),
-            channel("pravidla", "text", "Pravidla komunity"),
-            channel("predstaveni", "text", "Představ se ostatním"),
+            channel("oznameni", "announcement", "Novinky ze serveru", "📢"),
+            channel("pravidla", "text", "Pravidla komunity", "📜"),
+            channel("predstaveni", "text", "Představ se ostatním", "👋"),
+            channel("informace-o-serveru", "text", "Verze, adresa a základní informace", "🧭"),
           ],
         },
         {
-          name: "Svět",
+          name: "Komunita",
+          emoji: "💬",
+          channels: [
+            channel("obecny-chat", "text", "Pokec o Minecraftu i mimo něj", "💬"),
+            channel("hledam-spoluhrace", "text", "Najdi parťáka na hraní", "🤝"),
+            channel("memy", "text", "Minecraftové memy", "😂"),
+            channel("ankety", "text", "Hlasování a komunitní otázky", "📊"),
+          ],
+        },
+        {
+          name: "Minecraft svět",
           emoji: "⛏️",
           channels: [
-            channel("novinky", "text", "Novinky a updaty"),
-            channel("stavby", "text", "Pochlub se stavbami"),
-            channel("hledam-spoluhrace", "text", "Hledáš parťáka na stavění?"),
-            channel("screenshoty", "text", "Nejlepší momenty"),
+            channel("novinky", "text", "Novinky a updaty", "📰"),
+            channel("stavby", "text", "Pochlub se stavbami", "🏗️"),
+            channel("farmy-a-redstone", "text", "Farmy, redstone a technické stavby", "⚙️"),
+            channel("screenshoty", "text", "Nejlepší momenty a screenshoty", "📸"),
+            channel("napady-a-navrhy", "text", "Nápady na vylepšení serveru", "💡"),
+            channel("bug-reporty", "text", "Nahlášení problémů na serveru", "🐛"),
           ],
         },
         {
-          name: "Hlas",
+          name: "Hlasové kanály",
           emoji: "🔊",
-          channels: [channel("obecna-hlasovka", "voice"), channel("stavime", "voice")],
+          channels: [
+            channel("obecna-hlasovka", "voice", undefined, "🎙️"),
+            channel("stavime", "voice", undefined, "🧱"),
+            channel("afk", "voice", undefined, "💤"),
+          ],
         },
       ],
       roles: [

@@ -23,7 +23,7 @@ function getNvidiaKey(): string {
 
 export function createNvidiaProvider(): AiProvider {
   const apiKey = getNvidiaKey();
-  const model = env.NVIDIA_MODEL ?? "meta/llama-3.1-8b-instant";
+  const model = env.NVIDIA_MODEL;
 
   async function complete(userMessage: string, maxTokens: number): Promise<AiTextResult> {
     try {
@@ -33,6 +33,8 @@ export function createNvidiaProvider(): AiProvider {
           Authorization: `Bearer ${apiKey}`,
           "Content-Type": "application/json",
         },
+        // Some models can hang for minutes; fail fast instead of freezing the request.
+        signal: AbortSignal.timeout(120_000),
         body: JSON.stringify({
           model,
           messages: [
@@ -49,6 +51,12 @@ export function createNvidiaProvider(): AiProvider {
       }
       const data = await res.json();
       const content = data.choices?.[0]?.message?.content ?? "";
+      if (!content.trim()) {
+        // Reasoning models can burn the whole token budget on reasoning_content.
+        throw new Error(
+          `Nvidia returned empty content (finish_reason=${data.choices?.[0]?.finish_reason ?? "unknown"})`,
+        );
+      }
       const usage = data.usage ?? {};
       return {
         text: content,

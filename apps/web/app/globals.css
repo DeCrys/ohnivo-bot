@@ -67,6 +67,64 @@ body {
   }
 }
 
+/*
+ * Looping "drag the bot role to the top" demo used by the role hierarchy guide.
+ * The clone starts exactly on top of the source row, glides up by the distance
+ * measured in JS, holds for a beat, then fades out and starts over.
+ */
+@keyframes role-drag {
+  0%,
+  6% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+  34%,
+  62% {
+    transform: translateY(var(--role-drag-distance, 0px)) scale(1.02);
+    opacity: 1;
+  }
+  70% {
+    transform: translateY(var(--role-drag-distance, 0px)) scale(1.02);
+    opacity: 0;
+  }
+  71%,
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0;
+  }
+}
+
+@keyframes role-drag-slot {
+  0%,
+  70% {
+    opacity: 0.25;
+  }
+  71%,
+  100% {
+    opacity: 1;
+  }
+}
+
+.role-drag-clone {
+  animation: role-drag 4.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+  will-change: transform, opacity;
+}
+
+.role-drag-source {
+  animation: role-drag-slot 4.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .role-drag-clone {
+    display: none;
+  }
+
+  .role-drag-source {
+    animation: none;
+    opacity: 1;
+  }
+}
+
 @keyframes shimmer {
   0% {
     background-position: -400px 0;

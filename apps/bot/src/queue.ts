@@ -48,8 +48,7 @@ export async function loadJobObjects(jobId: string): Promise<Map<string, JobObje
     .select("object_key, kind, discord_id, reused")
     .eq("job_id", jobId);
   if (error) {
-    logger.warn("Could not load job objects, starting fresh", error.message);
-    return new Map();
+    throw new Error(`Could not load job objects (${jobId}): ${error.message}`);
   }
   const map = new Map<string, JobObject>();
   for (const row of data ?? []) {
@@ -77,7 +76,25 @@ export async function recordObject(
     },
     { onConflict: "job_id,object_key" },
   );
-  if (error) logger.warn("Could not persist job object", error.message);
+  if (error) throw new Error(`Could not persist job object (${jobId}): ${error.message}`);
+}
+
+export async function recordJobObjects(
+  jobId: string,
+  objects: JobObject[],
+): Promise<void> {
+  if (objects.length === 0) return;
+  const { error } = await supabase.from("apply_job_objects").upsert(
+    objects.map((object) => ({
+      job_id: jobId,
+      object_key: object.objectKey,
+      kind: object.kind,
+      discord_id: object.discordId,
+      reused: object.reused,
+    })),
+    { onConflict: "job_id,object_key" },
+  );
+  if (error) throw new Error(`Could not persist replacement snapshot: ${error.message}`);
 }
 
 export async function setBlueprintStatus(blueprintId: string, status: string): Promise<void> {
@@ -85,33 +102,23 @@ export async function setBlueprintStatus(blueprintId: string, status: string): P
   if (error) logger.warn("Could not update blueprint status", error.message);
 }
 
-/**
- * Credits are refunded at most once, even if a worker crashes and the job is
- * retried. The conditional update acts as the claim; the ledger grant follows.
- */
 export async function refundJob(job: ClaimedJob, reason: string): Promise<boolean> {
-  if (job.refunded || job.cost <= 0) return false;
-  const { data, error } = await supabase
-    .from("apply_jobs")
-    .update({ refunded: true })
-    .eq("id", job.id)
-    .eq("refunded", false)
-    .select("id")
-    .maybeSingle();
-  if (error || !data) return false;
-
-  const { error: creditError } = await supabase.rpc("grant_credits", {
-    p_user: job.user_id,
-    p_amount: job.cost,
-    p_kind: "refund",
-    p_meta: { jobId: job.id, reason },
+  if (job.cost <= 0) return false;
+  const { data, error } = await supabase.rpc("refund_apply_job", {
+    p_job: job.id,
+    p_reason: reason,
   });
-  if (creditError) {
-    logger.error("Refund ledger write failed", creditError.message);
-    await supabase.from("apply_jobs").update({ refunded: false }).eq("id", job.id);
+  if (error) {
+    logger.error(`Apply-job refund failed (${job.id})`, error.message);
     return false;
   }
-  return true;
+  if (data !== true) {
+    logger.warn(`Apply-job refund was not applied (${job.id})`, {
+      reason,
+      cost: job.cost,
+    });
+  }
+  return data === true;
 }
 
 export async function notifyUser(
@@ -145,7 +152,15 @@ export async function audit(input: {
   if (error) logger.warn("Audit insert failed", error.message);
 }
 
-export async function getGuildLocale(guildId: string): Promise<"cs" | "en"> {
-  const { data } = await supabase.from("guilds").select("locale").eq("id", guildId).maybeSingle();
+export async function getUserLocale(userId: string): Promise<"cs" | "en"> {
+  const { data, error } = await supabase
+    .from("users")
+    .select("locale")
+    .eq("id", userId)
+    .maybeSingle();
+  if (error) {
+    logger.warn(`Could not load user locale (${userId}); using Czech`, error.message);
+    return "cs";
+  }
   return data?.locale === "en" ? "en" : "cs";
 }

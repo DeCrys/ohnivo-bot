@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { CREDIT_COSTS, isPaidPlan } from "@ohnivo/shared";
+import { CREDIT_COSTS } from "@ohnivo/shared";
+import { canUsePaidAi } from "@/lib/auth/admin";
 import { requireApiUser } from "@/lib/auth/session";
 import { logAudit } from "@/lib/audit";
 import { getCreditBalance, grantCredits, spendCredits } from "@/lib/credits";
@@ -19,7 +20,8 @@ import { getServiceClient } from "@/lib/supabase/service";
 export const dynamic = "force-dynamic";
 
 const bodySchema = z.object({
-  mode: z.enum(["merge", "append"]).default("merge"),
+  mode: z.enum(["merge", "append", "replace"]).default("append"),
+  confirmReplace: z.enum(["SMAZAT", "DELETE"]).optional(),
 });
 
 export async function POST(
@@ -33,11 +35,14 @@ export async function POST(
     const session = await requireApiUser();
     userId = session.user.id;
     const body = await parseJson(request, (value) => bodySchema.parse(value));
+    if (body.mode === "replace" && !body.confirmReplace) {
+      throw new AppError("invalid_input", "Replacing the existing structure requires confirmation");
+    }
 
     const blueprint = await getOwnedBlueprint(params.blueprintId, session.user.id);
     const access = await assertGuildAccess(session.user.id, blueprint.guild_id);
 
-    if (!isPaidPlan(session.user.plan)) {
+    if (!canUsePaidAi(session.user)) {
       throw new AppError("plan_required", "Applying a blueprint requires a paid plan");
     }
 
@@ -85,6 +90,16 @@ export async function POST(
       if (error?.code === "23505") {
         throw new AppError("job_active", "An apply job is already running");
       }
+      if (
+        body.mode === "replace" &&
+        error?.code === "23514" &&
+        error.message.includes("apply_jobs_mode_check")
+      ) {
+        throw new AppError(
+          "replace_not_ready",
+          "Apply the replace-mode database migration and update the bot before retrying",
+        );
+      }
       throw new AppError("unknown", `Could not queue the job: ${error?.message ?? "unknown"}`);
     }
 
@@ -104,6 +119,7 @@ export async function POST(
         revision: blueprint.revision,
         mode: body.mode,
         cost: CREDIT_COSTS.apply,
+        destructiveConfirmed: body.mode === "replace" && body.confirmReplace !== undefined,
       },
     });
 

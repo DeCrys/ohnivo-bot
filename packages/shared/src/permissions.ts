@@ -129,11 +129,24 @@ const ALLOWED_SET = new Set<string>(ALLOWED_PERMISSIONS);
 const BASE_SET = new Set<string>(BASE_ROLE_PERMISSIONS);
 const HARD_BANNED_SET = new Set<string>(HARD_BANNED_PERMISSIONS);
 
+/**
+ * Role names are compared without diacritics so that "Moderátor" and
+ * "Moderator", "Vlastník" and "Vlastnik" take the same path. Models regularly
+ * produce Czech hierarchy names, and a missing word here silently strips
+ * staff permissions from otherwise valid roles.
+ */
+function normalizeRoleName(name: string): string {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
 const STAFF_NAME_PATTERN =
-  /(staff|admin|moder|moder[áa]tor|veden[íi]|owner|manager|helper|support|t[ýy]m|team|vedouc[íi])/i;
+  /(staff|admin|moderator|owner|manager|helper|support|team|tym|vedeni|vedouci|majitel|vlastnik|zakladatel|reditel|sef|boss|founder)/;
 
 export function isStaffRoleName(name: string): boolean {
-  return STAFF_NAME_PATTERN.test(name);
+  return STAFF_NAME_PATTERN.test(normalizeRoleName(name));
 }
 
 const ALIASES: Record<string, PermissionKey> = (() => {
@@ -192,14 +205,28 @@ export function toDiscordJsPermission(key: string): string | null {
   return entry ? entry.discordjs : null;
 }
 
-/** Minimal bot permissions requested on the install link. */
-export const BOT_INSTALL_PERMISSIONS = [
+/**
+ * Permissions the bot needs for every build, independent of the blueprint.
+ */
+export const BOT_CORE_PERMISSIONS: readonly PermissionKey[] = [
   "MANAGE_CHANNELS",
   "MANAGE_ROLES",
   "VIEW_CHANNEL",
   "SEND_MESSAGES",
-  "MANAGE_MESSAGES",
-] as const;
+];
+
+/**
+ * Permissions requested on the install link.
+ *
+ * Discord only lets a bot hand out permissions it holds itself (unless it has
+ * Administrator), so the install link has to cover every permission the AI may
+ * put on a staff role. Without this, builds with moderator/staff roles fail
+ * with "the bot cannot grant one or more requested staff permissions".
+ */
+export const BOT_INSTALL_PERMISSIONS: readonly PermissionKey[] = [
+  ...BOT_CORE_PERMISSIONS,
+  ...STAFF_EXTRA_PERMISSIONS,
+];
 
 export function botInstallPermissionBits(): string {
   return permissionBits(BOT_INSTALL_PERMISSIONS).toString();
