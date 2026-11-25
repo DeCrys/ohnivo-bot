@@ -23,6 +23,7 @@ export default async function BlueprintPreviewPage({
   await assertGuildAccess(session.user.id, params.guildId);
   const t = await getTranslations("ai.preview");
   const ta = await getTranslations("ai.apply");
+  const tc = await getTranslations("common");
 
   const service = getServiceClient();
   const { data } = await service
@@ -72,7 +73,7 @@ export default async function BlueprintPreviewPage({
           >
             {ta("title")} →
           </Link>{" "}
-          ({activeJob.status})
+          ({tc(`jobStatus.${activeJob.status}`)})
         </Alert>
       ) : null}
 

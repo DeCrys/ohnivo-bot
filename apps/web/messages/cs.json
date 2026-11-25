@@ -37,7 +37,15 @@
     "server": "Server",
     "new": "Nový",
     "of": "z",
-    "status": "Stav"
+    "status": "Stav",
+    "jobStatus": {
+      "queued": "Ve frontě",
+      "running": "Staví se",
+      "completed": "Hotovo",
+      "failed": "Selhalo",
+      "cancelled": "Zrušeno",
+      "rolled_back": "Vráceno"
+    }
   },
   "marketing": {
     "nav": {
@@ -277,6 +285,9 @@
     "aiBuilderBody": "Popiš komunitu a nech vygenerovat kompletní strukturu.",
     "recentBlueprints": "Poslední návrhy",
     "noBlueprints": "Zatím žádný návrh. Začni popisem komunity.",
+    "noJobs": "Zatím žádná stavba. Postavíš první server v AI builderu.",
+    "costLabel": "{count, plural, one {# kredit} few {# kredity} other {# kreditů}}",
+    "channelCount": "{count, plural, one {# kanál} few {# kanály} other {# kanálů}}",
     "plan": "Plán",
     "planFree": "Free",
     "planPaid": "Předplatné aktivní",

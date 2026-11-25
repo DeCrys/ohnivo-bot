@@ -187,7 +187,7 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
                         : "default"
                 }
               >
-                {job.status}
+                {tc(`jobStatus.${job.status}`)}
               </Badge>
               {active ? <span className="text-[10px] text-spark-100/35">{t("live")}</span> : null}
             </div>

@@ -37,7 +37,15 @@
     "server": "Server",
     "new": "New",
     "of": "of",
-    "status": "Status"
+    "status": "Status",
+    "jobStatus": {
+      "queued": "Queued",
+      "running": "Building",
+      "completed": "Done",
+      "failed": "Failed",
+      "cancelled": "Cancelled",
+      "rolled_back": "Rolled back"
+    }
   },
   "marketing": {
     "nav": {
@@ -277,6 +285,9 @@
     "aiBuilderBody": "Describe the community and generate the full structure.",
     "recentBlueprints": "Recent proposals",
     "noBlueprints": "No proposals yet. Start with a community description.",
+    "noJobs": "No builds yet. Build your first server in the AI builder.",
+    "costLabel": "{count, plural, one {# credit} other {# credits}}",
+    "channelCount": "{count, plural, one {# channel} other {# channels}}",
     "plan": "Plan",
     "planFree": "Free",
     "planPaid": "Subscription active",

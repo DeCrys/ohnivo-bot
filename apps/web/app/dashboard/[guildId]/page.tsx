@@ -25,6 +25,7 @@ export default async function GuildHomePage({ params }: { params: { guildId: str
   const t = await getTranslations("dashboard");
   const tg = await getTranslations("dashboard.guild");
   const ta = await getTranslations("ai.apply");
+  const tc = await getTranslations("common");
 
   const service = getServiceClient();
   const [balance, blueprintsResult, jobsResult] = await Promise.all([
@@ -181,7 +182,7 @@ export default async function GuildHomePage({ params }: { params: { guildId: str
         <section className="surface p-5">
           <h2 className="mb-3 text-sm font-semibold text-white">{ta("title")}</h2>
           {jobs.length === 0 ? (
-            <p className="text-xs text-spark-100/45">{t("noBlueprints")}</p>
+            <p className="text-xs text-spark-100/45">{t("noJobs")}</p>
           ) : (
             <ul className="divide-y divide-line/50">
               {jobs.map((job) => (
@@ -194,7 +195,8 @@ export default async function GuildHomePage({ params }: { params: { guildId: str
                       {ta("title")} · {formatDateTime(job.created_at)}
                     </Link>
                     <p className="text-[11px] text-spark-100/40">
-                      {job.summary?.channels ?? 0} {ta("channel")} · {job.cost} {t("plan")}
+                      {t("channelCount", { count: job.summary?.channels ?? 0 })} ·{" "}
+                      {t("costLabel", { count: job.cost })}
                     </p>
                   </div>
                   <Badge
@@ -208,7 +210,7 @@ export default async function GuildHomePage({ params }: { params: { guildId: str
                             : "default"
                     }
                   >
-                    {job.status}
+                    {tc(`jobStatus.${job.status}`)}
                   </Badge>
                 </li>
               ))}
