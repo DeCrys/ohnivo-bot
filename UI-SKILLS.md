@@ -115,3 +115,17 @@ grep -i "pricing" "C:\Users\hry15\.config\opencode\skills\CATALOG.md"
 - **„Je to pomalé“** → `vercel-labs-react-best-practices` + `raphaelsalaja-vitals`.
 - Když nevíš, který skill: napiš to slovy, já grepnu `CATALOG.md` (844 položek)
   a vyberu 1–3 nejvhodnější.
+
+
+
+Tvoje potřeba	Skill
+hezčí/výraznější obrazovka -----	anthropics-frontend-design, pbakaus-impeccable
+5 variant na výběr -----	0xdesign-design-lab
+dashboard/admin UI -----	dammyjay93-interface-design
+animace s konkrétními hodnotami -----	jakubkrehel-better-motion, emilkowalski-animate
+a11y -----	jakubkrehel-better-accessibility
+audit UI (read-only, vrátí plán) -----	ibelick-improve-ui, pbakaus-audit
+barvy / text / layout	 ------ better-colors, better-typography, better-layout, better-writing
+landing / pricing	 ----- mengto-landing-page, mengto-pricing-page
+výkon -----	vercel-labs-react-best-practices, millionco-react-doctor
+V každé skupině je slovo „co udělá“ – bez znalosti ID.
