@@ -11,8 +11,9 @@ export function middleware(request: NextRequest) {
 
   const url = request.nextUrl.clone();
   url.pathname = "/login";
-  url.search = "";
-  url.searchParams.set("next", pathname);
+  // Keep query params (plan, interval, ...) so the choice survives the login round-trip.
+  url.search = request.nextUrl.search;
+  url.searchParams.set("next", `${pathname}${request.nextUrl.search}`);
   return NextResponse.redirect(url);
 }
 

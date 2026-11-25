@@ -18,10 +18,12 @@ const FEATURES: Record<PlanId, [string, string, string]> = {
 export function PlanPicker({
   currentPlan,
   initialInterval = "month",
+  highlightPlan,
   stripeReady,
 }: {
   currentPlan: PlanId;
   initialInterval?: BillingInterval;
+  highlightPlan?: PlanId;
   stripeReady: boolean;
 }) {
   const t = useTranslations("marketing.pricing");
@@ -93,6 +95,7 @@ export function PlanPicker({
                 "surface relative flex flex-col p-4",
                 plan.recommended && "border-spark-500/50",
                 current && "border-emerald-500/40",
+                highlightPlan === planId && !current && "ring-1 ring-spark-400/60",
               )}
             >
               {plan.recommended ? (

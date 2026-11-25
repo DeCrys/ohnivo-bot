@@ -1,6 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { Coins } from "lucide-react";
-import { PLANS, type BillingInterval, type PlanId } from "@ohnivo/shared";
+import { PLANS, isPaidPlan, type BillingInterval, type PlanId } from "@ohnivo/shared";
 import { requireUser } from "@/lib/auth/session";
 import { hasSubscriptionCreditsSince } from "@/lib/billing-checkout";
 import { getCreditBalance } from "@/lib/credits";
@@ -62,6 +62,10 @@ export default async function BillingPage({
   );
   const initialInterval: BillingInterval =
     searchParams.interval === "year" ? "year" : (subscription?.interval ?? "month");
+  const requestedPlanParam = searchParams.plan ?? "";
+  const requestedPlan: Exclude<PlanId, "free"> | undefined = isPaidPlan(requestedPlanParam)
+    ? requestedPlanParam
+    : undefined;
   const plan = session.user.plan as PlanId;
 
   function kindLabel(kind: string): string {
@@ -145,6 +149,7 @@ export default async function BillingPage({
         <PlanPicker
           currentPlan={plan}
           initialInterval={initialInterval}
+          highlightPlan={requestedPlan}
           stripeReady={isStripeConfigured()}
         />
       </section>

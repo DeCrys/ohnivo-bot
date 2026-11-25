@@ -109,6 +109,14 @@ export function PricingSection() {
       <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-spark-100/40">
         <Sparkles className="h-3 w-3" /> {t("vat")}
       </p>
+      <div className="mt-4 flex justify-center">
+        <Link
+          href="/pricing"
+          className="text-xs font-medium text-spark-300 underline decoration-spark-300/30 underline-offset-4 transition-colors hover:text-spark-200"
+        >
+          {t("detailCta")}
+        </Link>
+      </div>
     </section>
   );
 }

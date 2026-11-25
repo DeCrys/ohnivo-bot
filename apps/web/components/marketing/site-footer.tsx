@@ -19,12 +19,12 @@ export async function SiteFooter() {
           </p>
           <ul className="space-y-2 text-sm text-spark-100/60">
             <li>
-              <Link href="#jak-to-funguje" className="hover:text-white">
+              <Link href="/#jak-to-funguje" className="hover:text-white">
                 {t("docs")}
               </Link>
             </li>
             <li>
-              <Link href="#cenik" className="hover:text-white">
+              <Link href="/pricing" className="hover:text-white">
                 {t("pricing")}
               </Link>
             </li>

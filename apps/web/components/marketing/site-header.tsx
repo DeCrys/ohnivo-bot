@@ -13,13 +13,13 @@ export async function SiteHeader() {
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between gap-4 px-4 sm:px-6">
         <Logo />
         <nav className="hidden items-center gap-7 text-sm text-spark-100/70 md:flex">
-          <Link href="#jak-to-funguje" className="transition-colors hover:text-white">
+          <Link href="/#jak-to-funguje" className="transition-colors hover:text-white">
             {t("how")}
           </Link>
-          <Link href="#cenik" className="transition-colors hover:text-white">
+          <Link href="/pricing" className="transition-colors hover:text-white">
             {t("pricing")}
           </Link>
-          <Link href="#faq" className="transition-colors hover:text-white">
+          <Link href="/#faq" className="transition-colors hover:text-white">
             {t("faq")}
           </Link>
         </nav>
