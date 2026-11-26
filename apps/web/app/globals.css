@@ -2,8 +2,168 @@
 @tailwind components;
 @tailwind utilities;
 
+/* -------------------------------------------------------------------------
+ * Legacy normalisation. The old blueprint utilities are still referenced all
+ * over the app; remap them here instead of touching every call site. Real
+ * code and IDs opt back in with `.font-code`.
+ * ---------------------------------------------------------------------- */
+.font-mono {
+  font-family: var(--font-sans), Inter, system-ui, sans-serif;
+}
+
+.uppercase {
+  text-transform: none;
+}
+
+.tracking-mono,
+.tracking-label,
+.tracking-wide,
+.tracking-wider,
+.tracking-widest {
+  letter-spacing: 0;
+}
+
+.border-dashed,
+.border-dotted {
+  border-style: solid;
+}
+
+.rounded-\[1px\] {
+  border-radius: var(--radius-control);
+}
+
+/* No sharp corners anywhere: legacy small radii land on the inner scale. */
+.rounded-sm,
+.rounded,
+.rounded-md,
+.rounded-lg,
+.rounded-xl,
+.rounded-2xl,
+.rounded-3xl {
+  border-radius: var(--radius-inner);
+}
+
+/* Arbitrary white-alpha utilities resolve to the shared surface tokens. */
+.border-white\/5,
+.border-white\/\[0\.06\] {
+  border-color: var(--card-border);
+}
+
+.border-white\/10,
+.border-white\/\[0\.10\],
+.border-white\/\[0\.12\] {
+  border-color: var(--card-border-hover);
+}
+
+.divide-white\/5 > :not([hidden]) ~ :not([hidden]) {
+  border-color: var(--inner-border);
+}
+
+.bg-white\/5,
+.bg-white\/\[0\.02\],
+.bg-white\/\[0\.03\] {
+  background-color: var(--inner-bg);
+}
+
+.bg-white\/\[0\.04\],
+.bg-white\/\[0\.05\],
+.bg-white\/\[0\.07\] {
+  background-color: rgba(255, 255, 255, 0.05);
+}
+
+.font-code,
+code,
+kbd,
+pre {
+  font-family: var(--font-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* Old outline buttons inverted to solid white bars; keep only a soft lift. */
+.hover\:border-chalk:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+}
+
+.hover\:bg-chalk:hover {
+  background-color: rgba(255, 255, 255, 0.06);
+}
+
+.hover\:text-void:hover {
+  color: var(--text);
+}
+
+/* Painted 1px grid gutters become breathing room between soft cards. */
+.gap-px {
+  gap: 16px;
+}
+
+.bg-wire {
+  background-color: transparent;
+}
+
+.gap-px > * {
+  background-color: var(--card);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-inner);
+  box-shadow: var(--highlight);
+  overflow: hidden;
+}
+
+/* Cards breathe: the old 20px gutter becomes 24px / 32px. */
+.surface.p-5 {
+  padding: 24px;
+}
+
+@media (min-width: 640px) {
+  .surface.p-5 {
+    padding: 32px;
+  }
+}
+
+/* -------------------------------------------------------------------------
+ * Soft dark surface — single source of truth for every screen.
+ * Tailwind tokens resolve to the *-rgb channel variables so opacity
+ * modifiers (bg-void-900/60, text-chalk-400/80, …) keep working.
+ * ---------------------------------------------------------------------- */
 :root {
-  color-scheme: light;
+  color-scheme: dark;
+
+  --bg: #08090a;
+  --bg-rgb: 8 9 10;
+  --card: #0e0f11;
+  --card-rgb: 14 15 17;
+  --card-2: #121316;
+  --card-2-rgb: 18 19 22;
+  --card-3: #17181b;
+  --card-3-rgb: 23 24 27;
+
+  --text: #ffffff;
+  --text-rgb: 255 255 255;
+  --text-secondary: #d4d5d9;
+  --text-muted: #9a9ca2;
+  --text-muted-rgb: 154 156 162;
+  --text-subtle: #8b8d93;
+  --text-subtle-rgb: 139 141 147;
+
+  --accent: #8b5cf6;
+  --accent-rgb: 139 92 246;
+  --accent-soft: #a78bfa;
+
+  --card-border: rgba(255, 255, 255, 0.06);
+  --card-border-hover: rgba(255, 255, 255, 0.1);
+  --inner-bg: rgba(255, 255, 255, 0.03);
+  --inner-border: rgba(255, 255, 255, 0.05);
+
+  --radius-card: 24px;
+  --radius-inner: 14px;
+  --radius-control: 12px;
+  --radius-pill: 999px;
+
+  --highlight: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --shadow-soft: 0 24px 60px -32px rgba(0, 0, 0, 0.4);
+  --fade-bottom: linear-gradient(to bottom, #000 60%, transparent);
+  --fade-sides: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
 }
 
 html {
@@ -17,37 +177,23 @@ html {
 }
 
 body {
-  @apply bg-paper text-graphite antialiased;
+  @apply bg-void text-chalk antialiased;
   min-height: 100vh;
 }
 
-/* The dark application shell (dashboard) keeps its own surface. */
 .app-surface {
-  @apply bg-ink-950 text-spark-50;
-  background-image:
-    radial-gradient(ellipse 80% 50% at 50% -10%, rgba(116, 80, 245, 0.18), transparent),
-    radial-gradient(ellipse 40% 40% at 100% 10%, rgba(34, 168, 240, 0.08), transparent);
-  background-repeat: no-repeat;
+  @apply bg-void text-chalk;
   color-scheme: dark;
 }
 
 ::selection {
-  background: #c6bdff;
-  color: #1b1b1c;
-}
-
-.app-surface ::selection {
-  background: rgba(139, 107, 255, 0.35);
+  background: rgba(139, 92, 246, 0.4);
   color: #fff;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: #cfcbbc transparent;
-}
-
-.app-surface * {
-  scrollbar-color: #2a2a40 transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.14) transparent;
 }
 
 *::-webkit-scrollbar {
@@ -56,63 +202,222 @@ body {
 }
 
 *::-webkit-scrollbar-thumb {
-  background: #cfcbbc;
-  border-radius: 999px;
-  border: 3px solid transparent;
-  background-clip: content-box;
-}
-
-.app-surface *::-webkit-scrollbar-thumb {
-  background: #2a2a40;
-  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-pill);
   border: 3px solid transparent;
   background-clip: content-box;
 }
 
 @layer components {
-  /* --- dashboard primitives (unchanged) --- */
+  /* --- elevated surfaces ------------------------------------------------ */
   .surface {
-    @apply rounded-2xl border border-line/70 bg-ink-850/80 shadow-card backdrop-blur;
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent), var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--highlight), var(--shadow-soft);
+    transition: border-color 180ms ease-out;
+  }
+
+  .surface:hover {
+    border-color: var(--card-border-hover);
   }
 
   .surface-muted {
-    @apply rounded-xl border border-line/60 bg-ink-900/70;
+    background: var(--inner-bg);
+    border: 1px solid var(--inner-border);
+    border-radius: var(--radius-inner);
+    box-shadow: var(--highlight);
+  }
+
+  /* Quiet rows inside a card: soft fill, hairline border, inner radius. */
+  .inner-row {
+    background: var(--inner-bg);
+    border: 1px solid var(--inner-border);
+    border-radius: var(--radius-inner);
+    box-shadow: var(--highlight);
+  }
+
+  /* Rows inside lists: soft inset chips, separated by quiet hairlines. */
+  .ledger-head {
+    @apply grid items-center gap-4 py-3;
+    border-bottom: 1px solid var(--inner-border);
+    color: var(--text-subtle);
+    font-size: 12px;
+  }
+
+  .ledger-row {
+    @apply grid items-center gap-4 py-4;
+    border-bottom: 1px solid var(--inner-border);
+    transition: background-color 180ms ease-out;
+  }
+
+  .ledger-row:last-child {
+    border-bottom: 0;
+  }
+
+  .ledger-row:hover {
+    background: var(--inner-bg);
+  }
+
+  .menu-panel {
+    background: var(--card-2);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-inner);
+    box-shadow: var(--highlight), var(--shadow-soft);
+    overflow: hidden;
+    overscroll-behavior: contain;
+  }
+
+  .menu-item {
+    @apply flex items-center gap-2 px-4 py-2.5 font-sans text-[13px] leading-snug;
+    color: var(--text-secondary);
+    transition: background-color 180ms ease-out, color 180ms ease-out;
+  }
+
+  .menu-item:hover {
+    background: var(--inner-bg);
+    color: var(--text);
   }
 
   .gradient-text {
     @apply bg-gradient-to-r from-spark-200 via-spark-300 to-ember-400 bg-clip-text text-transparent;
   }
 
+  /* A soft glow instead of the old grid pattern. */
   .grid-bg {
-    background-image:
-      linear-gradient(to right, rgba(139, 107, 255, 0.06) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(139, 107, 255, 0.06) 1px, transparent 1px);
-    background-size: 44px 44px;
+    background-image: radial-gradient(
+      ellipse 60% 50% at 50% 30%,
+      rgba(139, 92, 246, 0.08),
+      transparent 75%
+    );
     mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black, transparent 75%);
   }
 
-  /* --- editorial marketing surface --- */
-  /* Page frame sampled from basar.studio: 1680px max width, 70px gutters. */
-  .shell {
-    @apply mx-auto w-full max-w-[1680px] px-5 sm:px-8 lg:px-[70px];
+  /* --- page shell ------------------------------------------------------- */
+  .blueprint {
+    @apply min-h-screen bg-void text-chalk;
   }
 
-  .hairline {
-    @apply border-graphite/15;
+  .frame {
+    @apply relative mx-auto w-full max-w-[1280px] bg-void;
   }
 
+  .pad {
+    @apply px-5 sm:px-8 lg:px-10;
+  }
+
+  .rule-nodes {
+    border-top: 1px solid var(--inner-border);
+  }
+
+  .rule-nodes-bottom {
+    border-bottom: 1px solid var(--inner-border);
+  }
+
+  /* --- type ------------------------------------------------------------- */
   .mono-label {
-    @apply font-mono text-[11px] uppercase leading-none tracking-label text-graphite/70;
+    @apply font-sans text-[12px] leading-snug;
+    color: var(--text-subtle);
   }
 
   .display {
-    @apply font-serif font-normal tracking-display;
+    @apply font-sans font-medium tracking-display text-chalk text-balance;
   }
 
-  /* Ink panel used for product surfaces inside the paper page. */
-  .panel-ink {
-    @apply bg-ink-950 text-spark-50;
-    color-scheme: dark;
+  .tag {
+    @apply inline-flex items-center rounded-pill px-2.5 py-1 font-sans text-[12px] leading-none;
+    background: var(--inner-bg);
+    border: 1px solid var(--inner-border);
+    color: var(--text-secondary);
+  }
+
+  .tag-accent {
+    @apply inline-flex items-center gap-1.5 rounded-pill px-2.5 py-1 font-sans text-[12px] leading-none;
+    background: rgba(139, 92, 246, 0.12);
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    color: var(--accent-soft);
+  }
+
+  .tag-warn {
+    @apply inline-flex items-center gap-1.5 rounded-pill px-2.5 py-1 font-sans text-[12px] leading-none;
+    background: rgba(245, 158, 11, 0.1);
+    border: 1px solid rgba(245, 158, 11, 0.22);
+    color: #fcd34d;
+  }
+
+  .panel {
+    background: linear-gradient(to bottom, rgba(255, 255, 255, 0.03), transparent), var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-card);
+    box-shadow: var(--highlight), var(--shadow-soft);
+  }
+
+  /* --- controls --------------------------------------------------------- */
+  .btn-hatch {
+    @apply inline-flex items-center justify-center gap-2 rounded-control px-5 font-sans text-[14px] font-medium leading-none;
+    min-height: 44px;
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: #fff;
+    box-shadow: var(--highlight);
+    transition: filter 180ms ease-out, box-shadow 180ms ease-out, transform 180ms ease-out;
+  }
+
+  .btn-hatch::before {
+    content: none;
+  }
+
+  .btn-hatch:hover {
+    filter: brightness(1.12);
+    box-shadow: var(--highlight), 0 10px 30px -16px rgba(139, 92, 246, 0.45);
+  }
+
+  .btn-hatch:active {
+    transform: scale(0.98);
+  }
+
+  .btn-hatch:disabled,
+  .btn-hatch[aria-disabled="true"] {
+    @apply cursor-not-allowed;
+    background: var(--card-3);
+    color: var(--text-subtle);
+    box-shadow: none;
+    filter: none;
+    transform: none;
+  }
+
+  .btn-wire {
+    @apply inline-flex items-center justify-center gap-2 rounded-control px-4 font-sans text-[14px] font-medium leading-none;
+    min-height: 44px;
+    background: transparent;
+    border: 1px solid var(--card-border-hover);
+    color: var(--text-secondary);
+    transition: background-color 180ms ease-out, border-color 180ms ease-out, color 180ms ease-out;
+  }
+
+  .btn-wire:hover {
+    background: var(--inner-bg);
+    border-color: rgba(255, 255, 255, 0.16);
+    color: var(--text);
+  }
+
+  .btn-wire:active {
+    transform: scale(0.98);
+  }
+
+  .index-row {
+    border-radius: var(--radius-inner);
+    transition: background-color 180ms ease-out, color 180ms ease-out;
+  }
+
+  .index-row:hover,
+  .index-row:focus-within {
+    background: var(--inner-bg);
+    color: var(--text);
+  }
+
+  .index-row:hover .index-dim,
+  .index-row:focus-within .index-dim {
+    color: var(--text-secondary);
   }
 
   .link-rule {
@@ -128,38 +433,74 @@ body {
     background-size: 100% 1px;
   }
 
-  .reveal-line {
-    @apply block overflow-hidden;
+  /* Diagram connectors are quiet solid lines, never dashed. */
+  .wire-dash {
+    fill: none;
+    stroke: rgba(255, 255, 255, 0.16);
+    stroke-width: 1;
+    vector-effect: non-scaling-stroke;
   }
 
-  .reveal-line > span {
-    @apply block;
-    animation: rise 0.9s cubic-bezier(0.2, 0, 0, 1) both;
-    animation-delay: var(--reveal-delay, 0ms);
+  .node-dot {
+    @apply absolute h-[7px] w-[7px] rounded-pill;
+    background: var(--accent-soft);
+    box-shadow: 0 0 0 3px var(--bg);
   }
 
+  .ghost-word {
+    @apply bg-clip-text font-sans font-medium text-transparent;
+    color: rgba(255, 255, 255, 0.06);
+    -webkit-text-fill-color: rgba(255, 255, 255, 0.06);
+  }
+
+  /* Fade the last items of long lists / carousels instead of clipping them. */
+  .list-fade {
+    mask-image: var(--fade-bottom);
+    -webkit-mask-image: var(--fade-bottom);
+  }
+
+  .carousel-fade {
+    mask-image: var(--fade-sides);
+    -webkit-mask-image: var(--fade-sides);
+  }
+
+  /* Long ledgers inside cards fade out instead of ending abruptly. */
+  ul.divide-y {
+    mask-image: var(--fade-bottom);
+    -webkit-mask-image: var(--fade-bottom);
+  }
+
+  /* No outline at rest. Keyboard focus only, following the element's radius. */
   .focus-ring {
-    @apply outline-none focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-spark-500;
+    outline: none;
+  }
+
+  .focus-ring:focus-visible {
+    outline: 2px solid rgba(139, 92, 246, 0.5);
+    outline-offset: 2px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .reveal-line > span {
-    animation: none;
+  .link-rule,
+  .index-row,
+  .ledger-row,
+  .menu-item,
+  .surface,
+  .btn-hatch,
+  .btn-wire {
+    transition: none;
   }
 
-  .link-rule {
-    transition: none;
+  .btn-hatch:active,
+  .btn-wire:active {
+    transform: none;
   }
 }
 
-/*
- * Looping "drag the bot role to the top" demo used by the role hierarchy guide.
- * The clone is picked up from the source row, travels to the slot above the
- * blocked roles with an ease-out, settles with a small scale-down and holds so
- * the destination stays readable. The way back is shorter than the lift.
- * Only transform and opacity animate, so the whole loop stays on the compositor.
- */
+/* -------------------------------------------------------------------------
+ * Motion kept from the role-hierarchy guide and the skeleton loader.
+ * ---------------------------------------------------------------------- */
 @keyframes role-drag {
   0% {
     transform: translateY(0) scale(1);
@@ -271,7 +612,26 @@ body {
 }
 
 .skeleton {
-  background: linear-gradient(90deg, #141423 25%, #1c1c2e 50%, #141423 75%);
+  background: linear-gradient(90deg, var(--card-2) 25%, var(--card-3) 50%, var(--card-2) 75%);
   background-size: 800px 100%;
   animation: shimmer 1.4s infinite linear;
+}
+
+/* -------------------------------------------------------------------------
+ * Legacy blueprint utility compatibility.
+ * The old class names stay in the markup, but their appearance is retired:
+ * labels are normal-case sans, frames are never dashed. Monospace survives
+ * only where it is not paired with a label-tracking utility (real code/IDs).
+ * ---------------------------------------------------------------------- */
+.uppercase.tracking-mono,
+.uppercase.tracking-label {
+  text-transform: none;
+}
+
+.font-mono.tracking-mono {
+  font-family: var(--font-sans), Inter, system-ui, -apple-system, sans-serif;
+}
+
+.border-dashed {
+  border-style: solid;
 }

@@ -1,25 +1,24 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonClasses } from "@/components/ui/button";
 import { Alert } from "@/components/ui/primitives";
 import { Textarea } from "@/components/ui/field";
+import type { GenerationAccess } from "@/lib/usage-limits";
 
 interface PromptFormProps {
   guildId: string;
-  cost: number;
-  balance: number;
-  canUseAi: boolean;
+  quota: GenerationAccess;
   demo: boolean;
 }
 
-export function PromptForm({ guildId, cost, balance, canUseAi, demo }: PromptFormProps) {
+export function PromptForm({ guildId, quota, demo }: PromptFormProps) {
   const t = useTranslations("ai.new");
   const te = useTranslations("ai.errors");
-  const tc = useTranslations("common");
   const router = useRouter();
   const [prompt, setPrompt] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -34,8 +33,7 @@ export function PromptForm({ guildId, cost, balance, canUseAi, demo }: PromptFor
     }
   }, []);
 
-  const enoughCredits = balance >= cost;
-  const disabled = pending || !canUseAi || !enoughCredits || prompt.trim().length < 3;
+  const disabled = pending || !quota.allowed || prompt.trim().length < 3;
 
   async function submit() {
     setPending(true);
@@ -76,44 +74,44 @@ export function PromptForm({ guildId, cost, balance, canUseAi, demo }: PromptFor
     <div className="space-y-4">
       {demo ? <Alert variant="info">{t("demo")}</Alert> : null}
 
-      {!canUseAi ? (
-        <Alert variant="warning" title={t("planRequired")}>
-          {t("planRequiredBody")}
-        </Alert>
-      ) : !enoughCredits ? (
-        <Alert variant="warning" title={t("creditsRequired")}>
-          {t("creditsRequiredBody", { cost, balance })}
+      {!quota.allowed && !quota.planRequired ? (
+        <Alert variant="warning" title={t("quotaRequired")}>
+          <p>{t("quotaRequiredBody", { used: quota.used, limit: quota.limit })}</p>
+          <Link href="/dashboard/billing" className={buttonClasses("primary", "sm", "mt-3")}>
+            {t("buyCredits")}
+          </Link>
         </Alert>
       ) : null}
 
-      <div className="surface p-4">
+      <div className="panel p-6">
         <Textarea
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
           rows={7}
           maxLength={1200}
           placeholder={t("placeholder")}
-          disabled={!canUseAi}
+          disabled={!quota.allowed}
         />
-        <div className="mt-2 flex items-center justify-between text-xs text-spark-100/40">
-          <span>{prompt.length} / 1200</span>
+        <div className="mt-3 flex items-center justify-between text-[12px] text-chalk-500">
+          <span className="tabular-nums">{prompt.length} / 1200</span>
           <span>
-            {t("cost")}: <strong className="text-spark-200">{cost}</strong> {tc("credits")}
+            {t("quota")}:{" "}
+            <strong className="tabular-nums text-spark-200">
+              {quota.used} / {quota.limit}
+            </strong>
           </span>
         </div>
       </div>
 
       <div>
-        <p className="mb-2 text-xs font-medium uppercase tracking-wide text-spark-100/45">
-          {t("examples")}
-        </p>
+        <p className="mono-label mb-3">{t("examples")}</p>
         <div className="flex flex-wrap gap-1.5">
           {(["example1", "example2", "example3", "example4"] as const).map((key) => (
             <button
               key={key}
               type="button"
               onClick={() => setPrompt(t(key))}
-              className="rounded-full border border-line/70 px-2.5 py-1 text-[11px] text-spark-100/55 transition-colors hover:border-spark-500/50 hover:text-spark-100"
+              className="focus-ring inline-flex min-h-[44px] items-center rounded-pill border border-wire px-4 text-[13px] leading-none text-chalk-300 transition-colors duration-150 hover:bg-white/[0.05] hover:text-chalk motion-reduce:transition-none"
             >
               {t(key)}
             </button>
@@ -123,18 +121,16 @@ export function PromptForm({ guildId, cost, balance, canUseAi, demo }: PromptFor
 
       {error ? <Alert variant="danger">{error}</Alert> : null}
 
-      <div className="flex items-center gap-3">
+      <div>
         <Button onClick={submit} disabled={disabled} size="lg">
-          <Sparkles className="h-4 w-4" />
+          <Sparkles className="h-4 w-4" aria-hidden="true" />
           {pending ? t("generating") : t("generate")}
         </Button>
-        <span className="text-xs text-spark-100/40">
-          {t("cost")}: {cost} · {balance} {tc("credits")}
-        </span>
+        <p className="mt-2 text-[12px] leading-relaxed text-chalk-500">{t("generateNote")}</p>
       </div>
 
-      <div className="surface-muted p-4 text-xs leading-relaxed text-spark-100/50">
-        <p className="mb-1.5 font-medium text-spark-100/80">{t("tips")}</p>
+      <div className="surface-muted p-4 text-[13px] leading-relaxed text-chalk-400">
+        <p className="mono-label mb-3">{t("tips")}</p>
         <ul className="list-inside list-disc space-y-1">
           <li>{t("tip1")}</li>
           <li>{t("tip2")}</li>

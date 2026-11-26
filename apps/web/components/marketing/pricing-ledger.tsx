@@ -1,7 +1,8 @@
 import { Fragment } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
-import { CREDIT_COSTS, PLANS, type PlanId } from "@ohnivo/shared";
-import { SectionHeader } from "@/components/marketing/ui";
+import { PLANS, type PlanId } from "@ohnivo/shared";
+import { Section, SectionHeader } from "@/components/marketing/ui";
+import { cn } from "@/lib/utils";
 
 type Value = "yes" | "no" | string;
 
@@ -24,9 +25,9 @@ const GROUPS: { key: string; rows: { key: string; values: Record<PlanId, Value> 
         key: "rowDrafts",
         values: {
           free: "no",
-          starter: String(Math.floor(PLANS.starter.monthlyCredits / CREDIT_COSTS.generate)),
-          premium: String(Math.floor(PLANS.premium.monthlyCredits / CREDIT_COSTS.generate)),
-          pro: String(Math.floor(PLANS.pro.monthlyCredits / CREDIT_COSTS.generate)),
+          starter: String(PLANS.starter.monthlyGenerations),
+          premium: String(PLANS.premium.monthlyGenerations),
+          pro: String(PLANS.pro.monthlyGenerations),
         },
       },
     ],
@@ -35,8 +36,8 @@ const GROUPS: { key: string; rows: { key: string; values: Record<PlanId, Value> 
     key: "ledgerTools",
     rows: [
       { key: "rowGenerate", values: { free: "no", starter: "yes", premium: "yes", pro: "yes" } },
-      { key: "rowRefine", values: { free: "no", starter: "yes", premium: "yes", pro: "yes" } },
-      { key: "rowGraphics", values: { free: "no", starter: "yes", premium: "yes", pro: "yes" } },
+      { key: "rowRefine", values: { free: "yes", starter: "yes", premium: "yes", pro: "yes" } },
+      { key: "rowGraphics", values: { free: "yes", starter: "yes", premium: "yes", pro: "yes" } },
       { key: "rowApply", values: { free: "yes", starter: "yes", premium: "yes", pro: "yes" } },
     ],
   },
@@ -68,9 +69,7 @@ export async function PricingLedger() {
     if (value === "yes") {
       return (
         <span className="inline-flex items-center">
-          <span aria-hidden="true" className="text-[15px] leading-none text-graphite">
-            ✓
-          </span>
+          <span aria-hidden="true" className="h-2 w-2 rounded-pill bg-spark-300" />
           <span className="sr-only">{t("included")}</span>
         </span>
       );
@@ -78,22 +77,20 @@ export async function PricingLedger() {
     if (value === "no") {
       return (
         <span className="inline-flex items-center">
-          <span aria-hidden="true" className="text-[15px] leading-none text-graphite/25">
-            —
-          </span>
+          <span aria-hidden="true" className="h-px w-3 rounded-pill bg-chalk-500" />
           <span className="sr-only">{t("notIncluded")}</span>
         </span>
       );
     }
     return (
-      <span className="font-mono text-[12px] tabular-nums text-graphite">
+      <span className="text-[14px] tabular-nums text-white">
         {Number(value).toLocaleString(locale === "cs" ? "cs-CZ" : "en-US")}
       </span>
     );
   }
 
   return (
-    <section id="compare" className="shell scroll-mt-24 pb-16 lg:pb-24">
+    <Section id="compare">
       <SectionHeader
         index="02"
         label={t("compareEyebrow")}
@@ -101,22 +98,23 @@ export async function PricingLedger() {
         lead={t("ledgerSubtitle")}
       />
 
-      <div className="mt-10 hidden border border-graphite/15 md:block">
+      <div className="hidden md:block">
         <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-graphite/20">
-              <th scope="col" className="w-[40%] px-5 py-4">
-                <span className="mono-label text-graphite/60">{t("ledgerColumn")}</span>
+            <tr className="text-[13px] text-chalk-muted">
+              <th scope="col" className="w-[40%] px-6 py-4 font-normal lg:px-8">
+                {t("ledgerColumn")}
               </th>
               {COLUMNS.map((plan) => (
-                <th key={plan} scope="col" className="px-3 py-4 text-center">
-                  <span
-                    className={
-                      plan === "premium"
-                        ? "font-mono text-[11px] uppercase tracking-label text-graphite"
-                        : "font-mono text-[11px] uppercase tracking-label text-graphite/50"
-                    }
-                  >
+                <th
+                  key={plan}
+                  scope="col"
+                  className={cn(
+                    "px-3 py-4 text-center font-normal",
+                    plan === "premium" && "bg-spark-300/[0.04]",
+                  )}
+                >
+                  <span className={plan === "premium" ? "text-spark-200" : "text-chalk-2"}>
                     {plan}
                   </span>
                 </th>
@@ -126,28 +124,30 @@ export async function PricingLedger() {
           <tbody>
             {GROUPS.map((group) => (
               <Fragment key={group.key}>
-                <tr>
+                <tr className="bg-white/[0.015]">
                   <th
                     scope="colgroup"
                     colSpan={COLUMNS.length + 1}
-                    className="border-t border-graphite/20 bg-paper-deep/60 px-5 py-2 text-left"
+                    className="px-6 py-3 text-left text-[13px] font-normal text-chalk-500 lg:px-8"
                   >
-                    <span className="mono-label text-graphite/60">{t(group.key)}</span>
+                    {t(group.key)}
                   </th>
                 </tr>
                 {group.rows.map((row) => (
-                  <tr key={row.key} className="border-t border-graphite/10">
-                    <th scope="row" className="px-5 py-3 text-[14px] font-normal text-graphite-500">
+                  <tr key={row.key} className="border-t border-white/5">
+                    <th
+                      scope="row"
+                      className="px-6 py-3.5 text-[14px] font-normal text-chalk-2 lg:px-8"
+                    >
                       {t(row.key)}
                     </th>
                     {COLUMNS.map((plan) => (
                       <td
                         key={plan}
-                        className={
-                          plan === "premium"
-                            ? "bg-lilac/20 px-3 py-3 text-center"
-                            : "px-3 py-3 text-center"
-                        }
+                        className={cn(
+                          "px-3 py-3.5 text-center",
+                          plan === "premium" && "bg-spark-300/[0.04]",
+                        )}
                       >
                         {renderValue(row.values[plan])}
                       </td>
@@ -160,28 +160,46 @@ export async function PricingLedger() {
         </table>
       </div>
 
-      <div className="mt-10 space-y-4 md:hidden">
+      <div className="grid gap-4 md:hidden">
         {COLUMNS.map((plan) => (
-          <div key={plan} className="border border-graphite/15 p-4">
+          <div
+            key={plan}
+            className={cn(
+              "surface p-5 sm:p-6",
+              plan === "premium" && "border-wire shadow-glow",
+            )}
+          >
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="font-mono text-[11px] uppercase tracking-label text-graphite">
+              <h3
+                className={cn(
+                  "text-[18px] font-medium",
+                  plan === "premium" ? "text-spark-200" : "text-white",
+                )}
+              >
                 {plan}
               </h3>
-              <p className="font-mono text-[11px] text-graphite-500">
-                {plan === "free"
-                  ? t("included")
-                  : t("creditsPerMonth", { count: PLANS[plan].monthlyCredits })}
-              </p>
+              <div className="text-right">
+                <p className="text-[13px] text-chalk-400">
+                  {plan === "free"
+                    ? t("included")
+                    : t("creditsPerMonth", { count: PLANS[plan].monthlyCredits })}
+                </p>
+                {plan !== "free" ? (
+                  <p className="mt-0.5 text-[12px] text-chalk-500">
+                    {t("generationsShort", { count: PLANS[plan].monthlyGenerations })}
+                  </p>
+                ) : null}
+              </div>
             </div>
-            <dl className="mt-3 space-y-2">
+            <dl className="mt-4">
               {GROUPS.flatMap((group) =>
                 group.rows.map((row) => (
                   <div
                     key={row.key}
-                    className="flex items-start justify-between gap-4 border-t border-graphite/10 pt-2"
+                    className="flex items-center justify-between gap-4 border-t border-white/5 py-3"
                   >
-                    <dt className="text-[12px] leading-relaxed text-graphite-500">
-                      <span className="text-graphite/60">{t(group.key)} · </span>
+                    <dt className="text-[13px] leading-relaxed text-chalk-2">
+                      <span className="text-chalk-500">{t(group.key)} · </span>
                       {t(row.key)}
                     </dt>
                     <dd className="shrink-0">{renderValue(row.values[plan])}</dd>
@@ -192,6 +210,6 @@ export async function PricingLedger() {
           </div>
         ))}
       </div>
-    </section>
+    </Section>
   );
 }

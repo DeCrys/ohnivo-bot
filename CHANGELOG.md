@@ -1,5 +1,18 @@
 # Changelog
 
+## Redesign marketingového webu („blueprint“) – 2026-11-26
+
+### Změněno
+- Kompletní redesign veřejných stránek `/`, `/pricing`, `/login`, `/privacy` a `/terms`. Světlý „paper“ systém (serifové nadpisy, krémové pozadí) nahradil tmavý „blueprint“: téměř černé plátno, jeden orámovaný sloupec s vlasovými linkami a šrafovanými okraji, lehké nadpisy ve Figtree, popisky a navigace ve Fragment Mono, jeden levandulový akcent.
+- Směr vychází ze dvou studiových referencí (pouze jako inspirace, žádný převzatý kód ani assety): clears.ai z galerie godly.design a artemiilebedev.com z Awwwards. Podrobnosti jsou v `DESIGN.md`.
+- Hero: zadání v panelu, pod ním diagram zadání → návrh serveru → role a průběh stavby s čárkovanými spojnicemi.
+- Nové bloky: horní meta lišta s místním časem, indexové řádky FAQ, které se při najetí invertují, izometrické ilustrace u funkcí, pole jisker pod závěrečnou výzvou, obrysový nápis `ohnivo.` v patičce.
+- Ceník: přepínač měsíčně/ročně, tři karty plánů s ukazatelem kreditů, srovnávací tabulka (na mobilu karty po plánech).
+- `tailwind.config.ts`: nové tokeny `void`, `chalk`, `wire`, `rounded-tick`, `rounded-panel`, `tracking-mono`, `shadow-hatch`, `shadow-panel`, `bg-hatch*`, animace `dash-flow` a `twinkle`. Odstraněny `paper`, `graphite`, `lilac`, `acid` a serifové písmo.
+- Písma v `app/layout.tsx`: Figtree a Fragment Mono místo Instrument Serif, Inter Tight a IBM Plex Mono. Týká se i dashboardu, jinak dashboard zůstal beze změny.
+- `Logo` a `LocaleSwitcher`: tón `light` přejmenován na `blueprint`.
+- Ukázkové role v hero už nepoužívají emoji, místo nich mají barevný čtvereček.
+
 ## Oprava oprávnění bota – 2026-11-25
 
 ### Opraveno

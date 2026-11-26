@@ -3,7 +3,6 @@ import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { ArrowLeft } from "lucide-react";
 import { CREDIT_COSTS } from "@ohnivo/shared";
-import { canUsePaidAi } from "@/lib/auth/admin";
 import { requireUser } from "@/lib/auth/session";
 import { assertGuildAccess } from "@/lib/guild-access";
 import { getCreditBalance } from "@/lib/credits";
@@ -51,17 +50,19 @@ export default async function BlueprintPreviewPage({
     <div className="space-y-5">
       <Link
         href={`/dashboard/${params.guildId}`}
-        className="inline-flex items-center gap-1.5 text-xs text-spark-100/45 hover:text-white"
+        className="mono-label focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-control text-chalk-500 transition-colors hover:text-chalk motion-reduce:transition-none"
       >
-        <ArrowLeft className="h-3.5 w-3.5" /> {t("back")}
+        <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" /> {t("back")}
       </Link>
-      <div className="flex flex-wrap items-end justify-between gap-3">
+      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-wire pb-6">
         <div>
-          <h2 className="text-xl font-semibold tracking-tight text-white">{t("title")}</h2>
-          <p className="mt-1 text-sm text-spark-100/60">{t("subtitle")}</p>
+          <h2 className="display text-[clamp(1.35rem,2.2vw,1.75rem)] leading-[1.12] text-chalk">
+            {t("title")}
+          </h2>
+          <p className="mt-3 max-w-[52ch] text-[15px] leading-relaxed text-chalk-400">{t("subtitle")}</p>
         </div>
-        <p className="text-xs text-spark-100/40">
-          {t("serverName")}: <span className="text-spark-100/70">{blueprint.data.serverName}</span>
+        <p className="text-[12px] text-chalk-500">
+          {t("serverName")}: <span className="text-chalk-300">{blueprint.data.serverName}</span>
         </p>
       </div>
 
@@ -69,7 +70,7 @@ export default async function BlueprintPreviewPage({
         <Alert variant="info">
           <Link
             href={`/dashboard/${params.guildId}/apply/${activeJob.id}`}
-            className="font-medium text-spark-200 hover:text-white"
+            className="font-medium text-spark-200 hover:text-chalk"
           >
             {ta("title")} →
           </Link>{" "}
@@ -84,8 +85,8 @@ export default async function BlueprintPreviewPage({
         initialIssues={blueprint.issues ?? []}
         initialRemoved={blueprint.removed_permissions ?? []}
         refineCost={CREDIT_COSTS.refine}
-        regenerateCost={CREDIT_COSTS.generate}
-        canUseAi={canUsePaidAi(session.user)}
+        regenerateCost={CREDIT_COSTS.regenerate}
+        canSpendCredits={balance >= CREDIT_COSTS.refine}
         balance={balance}
       />
     </div>

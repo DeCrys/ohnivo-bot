@@ -39,7 +39,7 @@ interface BlueprintEditorProps {
   initialRemoved: RemovedPermission[];
   refineCost: number;
   regenerateCost: number;
-  canUseAi: boolean;
+  canSpendCredits: boolean;
   balance: number;
 }
 
@@ -71,7 +71,7 @@ export function BlueprintEditor({
   initialRemoved,
   refineCost,
   regenerateCost,
-  canUseAi,
+  canSpendCredits,
   balance,
 }: BlueprintEditorProps) {
   const t = useTranslations("ai.preview");
@@ -275,7 +275,7 @@ export function BlueprintEditor({
   return (
     <div className="space-y-5">
       <div className="surface p-4">
-        <label className="mb-1.5 block text-xs uppercase tracking-wide text-spark-100/50">
+        <label className="mb-1.5 block text-[13px] text-chalk-400">
           {t("serverName")}
         </label>
         <Input
@@ -289,8 +289,8 @@ export function BlueprintEditor({
       <section className="surface p-4">
         <div className="mb-3 flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-white">{t("roles")}</h2>
-            <p className="mt-0.5 text-[11px] text-spark-100/40">{t("rolesHint")}</p>
+            <h2 className="text-[16px] font-medium text-white">{t("roles")}</h2>
+            <p className="mt-0.5 text-[11px] text-chalk-500">{t("rolesHint")}</p>
           </div>
           <Button
             variant="secondary"
@@ -311,9 +311,9 @@ export function BlueprintEditor({
           </Button>
         </div>
         {draft.roles.length === 0 ? (
-          <p className="text-xs text-spark-100/40">{t("noRoles")}</p>
+          <p className="text-xs text-chalk-500">{t("noRoles")}</p>
         ) : (
-          <ul className="space-y-1.5">
+          <ul className="list-fade space-y-2">
             {getReorderOrder("role", null, draft.roles.length).map((index) => {
               const role = draft.roles[index];
               if (!role) return null;
@@ -335,8 +335,8 @@ export function BlueprintEditor({
                   );
                 }}
                 className={cn(
-                  "flex flex-wrap items-center gap-2 rounded-lg border border-line/60 bg-ink-900/60 px-2.5 py-1.5 transition-all duration-200 hover:border-spark-500/35",
-                  isDragging && "border-dashed border-spark-400/70 bg-spark-500/5 opacity-35",
+                  "flex flex-wrap items-center gap-2 rounded-inner border border-white/5 bg-white/[0.03] px-3 py-2 transition-all duration-200 hover:border-wire-strong",
+                  isDragging && "border-wire bg-spark-300/[0.08] opacity-40",
                 )}
               >
                 <button
@@ -346,7 +346,7 @@ export function BlueprintEditor({
                   title={t("dragToReorder")}
                   onDragStart={(event) => beginReorder(event, "role", null, index, draft.roles.length)}
                   onDragEnd={() => setReorderPreview(null)}
-                  className="cursor-grab rounded p-1 text-spark-100/35 hover:bg-ink-700 hover:text-white active:cursor-grabbing"
+                  className="cursor-grab rounded p-1 text-chalk-500 hover:bg-void-700 hover:text-chalk active:cursor-grabbing"
                 >
                   <GripVertical className="h-3.5 w-3.5" />
                 </button>
@@ -364,7 +364,7 @@ export function BlueprintEditor({
                   }
                   className="h-7 max-w-52 flex-1 border-0 bg-transparent px-1 py-0 text-xs"
                 />
-                <span className="text-[10px] text-spark-100/40">
+                <span className="text-[11px] text-chalk-500">
                   {role.permissions.length} {t("permissions")}
                 </span>
                 <div className="ml-auto flex items-center gap-0.5">
@@ -407,7 +407,7 @@ export function BlueprintEditor({
 
       <section className="space-y-3">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">{t("categories")}</h2>
+          <h2 className="text-[16px] font-medium text-white">{t("categories")}</h2>
           <Button
             variant="secondary"
             size="sm"
@@ -443,8 +443,8 @@ export function BlueprintEditor({
               )
             }
             className={cn(
-              "surface p-3 transition-all duration-200 hover:border-spark-500/35",
-              isDragging && "border-dashed border-spark-400/70 bg-spark-500/5 opacity-35",
+              "surface p-3 transition-all duration-200 hover:border-white/[0.10]",
+              isDragging && "border-wire bg-spark-300/[0.08] opacity-40",
             )}
           >
             <div className="flex flex-wrap items-center gap-2">
@@ -457,7 +457,7 @@ export function BlueprintEditor({
                   beginReorder(event, "category", null, categoryIndex, draft.categories.length)
                 }
                 onDragEnd={() => setReorderPreview(null)}
-                className="cursor-grab rounded p-1 text-spark-100/35 hover:bg-ink-700 hover:text-white active:cursor-grabbing"
+                className="cursor-grab rounded p-1 text-chalk-500 hover:bg-void-700 hover:text-chalk active:cursor-grabbing"
               >
                 <GripVertical className="h-3.5 w-3.5" />
               </button>
@@ -554,9 +554,8 @@ export function BlueprintEditor({
                         )
                       }
                       className={cn(
-                        "flex flex-wrap items-center gap-1.5 rounded-md bg-ink-900/50 px-2 py-1 transition-all duration-200 hover:bg-ink-800/70",
-                        isDragging &&
-                          "border border-dashed border-spark-400/70 bg-spark-500/5 opacity-35",
+                        "flex flex-wrap items-center gap-1.5 rounded-inner border border-transparent bg-white/[0.03] px-3 py-2 transition-all duration-200 hover:bg-white/[0.05]",
+                        isDragging && "border-wire bg-spark-300/[0.08] opacity-40",
                       )}
                     >
                     <button
@@ -574,11 +573,11 @@ export function BlueprintEditor({
                         )
                       }
                       onDragEnd={() => setReorderPreview(null)}
-                      className="cursor-grab rounded p-1 text-spark-100/35 hover:bg-ink-700 hover:text-white active:cursor-grabbing"
+                      className="cursor-grab rounded p-1 text-chalk-500 hover:bg-void-700 hover:text-chalk active:cursor-grabbing"
                     >
                       <GripVertical className="h-3 w-3" />
                     </button>
-                    <Icon className="h-3 w-3 shrink-0 text-spark-100/40" />
+                    <Icon className="h-3 w-3 shrink-0 text-chalk-500" />
                     <Input
                       value={channel.emoji ?? ""}
                       onChange={(event) =>
@@ -610,7 +609,7 @@ export function BlueprintEditor({
                           if (target) target.type = event.target.value as ChannelType;
                         })
                       }
-                      className="h-6 rounded border border-line bg-ink-850 px-1 text-[10px] text-spark-100/70"
+                      className="h-7 rounded-control border border-wire bg-void-900 px-2 text-[11px] text-chalk-2"
                     >
                       {CHANNEL_TYPES.map((type) => (
                         <option key={type} value={type}>
@@ -677,7 +676,7 @@ export function BlueprintEditor({
               )}
             </ul>
             {category.channels.length === 0 ? (
-              <p className="mt-1 px-2 text-[11px] text-spark-100/35">{t("emptyChannels")}</p>
+              <p className="mt-1 px-2 text-[11px] text-chalk-500">{t("emptyChannels")}</p>
             ) : null}
             <button
               type="button"
@@ -701,14 +700,14 @@ export function BlueprintEditor({
       </section>
 
       <section className="surface p-4">
-        <h2 className="mb-3 text-sm font-semibold text-white">{t("welcome")}</h2>
+        <h2 className="mb-3 text-[16px] font-medium text-white">{t("welcome")}</h2>
         <div className="grid gap-3 sm:grid-cols-[200px_1fr]">
           <div>
-            <label className="mb-1 block text-[11px] text-spark-100/45">{t("welcomeChannel")}</label>
+            <label className="mb-1 block text-[11px] text-chalk-400">{t("welcomeChannel")}</label>
             <select
               value={draft.welcome.channel}
               onChange={(event) => update((next) => (next.welcome.channel = event.target.value))}
-              className="h-9 w-full rounded-lg border border-line bg-ink-900 px-2 text-xs text-white"
+              className="h-9 w-full rounded-control border border-wire bg-void-800 px-3 text-[13px] text-chalk-2 focus:border-white/[0.12]"
             >
               {welcomeOptions.map((name) => (
                 <option key={name} value={name}>
@@ -718,7 +717,7 @@ export function BlueprintEditor({
             </select>
           </div>
           <div>
-            <label className="mb-1 block text-[11px] text-spark-100/45">{t("welcomeMessage")}</label>
+            <label className="mb-1 block text-[11px] text-chalk-400">{t("welcomeMessage")}</label>
             <Textarea
               value={draft.welcome.message}
               onChange={(event) => update((next) => (next.welcome.message = event.target.value))}
@@ -732,7 +731,7 @@ export function BlueprintEditor({
 
       <section className="surface p-4">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">{t("rules")}</h2>
+          <h2 className="text-[16px] font-medium text-white">{t("rules")}</h2>
           <Button
             variant="ghost"
             size="sm"
@@ -742,12 +741,12 @@ export function BlueprintEditor({
           </Button>
         </div>
         {draft.rules.length === 0 ? (
-          <p className="text-xs text-spark-100/40">{t("noRules")}</p>
+          <p className="text-xs text-chalk-500">{t("noRules")}</p>
         ) : (
-          <ul className="space-y-1.5">
+          <ul className="list-fade space-y-2">
             {draft.rules.map((rule, index) => (
               <li key={index} className="flex items-center gap-1.5">
-                <span className="w-5 text-right text-[11px] text-spark-100/35">{index + 1}.</span>
+                <span className="w-5 text-right text-[11px] text-chalk-500">{index + 1}.</span>
                 <Input
                   value={rule}
                   onChange={(event) =>
@@ -789,12 +788,12 @@ export function BlueprintEditor({
           ) : null}
           {issues.length > 0 ? (
             <div className="surface-muted p-4">
-              <p className="mb-2 text-xs font-medium text-spark-100/80">{t("warnings")}</p>
+              <p className="mb-2 text-xs font-medium text-chalk-300">{t("warnings")}</p>
               <ul className="space-y-1 text-[11px] leading-relaxed text-amber-200/80">
                 {issues.slice(0, 12).map((issue, index) => (
                   <li key={`${issue.code}-${index}`}>
                     • {t(`issue.${issue.code}`)}
-                    {issue.detail ? <span className="text-spark-100/35"> ({issue.detail})</span> : null}
+                    {issue.detail ? <span className="text-chalk-500"> ({issue.detail})</span> : null}
                   </li>
                 ))}
               </ul>
@@ -806,8 +805,8 @@ export function BlueprintEditor({
       )}
 
       <section className="surface p-4">
-        <h2 className="text-sm font-semibold text-white">{t("refineTitle")}</h2>
-        <p className="mt-0.5 text-[11px] text-spark-100/40">{t("costNote", { cost: refineCost })}</p>
+        <h2 className="text-[16px] font-medium text-white">{t("refineTitle")}</h2>
+        <p className="mt-0.5 text-[11px] text-chalk-500">{t("costNote", { cost: refineCost })}</p>
         <Textarea
           value={refineText}
           onChange={(event) => setRefineText(event.target.value)}
@@ -820,7 +819,7 @@ export function BlueprintEditor({
           <Button
             size="sm"
             onClick={() => runAction("refine")}
-            disabled={action !== null || !canUseAi || refineText.trim().length < 3}
+            disabled={action !== null || !canSpendCredits || refineText.trim().length < 3}
           >
             <Wand2 className="h-3.5 w-3.5" />
             {action === "refine" ? t("refining") : t("refine")}
@@ -829,7 +828,7 @@ export function BlueprintEditor({
             variant="secondary"
             size="sm"
             onClick={() => runAction("regenerate")}
-            disabled={action !== null || !canUseAi || balance < regenerateCost}
+            disabled={action !== null || balance < regenerateCost}
             title={t("regenerateNote", { cost: regenerateCost })}
           >
             <RefreshCw className={cn("h-3.5 w-3.5", action === "regenerate" && "animate-spin")} />
@@ -848,16 +847,16 @@ export function BlueprintEditor({
         ) : null}
       </section>
 
-      <div className="sticky bottom-3 z-20 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-line bg-ink-850/95 px-4 py-3 shadow-card backdrop-blur">
+      <div className="sticky bottom-3 z-20 flex flex-wrap items-center justify-between gap-3 rounded-card border border-wire bg-void-900/95 px-6 py-4 shadow-panel backdrop-blur">
         <div className="flex items-center gap-2 text-xs">
           {status === "saving" ? (
-            <span className="text-spark-100/50">{tc("saving")}</span>
+            <span className="text-chalk-400">{tc("saving")}</span>
           ) : status === "saved" && !dirty ? (
             <span className="text-emerald-300/80">{t("saved")}</span>
           ) : status === "error" ? (
             <span className="text-red-300">{t("saveError")}</span>
           ) : (
-            <span className="text-spark-100/35">{t("unsaved")}</span>
+            <span className="text-chalk-500">{t("unsaved")}</span>
           )}
           <Button variant="ghost" size="sm" onClick={() => void save(draft)} disabled={status === "saving"}>
             <Save className="h-3.5 w-3.5" /> {t("save")}
@@ -889,8 +888,8 @@ function IconButton({
       title={label}
       aria-label={label}
       className={cn(
-        "rounded p-1 text-spark-100/35 transition-colors hover:bg-ink-700",
-        danger ? "hover:text-red-300" : "hover:text-white",
+        "rounded p-1 text-chalk-500 transition-colors hover:bg-void-700",
+        danger ? "hover:text-red-300" : "hover:text-chalk",
       )}
     >
       {children}

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
-import { PLANS, type BillingInterval } from "@ohnivo/shared";
+import { findCreditPack, PLANS, type BillingInterval } from "@ohnivo/shared";
+import { logAudit } from "@/lib/audit";
 import { env } from "@/lib/env";
 import { grantCredits } from "@/lib/credits";
 import { notify } from "@/lib/notifications";
@@ -90,6 +91,38 @@ async function applySubscription(
       stripe_customer_id: customerId(subscription.customer),
     })
     .eq("id", userId);
+}
+
+async function grantCreditPack(session: Stripe.Checkout.Session): Promise<void> {
+  const userId = session.metadata?.userId ?? session.client_reference_id;
+  const pack = findCreditPack(session.metadata?.pack ?? "");
+  const credits = Number(session.metadata?.credits);
+  if (!userId || !pack || credits !== pack.credits) {
+    console.warn("[stripe] payment checkout without a valid credit pack", session.id);
+    return;
+  }
+
+  await grantCredits(userId, credits, "credit_pack", {
+    checkoutSessionId: session.id,
+    pack: pack.id,
+  });
+  await logAudit({
+    actorUserId: userId,
+    action: "credits.credit_pack",
+    meta: { checkoutSessionId: session.id, pack: pack.id, credits },
+  });
+
+  const locale = (await getServiceClient().from("users").select("locale").eq("id", userId).maybeSingle()).data
+    ?.locale;
+  const czech = locale !== "en";
+  await notify(userId, {
+    type: "credits_granted",
+    title: czech ? "Kredity připsány" : "Credits added",
+    body: czech
+      ? `Na účet ti přibylo ${credits} kreditů z dokupu.`
+      : `${credits} purchased credits were added to your account.`,
+    href: "/dashboard/billing",
+  });
 }
 
 async function grantInvoiceCredits(invoice: Stripe.Invoice): Promise<void> {
@@ -188,6 +221,8 @@ export async function POST(request: Request) {
             subscription,
             session.client_reference_id ?? session.metadata?.userId ?? null,
           );
+        } else if (session.mode === "payment") {
+          await grantCreditPack(session);
         }
         break;
       }

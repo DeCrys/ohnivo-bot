@@ -29,9 +29,13 @@ export function PresenceRefresh({ guildId }: { guildId: string }) {
       onClick={refresh}
       disabled={pending}
       title={title}
-      className="focus-ring rounded-lg border border-line p-1.5 text-spark-100/45 transition-colors hover:text-white disabled:opacity-50"
+      aria-label={title}
+      className="focus-ring inline-flex h-8 w-8 items-center justify-center rounded-pill border border-wire bg-white/[0.02] text-chalk-500 transition-colors hover:border-wire-strong hover:bg-white/[0.05] hover:text-white disabled:opacity-50 motion-reduce:transition-none"
     >
-      <RefreshCw className={pending ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5"} />
+      <RefreshCw
+        className={pending ? "h-3.5 w-3.5 animate-spin" : "h-3.5 w-3.5"}
+        aria-hidden="true"
+      />
     </button>
   );
 }

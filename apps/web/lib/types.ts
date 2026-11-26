@@ -45,6 +45,7 @@ export interface BlueprintRow {
   removed_permissions: import("@ohnivo/shared").RemovedPermission[];
   revision: number;
   status: "draft" | "queued" | "applied" | "archived";
+  source: "ai" | "manual";
   created_at: string;
   updated_at: string;
 }

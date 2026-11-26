@@ -1,4 +1,4 @@
-import { PLANS, type BillingInterval } from "@ohnivo/shared";
+import { creditPackLookupKey, PLANS, type CreditPackDefinition, type BillingInterval } from "@ohnivo/shared";
 
 export type PaidPlanId = "starter" | "premium" | "pro";
 
@@ -21,6 +21,19 @@ export function stripePriceDetails(plan: PaidPlanId, interval: BillingInterval) 
     // Amount changes get a new Stripe price while existing subscriptions keep their price.
     lookupKey: `ohnivo_${plan}_${interval}_${unitAmount}_czk`,
     productName: `Ohnivo ${PLAN_NAMES[plan]} - ${interval === "month" ? "monthly" : "annual"}`,
+    unitAmount,
+  };
+}
+
+export function creditPackPriceDetails(pack: CreditPackDefinition) {
+  const unitAmount = pack.priceCzk * 100;
+  if (!Number.isSafeInteger(unitAmount) || unitAmount <= 0) {
+    throw new Error(`Invalid Stripe amount for credit pack ${pack.id}`);
+  }
+
+  return {
+    lookupKey: creditPackLookupKey(pack),
+    productName: `Ohnivo ${pack.credits} credits`,
     unitAmount,
   };
 }

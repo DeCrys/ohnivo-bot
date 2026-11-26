@@ -3,13 +3,76 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { ArrowRight, ArrowUpRight } from "@/components/marketing/ui";
+import { ArrowUpRight } from "@/components/marketing/ui";
+import { cn } from "@/lib/utils";
 
 const EXAMPLES = ["example1", "example2", "example3", "example4"] as const;
 const STEPS = ["demoStep1", "demoStep2", "demoStep3"] as const;
 const CATEGORIES = ["demoCategory1", "demoCategory2", "demoCategory3"] as const;
-const ROLES = ["demoRole1", "demoRole2", "demoRole3"] as const;
+const ROLES = [
+  { key: "demoRole1", swatch: "bg-ember-400" },
+  { key: "demoRole2", swatch: "bg-spark-300" },
+  { key: "demoRole3", swatch: "bg-chalk" },
+] as const;
 const PERMISSIONS = ["demoPerm1", "demoPerm2", "demoPerm3"] as const;
+
+/** Diagram card: mono header strip above free content. */
+function Node({
+  title,
+  meta,
+  className,
+  children,
+}: {
+  title: string;
+  meta?: string;
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={cn("panel flex flex-col text-left", className)}>
+      <div className="flex min-h-[40px] items-center justify-between gap-3 border-b border-white/5 px-5">
+        <p className="text-[13px] font-medium text-white">{title}</p>
+        {meta ? <p className="text-[12px] text-chalk-500">{meta}</p> : null}
+      </div>
+      <div className="flex-1 p-5">{children}</div>
+    </div>
+  );
+}
+
+/**
+ * Connector between two diagram columns. Desktop: dashed curve(s) with a
+ * lavender node on each end. Stacked layout: a short quiet vertical line.
+ */
+function Connector({ fork = false }: { fork?: boolean }) {
+  return (
+    <div aria-hidden="true" className="relative flex justify-center lg:block lg:self-stretch">
+      <span className="h-8 border-l border-wire lg:hidden" />
+      <svg
+        viewBox="0 0 100 100"
+        preserveAspectRatio="none"
+        className="absolute inset-0 hidden h-full w-full lg:block"
+      >
+        {fork ? (
+          <>
+            <path className="wire-dash" d="M0,50 C50,50 50,25 100,25" />
+            <path className="wire-dash" d="M0,50 C50,50 50,75 100,75" />
+          </>
+        ) : (
+          <path className="wire-dash" d="M0,50 L100,50" />
+        )}
+      </svg>
+      <span className="node-dot left-0 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 lg:block" />
+      {fork ? (
+        <>
+          <span className="node-dot right-0 top-1/4 hidden -translate-y-1/2 translate-x-1/2 lg:block" />
+          <span className="node-dot right-0 top-3/4 hidden -translate-y-1/2 translate-x-1/2 lg:block" />
+        </>
+      ) : (
+        <span className="node-dot right-0 top-1/2 hidden -translate-y-1/2 translate-x-1/2 lg:block" />
+      )}
+    </div>
+  );
+}
 
 export function Hero() {
   const t = useTranslations("marketing.hero");
@@ -29,164 +92,153 @@ export function Hero() {
   }
 
   return (
-    <section className="relative">
-      <div className="shell">
-        <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-graphite/15 py-4">
-          <p className="mono-label text-graphite/70">{t("label")}</p>
-          <p className="mono-label text-graphite/60">{t("builtIn")}</p>
-        </div>
+    <section className="frame">
+      <div className="pad flex flex-col items-center pb-14 pt-14 text-center lg:pb-20 lg:pt-24">
+        <p className="tag">{t("flow")}</p>
 
-        <div className="grid gap-10 pb-14 pt-10 lg:grid-cols-[minmax(0,1fr)_25rem] lg:gap-16 lg:pb-20 lg:pt-16">
-          <div className="flex flex-col justify-between gap-10">
-            <h1 className="display text-[clamp(2.7rem,7.2vw,6.4rem)] leading-[0.94] text-graphite">
-              <span className="reveal-line">
-                <span style={{ "--reveal-delay": "0ms" } as React.CSSProperties}>{t("title1")}</span>
-              </span>
-              <span className="reveal-line">
-                <span
-                  className="italic text-graphite/75"
-                  style={{ "--reveal-delay": "90ms" } as React.CSSProperties}
-                >
-                  {t("title2")}
-                </span>
-              </span>
-            </h1>
+        <h1 className="display mt-6 text-balance text-[clamp(2.25rem,5vw,3.75rem)] leading-[1.06]">
+          <span className="block text-chalk-500">{t("title1")}</span>
+          <span className="block">{t("title2")}</span>
+        </h1>
 
-            <div className="hidden items-center gap-3 lg:flex">
-              <span className="h-2 w-2 bg-lilac" aria-hidden="true" />
-              <p className="mono-label text-graphite/60">{t("flow")}</p>
-            </div>
+        <p className="mt-6 max-w-[38rem] text-[17px] leading-relaxed text-chalk-300">
+          {t("subtitle")}
+        </p>
+
+        <form
+          className="panel mt-10 w-full max-w-[44rem] text-left shadow-panel transition-colors duration-200 focus-within:border-white/[0.10] motion-reduce:transition-none"
+          onSubmit={(event) => {
+            event.preventDefault();
+            start();
+          }}
+        >
+          <label htmlFor="hero-prompt" className="sr-only">
+            {t("placeholder")}
+          </label>
+          <textarea
+            id="hero-prompt"
+            rows={3}
+            value={prompt}
+            onChange={(event) => setPrompt(event.target.value)}
+            placeholder={t("placeholder")}
+            className="block w-full resize-none bg-transparent px-4 pt-4 text-[17px] leading-relaxed text-chalk placeholder:text-chalk-500 focus:outline-none sm:px-5 sm:pt-5"
+          />
+          <div className="flex items-center justify-between gap-3 border-t border-white/5 p-2 pl-4 sm:pl-5">
+            <span className="hidden text-[12px] text-chalk-500 sm:inline">{t("promptHint")}</span>
+            <button type="submit" disabled={!ready} className="btn-hatch focus-ring ml-auto shrink-0">
+              {t("cta")}
+            </button>
           </div>
+        </form>
 
-          <div className="flex flex-col justify-end">
-            <p className="max-w-sm text-[17px] leading-relaxed text-graphite-500">{t("subtitle")}</p>
+        <p className="mt-4 text-[13px] leading-relaxed text-chalk-500">{t("note")}</p>
 
-            <form
-              className="mt-8 border border-graphite/25 bg-paper-deep/70 transition-colors focus-within:border-graphite"
-              onSubmit={(event) => {
-                event.preventDefault();
-                start();
-              }}
+        <div className="mt-8 flex max-w-[52rem] flex-wrap items-center justify-center gap-2">
+          <span className="mono-label mr-1 text-chalk-500">{t("examplesLabel")}</span>
+          {EXAMPLES.map((key) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setPrompt(t(key))}
+              className="focus-ring inline-flex min-h-[40px] items-center rounded-pill border border-wire px-3.5 text-[13px] leading-none text-chalk-2 transition-colors duration-150 hover:border-wire-strong hover:bg-white/[0.04] hover:text-white motion-reduce:transition-none"
             >
-              <label htmlFor="hero-prompt" className="sr-only">
-                {t("placeholder")}
-              </label>
-              <textarea
-                id="hero-prompt"
-                rows={4}
-                value={prompt}
-                onChange={(event) => setPrompt(event.target.value)}
-                placeholder={t("placeholder")}
-                className="w-full resize-none bg-transparent px-4 pt-4 font-serif text-[19px] leading-snug text-graphite placeholder:text-graphite/60 focus:outline-none"
-              />
-              <div className="flex items-center justify-between gap-3 px-2 pb-2">
-                <span className="mono-label whitespace-nowrap px-1 text-graphite/60">{t("promptHint")}</span>
-                <button
-                  type="submit"
-                  disabled={!ready}
-                  className="focus-ring inline-flex h-11 shrink-0 items-center gap-2 whitespace-nowrap bg-graphite px-4 font-mono text-[11px] uppercase tracking-label text-paper transition-colors hover:bg-spark-600 disabled:cursor-not-allowed disabled:bg-transparent disabled:text-graphite/50 disabled:outline disabled:outline-1 disabled:outline-graphite/20"
-                >
-                  {t("cta")}
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </button>
-              </div>
-            </form>
-
-            <p className="mt-3 font-mono text-[11px] leading-relaxed text-graphite-500">{t("note")}</p>
-
-            <div className="mt-6 flex flex-wrap items-baseline gap-x-3 gap-y-2">
-              <span className="mono-label text-graphite/60">{t("examplesLabel")}</span>
-              {EXAMPLES.map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setPrompt(t(key))}
-                  className="focus-ring link-rule text-[13px] text-graphite-500 hover:text-graphite"
-                >
-                  {t(key)}
-                </button>
-              ))}
-            </div>
-          </div>
+              {t(key)}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="shell pb-16 lg:pb-24">
-        <div className="panel-ink grid animate-fade-up grid-cols-1 divide-y divide-white/10 border border-graphite/20 motion-reduce:animate-none md:grid-cols-[1.15fr_1fr_1fr] md:divide-x md:divide-y-0">
-          <div className="flex items-center justify-between gap-4 border-b border-white/10 px-5 py-4 md:col-span-3">
-            <p className="font-mono text-[11px] uppercase tracking-label text-spark-200">
-              {t("demoTitle")}
-            </p>
-            <p className="font-mono text-[11px] uppercase tracking-label text-spark-100/40">
-              {t("demoMeta")}
-            </p>
-          </div>
+      <figure className="pad pb-16 lg:pb-24">
+        <figcaption className="sr-only">{t("diagramLabel")}</figcaption>
 
-          <div className="px-5 py-6">
-            <p className="mono-label text-spark-100/40">{t("demoCategories")}</p>
-            <ul className="mt-4 space-y-0">
+        <div className="grid items-center lg:grid-cols-[minmax(0,0.9fr)_4.5rem_minmax(0,1.1fr)_4.5rem_minmax(0,1.1fr)]">
+          <Node title={t("demoPrompt")}>
+            <p className="line-clamp-4 text-[15px] leading-relaxed text-chalk">
+              {ready ? prompt.trim() : t("example1")}
+              <span
+                aria-hidden="true"
+                className="ml-0.5 inline-block h-[1.05em] w-[2px] translate-y-[0.2em] bg-spark-300 motion-safe:animate-pulse-soft"
+              />
+            </p>
+          </Node>
+
+          <Connector />
+
+          <Node title={t("demoTitle")} meta={t("demoMeta")}>
+            <p className="text-[12px] text-chalk-500">{t("demoCategories")}</p>
+            <ul className="mt-3 space-y-1.5">
               {CATEGORIES.map((key, index) => (
                 <li
                   key={key}
-                  className="flex items-baseline gap-4 border-b border-white/10 py-2.5 last:border-b-0"
+                  className={cn(
+                    "flex h-10 items-center gap-3 rounded-inner border px-3 text-[13px]",
+                    index === 1
+                      ? "border-wire bg-spark-300/[0.10] text-spark-200"
+                      : "border-wire bg-void text-chalk-300",
+                  )}
                 >
-                  <span className="font-mono text-[11px] text-spark-100/30">
+                  <span
+                    aria-hidden="true"
+                    className={cn("h-1.5 w-1.5 rounded-pill", index === 1 ? "bg-spark-300" : "bg-wire-strong")}
+                  />
+                  {t(key)}
+                  <span className="ml-auto text-[11px] text-chalk-500">
                     {String(index + 1).padStart(2, "0")}
                   </span>
-                  <span className="font-mono text-[13px] text-spark-50">{t(key)}</span>
                 </li>
               ))}
             </ul>
-          </div>
+          </Node>
 
-          <div className="px-5 py-6">
-            <p className="mono-label text-spark-100/40">{t("demoRoles")}</p>
-            <ul className="mt-4 flex flex-wrap gap-1.5">
-              {ROLES.map((key) => (
-                <li
-                  key={key}
-                  className="inline-flex items-center gap-1.5 border border-white/15 px-2 py-1 font-mono text-[11px] text-spark-100"
-                >
-                  {t(key)}
-                </li>
-              ))}
-            </ul>
-            <p className="mono-label mt-5 text-spark-100/40">{t("demoPermissions")}</p>
-            <ul className="mt-3 space-y-1.5">
-              {PERMISSIONS.map((key) => (
-                <li key={key} className="flex items-center gap-2 font-mono text-[11px] text-spark-100/60">
-                  <span className="h-1 w-1 bg-lilac" aria-hidden="true" />
-                  {t(key)}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <Connector fork />
 
-          <div className="flex flex-col justify-between px-5 py-6">
-            <div>
-              <p className="mono-label text-spark-100/40">{t("demoBuild")}</p>
-              <ul className="mt-4 space-y-3">
+          <div className="grid gap-4 lg:grid-rows-2">
+            <Node title={t("demoRoles")}>
+              <ul className="flex flex-wrap gap-1.5">
+                {ROLES.map(({ key, swatch }) => (
+                  <li
+                    key={key}
+                    className="inline-flex h-7 items-center gap-2 rounded-pill border border-wire px-2.5 text-[12px] text-chalk-2"
+                  >
+                    <span aria-hidden="true" className={cn("h-1.5 w-1.5 rounded-pill", swatch)} />
+                    {t(key)}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-4 text-[12px] text-chalk-500">{t("demoPermissions")}</p>
+              <ul className="mt-2.5 space-y-1.5">
+                {PERMISSIONS.map((key) => (
+                  <li key={key} className="flex items-center gap-2 text-[12px] text-chalk-400">
+                    <span className="h-1 w-1 rounded-pill bg-spark-300" aria-hidden="true" />
+                    {t(key)}
+                  </li>
+                ))}
+              </ul>
+            </Node>
+
+            <Node title={t("demoBuild")} meta={t("builtIn")}>
+              <ul className="space-y-2.5">
                 {STEPS.map((key) => (
                   <li key={key} className="flex items-center justify-between gap-3">
-                    <span className="font-mono text-[12px] text-spark-100/80">{t(key)}</span>
-                    <span className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-label text-lilac">
-                      <span className="h-1.5 w-1.5 bg-lilac" aria-hidden="true" />
+                    <span className="text-[13px] text-chalk-2">{t(key)}</span>
+                    <span className="inline-flex items-center gap-1.5 text-[12px] text-spark-200">
+                      <span className="h-1.5 w-1.5 rounded-pill bg-spark-300" aria-hidden="true" />
                       {t("demoDone")}
                     </span>
                   </li>
                 ))}
               </ul>
-            </div>
-            <a
-              href="/login"
-              className="link-rule mt-8 inline-flex items-center gap-2 font-mono text-[11px] uppercase tracking-label text-spark-50 hover:text-white"
-            >
-              {t("demoLink")}
-              <ArrowUpRight />
-            </a>
+              <a
+                href="/login"
+                className="focus-ring mt-3 inline-flex min-h-[44px] items-center gap-2 rounded-control text-[13px] text-white transition-colors hover:text-spark-200 motion-reduce:transition-none"
+              >
+                <span className="link-rule py-1">{t("demoLink")}</span>
+                <ArrowUpRight />
+              </a>
+            </Node>
           </div>
         </div>
-      </div>
+      </figure>
     </section>
   );
 }

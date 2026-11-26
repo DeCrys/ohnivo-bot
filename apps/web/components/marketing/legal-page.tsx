@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { BRAND } from "@ohnivo/shared";
-import { Logo } from "@/components/brand/logo";
+import { SiteHeader } from "@/components/marketing/site-header";
+import { SiteFooter } from "@/components/marketing/site-footer";
+import { Section } from "@/components/marketing/ui";
 
 export async function LegalPage({
   namespace,
@@ -11,64 +12,51 @@ export async function LegalPage({
   sectionCount: number;
 }) {
   const t = await getTranslations(`marketing.legal.${namespace}`);
-  const ta = await getTranslations("auth");
   const sections = Array.from({ length: sectionCount }, (_, index) => index + 1);
 
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-graphite/15">
-        <div className="shell flex items-center justify-between py-5">
-          <Logo tone="light" />
-          <Link
-            href="/"
-            className="link-rule font-mono text-[11px] uppercase tracking-label text-graphite/60 hover:text-graphite"
-          >
-            {ta("backHome")}
-          </Link>
-        </div>
-      </header>
+    <div className="blueprint">
+      <SiteHeader />
+      <main>
+        <Section>
+          <div className="pad pb-12 pt-14 lg:pb-16 lg:pt-20">
+            <p className="mono-label flex items-center gap-3">
+              <span className="h-1.5 w-1.5 rounded-pill bg-spark-300" aria-hidden="true" />
+              {t("updated")}
+            </p>
+            <h1 className="display mt-7 max-w-[20ch] text-balance text-[clamp(2.25rem,5vw,4rem)] leading-[1.02]">
+              {t("title")}
+            </h1>
+          </div>
+        </Section>
 
-      <main className="shell py-10 lg:py-14">
-        <div className="flex flex-wrap items-baseline justify-between gap-3 border-b border-graphite/15 pb-4">
-          <p className="mono-label text-graphite/70">
-            <span className="mr-2 text-graphite/40">/</span>
-            {t("title")}
-          </p>
-          <p className="font-mono text-[11px] uppercase tracking-label text-graphite/60">
-            {t("updated")}
-          </p>
-        </div>
-
-        <h1 className="display mt-10 max-w-[20ch] text-balance text-[clamp(2.4rem,5vw,4rem)] leading-[1] text-graphite lg:mt-12">
-          {t("title")}
-        </h1>
-
-        <div className="mt-10 border-t border-graphite/15 lg:mt-12">
+        <Section>
           {sections.map((index) => (
             <section
               key={index}
-              className="grid gap-x-10 gap-y-2 border-b border-graphite/15 py-7 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)]"
+              className="pad grid gap-x-12 gap-y-3 border-b border-wire py-8 last:border-b-0 md:grid-cols-[minmax(0,18rem)_minmax(0,1fr)] lg:py-10"
             >
-              <h2 className="display text-[clamp(1.25rem,1.8vw,1.6rem)] leading-snug text-graphite">
-                {t(`s${index}t`)}
-              </h2>
-              <p className="max-w-2xl text-[15px] leading-relaxed text-graphite-500">
+              <h2 className="text-[19px] leading-snug text-chalk">{t(`s${index}t`)}</h2>
+              <p className="max-w-[62ch] text-[15px] leading-relaxed text-chalk-400">
                 {t(`s${index}b`)}
               </p>
             </section>
           ))}
-        </div>
+        </Section>
 
-        <p className="mt-10 text-[15px] text-graphite-500">
-          {t("contact")}{" "}
-          <a
-            href={`mailto:${BRAND.supportEmail}`}
-            className="link-rule text-graphite hover:text-spark-600"
-          >
-            {BRAND.supportEmail}
-          </a>
-        </p>
+        <Section>
+          <p className="pad py-8 text-[15px] leading-relaxed text-chalk-400">
+            {t("contact")}{" "}
+            <a
+              href={`mailto:${BRAND.supportEmail}`}
+              className="focus-ring inline-flex min-h-[44px] items-center rounded-control text-chalk hover:text-spark-200"
+            >
+              <span className="link-rule py-1">{BRAND.supportEmail}</span>
+            </a>
+          </p>
+        </Section>
       </main>
+      <SiteFooter />
     </div>
   );
 }

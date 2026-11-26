@@ -46,12 +46,12 @@ interface ApplyProgressProps {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  done: "text-emerald-400",
-  skipped: "text-spark-100/30",
+  done: "text-spark-200",
+  skipped: "text-chalk-500",
   running: "text-ember-400",
   failed: "text-red-400",
   warning: "text-amber-400",
-  pending: "text-spark-100/25",
+  pending: "text-chalk-500",
 };
 
 export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgressProps) {
@@ -189,23 +189,23 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
               >
                 {tc(`jobStatus.${job.status}`)}
               </Badge>
-              {active ? <span className="text-[10px] text-spark-100/35">{t("live")}</span> : null}
+              {active ? <span className="text-[11px] text-chalk-500">{t("live")}</span> : null}
             </div>
-            <p className="mt-2 text-sm text-spark-100/70">{statusLabel}</p>
-            <p className="mt-1 text-[11px] text-spark-100/35">
+            <p className="mt-2 text-sm text-chalk-300">{statusLabel}</p>
+            <p className="mt-1 text-[11px] text-chalk-500">
               {t("createdAt")}: {formatDateTime(job.created_at)}
             </p>
           </div>
           <div className="text-right">
-            <p className="text-2xl font-semibold text-white">{percent}%</p>
-            <p className="text-[11px] text-spark-100/40">
+            <p className="text-2xl font-semibold text-chalk">{percent}%</p>
+            <p className="text-[11px] text-chalk-500">
               {counts.done} / {counts.total} {t("steps")}
             </p>
           </div>
         </div>
-        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-ink-700">
+        <div className="mt-4 h-1.5 overflow-hidden rounded-full bg-void-700">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-spark-500 to-ember-400 transition-all duration-500"
+            className="h-full rounded-pill bg-spark-300 transition-all duration-500"
             style={{ width: `${percent}%` }}
           />
         </div>
@@ -227,8 +227,8 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
           {job.status === "completed" ? (
             <div className="flex flex-col items-center text-center">
               <Mascot className="h-24 w-24" withSparkles={false} />
-              <h2 className="mt-2 text-lg font-semibold text-white">{t("completedTitle")}</h2>
-              <p className="mt-1 max-w-md text-sm text-spark-100/60">{t("completedBody")}</p>
+              <h2 className="mt-2 text-[18px] font-medium text-white">{t("completedTitle")}</h2>
+              <p className="mt-1 max-w-md text-sm text-chalk-400">{t("completedBody")}</p>
               <div className="mt-4 flex flex-wrap justify-center gap-2">
                 <a
                   href={`https://discord.com/channels/${guildId}`}
@@ -246,10 +246,10 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
           ) : job.status === "failed" || job.status === "rolled_back" ? (
             <div className="text-center">
               <AlertTriangle className="mx-auto h-8 w-8 text-red-400" />
-              <h2 className="mt-2 text-lg font-semibold text-white">
+              <h2 className="mt-2 text-[18px] font-medium text-white">
                 {job.status === "rolled_back" ? t("rolledBackTitle") : t("failedTitle")}
               </h2>
-              <p className="mt-1 text-sm text-spark-100/60">
+              <p className="mt-1 text-sm text-chalk-400">
                 {job.status === "rolled_back" ? t("rolledBackBody") : t("failedBody")}
               </p>
               {job.refunded ? <p className="mt-2 text-xs text-emerald-300">{t("refunded")}</p> : null}
@@ -259,8 +259,8 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
               {job.error ? (
                 <p
                   className={cn(
-                    "mx-auto mt-3 max-w-xl rounded-lg border border-red-500/20 bg-red-500/5 px-3 py-2 text-[11px] leading-relaxed text-red-200/80",
-                    !localizedError && "font-mono",
+                    "mx-auto mt-3 max-w-xl rounded-inner border border-red-500/20 bg-red-500/5 px-4 py-3 text-[12px] leading-relaxed text-red-200/80",
+                    !localizedError && "font-code",
                   )}
                 >
                   {localizedError ?? job.error}
@@ -277,9 +277,9 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
             </div>
           ) : (
             <div className="text-center">
-              <XCircle className="mx-auto h-8 w-8 text-spark-100/40" />
-              <h2 className="mt-2 text-lg font-semibold text-white">{t("cancelledTitle")}</h2>
-              <p className="mt-1 text-sm text-spark-100/60">{t("cancelledBody")}</p>
+              <XCircle className="mx-auto h-8 w-8 text-chalk-500" />
+              <h2 className="mt-2 text-[18px] font-medium text-white">{t("cancelledTitle")}</h2>
+              <p className="mt-1 text-sm text-chalk-400">{t("cancelledBody")}</p>
               <Link href={`/dashboard/${guildId}`} className={buttonClasses("secondary", "md", "mt-4")}>
                 {t("back")}
               </Link>
@@ -290,12 +290,12 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
 
       <div className="surface p-4">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-white">{t("progress")}</h2>
-          <span className="text-[11px] text-spark-100/35">
+          <h2 className="text-[16px] font-medium text-white">{t("progress")}</h2>
+          <span className="text-[11px] text-chalk-500">
             {job.summary.channels ?? 0} {t("channel")} · {job.summary.roles ?? 0} {t("role")}
           </span>
         </div>
-        <ul className="space-y-0.5">
+        <ul className="list-fade space-y-1">
           {job.progress.map((entry) => {
             const omittedPermissions =
               entry.omittedPermissions ?? parseOmittedStaffPermissions(entry.error);
@@ -311,25 +311,25 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
               <li
                 key={entry.key}
                 className={cn(
-                  "flex items-center gap-2 rounded-md px-2 py-1.5 text-xs",
+                  "flex items-center gap-2 rounded-inner bg-white/[0.03] px-3 py-2 text-[12px]",
                   entry.status === "running" && "bg-ember-500/5",
                 )}
               >
                 <StatusIcon status={entry.status} />
-                <span className="w-16 shrink-0 text-[10px] uppercase tracking-wide text-spark-100/30">
+                <span className="w-20 shrink-0 text-[12px] text-chalk-500">
                   {kindLabel(entry.kind, t)}
                 </span>
                 <span
                   className={cn(
                     "flex-1 truncate",
-                    entry.status === "done" ? "text-spark-100/70" : "text-spark-100/50",
+                    entry.status === "done" ? "text-chalk-300" : "text-chalk-400",
                   )}
                 >
                   {entry.label}
                 </span>
                 <span
                   title={errorText || undefined}
-                  className="max-w-[45%] truncate text-right text-[10px] text-spark-100/25"
+                  className="max-w-[45%] truncate text-right text-[11px] text-chalk-500"
                 >
                   {errorText}
                 </span>
@@ -338,7 +338,7 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
           })}
         </ul>
         {counts.total === 0 ? (
-          <p className="text-xs text-spark-100/40">{tc("loading")}</p>
+          <p className="text-xs text-chalk-500">{tc("loading")}</p>
         ) : null}
       </div>
     </div>
@@ -350,7 +350,7 @@ function StatusIcon({ status }: { status: string }) {
   if (status === "running") return <Loader2 className="h-3.5 w-3.5 animate-spin text-ember-400" />;
   if (status === "failed") return <XCircle className="h-3.5 w-3.5 text-red-400" />;
   if (status === "warning") return <AlertTriangle className="h-3.5 w-3.5 text-amber-400" />;
-  if (status === "skipped") return <MinusCircle className="h-3.5 w-3.5 text-spark-100/30" />;
+  if (status === "skipped") return <MinusCircle className="h-3.5 w-3.5 text-chalk-500" />;
   return <Circle className={cn("h-3.5 w-3.5", STATUS_STYLES.pending)} />;
 }
 

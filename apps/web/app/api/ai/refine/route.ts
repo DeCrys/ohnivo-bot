@@ -3,7 +3,6 @@ import { z } from "zod";
 import { CREDIT_COSTS } from "@ohnivo/shared";
 import { refineValidatedBlueprint } from "@/lib/ai/service";
 import { sanitizeInstruction } from "@/lib/ai/sanitize";
-import { canUsePaidAi } from "@/lib/auth/admin";
 import { requireApiUser } from "@/lib/auth/session";
 import { logAudit } from "@/lib/audit";
 import { getCreditBalance, grantCredits, spendCredits } from "@/lib/credits";
@@ -35,9 +34,6 @@ export async function POST(request: Request) {
     const blueprint = await getOwnedBlueprint(body.blueprintId, session.user.id);
     const access = await assertGuildAccess(session.user.id, blueprint.guild_id);
 
-    if (!canUsePaidAi(session.user)) {
-      throw new AppError("plan_required", "AI refinement requires a paid plan");
-    }
     await assertAiRateLimit(session.user.id);
 
     const balance = await getCreditBalance(session.user.id);

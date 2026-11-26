@@ -1,16 +1,14 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { CREDIT_COSTS } from "@ohnivo/shared";
 import { generateValidatedBlueprint } from "@/lib/ai/service";
 import { sanitizePrompt } from "@/lib/ai/sanitize";
-import { canUsePaidAi } from "@/lib/auth/admin";
 import { requireApiUser } from "@/lib/auth/session";
 import { logAudit } from "@/lib/audit";
-import { getCreditBalance, grantCredits, spendCredits } from "@/lib/credits";
 import { AppError } from "@/lib/errors";
 import { assertGuildAccess } from "@/lib/guild-access";
 import { assertSameOrigin, errorResponse, parseJson } from "@/lib/http";
 import { assertAiRateLimit, recordAiUsage } from "@/lib/rate-limit";
+import { assertGenerationQuota } from "@/lib/usage-limits";
 import { getServiceClient } from "@/lib/supabase/service";
 
 export const dynamic = "force-dynamic";
@@ -23,7 +21,6 @@ const bodySchema = z.object({
 
 export async function POST(request: Request) {
   let userId: string | null = null;
-  let charged = false;
   try {
     assertSameOrigin(request);
     const session = await requireApiUser();
@@ -33,20 +30,8 @@ export async function POST(request: Request) {
     const prompt = sanitizePrompt(body.prompt);
     const access = await assertGuildAccess(session.user.id, body.guildId);
 
-    if (!canUsePaidAi(session.user)) {
-      throw new AppError("plan_required", "AI generation requires a paid plan");
-    }
+    await assertGenerationQuota(session.user);
     await assertAiRateLimit(session.user.id);
-
-    const balance = await getCreditBalance(session.user.id);
-    if (balance < CREDIT_COSTS.generate) {
-      throw new AppError("insufficient_credits", "Not enough credits");
-    }
-
-    await spendCredits(session.user.id, CREDIT_COSTS.generate, "generate", {
-      guildId: access.guild.id,
-    });
-    charged = true;
 
     const result = await generateValidatedBlueprint(prompt);
 
@@ -90,13 +75,6 @@ export async function POST(request: Request) {
       demo: result.demo,
     });
   } catch (error) {
-    if (charged && userId) {
-      try {
-        await grantCredits(userId, CREDIT_COSTS.generate, "refund", { reason: "generate_failed" });
-      } catch (refundError) {
-        console.error("[credits] generate refund failed", refundError);
-      }
-    }
     if (userId) {
       await recordAiUsage({
         userId,

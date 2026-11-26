@@ -1,5 +1,5 @@
 import { getTranslations } from "next-intl/server";
-import { SectionHeader } from "@/components/marketing/ui";
+import { Section, SectionHeader } from "@/components/marketing/ui";
 
 export async function HowItWorks() {
   const t = await getTranslations("marketing.steps");
@@ -10,30 +10,21 @@ export async function HowItWorks() {
   ];
 
   return (
-    <section id="jak-to-funguje" className="shell scroll-mt-24 py-16 lg:py-24">
-      <SectionHeader
-        index="01"
-        label={t("eyebrow")}
-        title={t("title")}
-        lead={t("subtitle")}
-      />
+    <Section id="jak-to-funguje">
+      <SectionHeader index="01" label={t("eyebrow")} title={t("title")} lead={t("subtitle")} />
 
-      <ol className="mt-10 border-t border-graphite/15">
+      <ol className="grid gap-4 lg:grid-cols-3">
         {steps.map((step) => (
-          <li
-            key={step.number}
-            className="group grid gap-x-10 gap-y-3 border-b border-graphite/15 py-7 md:grid-cols-[10rem_minmax(0,1fr)] md:py-9 lg:grid-cols-[10rem_minmax(0,1fr)_22rem]"
-          >
-            <p className="font-mono text-[11px] tracking-label text-graphite/60">{step.number}</p>
-            <h3 className="display text-[clamp(1.55rem,2.5vw,2.15rem)] leading-[1.1] text-graphite transition-transform duration-300 group-hover:translate-x-1 motion-reduce:transition-none">
+          <li key={step.number} className="surface flex flex-col p-6 sm:p-8">
+            <span className="h-1.5 w-1.5 rounded-pill bg-spark-300" aria-hidden="true" />
+            <p className="mt-8 text-[12px] text-chalk-500">{step.number}</p>
+            <h3 className="mt-3 text-[22px] font-medium leading-tight tracking-display text-white">
               {step.title}
             </h3>
-            <p className="max-w-sm text-[15px] leading-relaxed text-graphite-500 md:col-start-2 lg:col-start-3 lg:pt-1.5">
-              {step.body}
-            </p>
+            <p className="mt-3 text-[15px] leading-relaxed text-chalk-400">{step.body}</p>
           </li>
         ))}
       </ol>
-    </section>
+    </Section>
   );
 }

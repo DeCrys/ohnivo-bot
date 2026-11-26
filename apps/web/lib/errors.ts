@@ -4,7 +4,9 @@ export type ApiErrorCode =
   | "not_found"
   | "insufficient_credits"
   | "plan_required"
+  | "generation_limit"
   | "rate_limited"
+  | "apply_rate_limited"
   | "invalid_input"
   | "ai_failed"
   | "ai_invalid_output"
@@ -22,7 +24,9 @@ const STATUS: Record<ApiErrorCode, number> = {
   not_found: 404,
   insufficient_credits: 402,
   plan_required: 402,
+  generation_limit: 402,
   rate_limited: 429,
+  apply_rate_limited: 429,
   invalid_input: 400,
   ai_failed: 502,
   ai_invalid_output: 502,

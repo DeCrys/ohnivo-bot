@@ -4,7 +4,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   return (
     <div className="app-surface min-h-screen">
       <Topbar />
-      <main className="mx-auto max-w-7xl px-4 py-8 sm:px-6">{children}</main>
+      {/* One framed column, the same one the landing pages draw. */}
+      <main className="frame min-h-[calc(100vh-4rem)] pb-20 lg:min-h-[calc(100vh-6.25rem)]">
+        {children}
+      </main>
     </div>
   );
 }

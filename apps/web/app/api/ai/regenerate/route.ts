@@ -3,7 +3,6 @@ import { z } from "zod";
 import { CREDIT_COSTS } from "@ohnivo/shared";
 import { generateValidatedBlueprint } from "@/lib/ai/service";
 import { sanitizePrompt } from "@/lib/ai/sanitize";
-import { canUsePaidAi } from "@/lib/auth/admin";
 import { requireApiUser } from "@/lib/auth/session";
 import { logAudit } from "@/lib/audit";
 import { getCreditBalance, grantCredits, spendCredits } from "@/lib/credits";
@@ -33,17 +32,14 @@ export async function POST(request: Request) {
     const blueprint = await getOwnedBlueprint(body.blueprintId, session.user.id);
     const access = await assertGuildAccess(session.user.id, blueprint.guild_id);
 
-    if (!canUsePaidAi(session.user)) {
-      throw new AppError("plan_required", "AI generation requires a paid plan");
-    }
     await assertAiRateLimit(session.user.id);
 
     const balance = await getCreditBalance(session.user.id);
-    if (balance < CREDIT_COSTS.generate) {
+    if (balance < CREDIT_COSTS.regenerate) {
       throw new AppError("insufficient_credits", "Not enough credits");
     }
 
-    await spendCredits(session.user.id, CREDIT_COSTS.generate, "regenerate", {
+    await spendCredits(session.user.id, CREDIT_COSTS.regenerate, "regenerate", {
       guildId: blueprint.guild_id,
       blueprintId: blueprint.id,
     });
@@ -89,7 +85,7 @@ export async function POST(request: Request) {
   } catch (error) {
     if (charged && userId) {
       try {
-        await grantCredits(userId, CREDIT_COSTS.generate, "refund", {
+        await grantCredits(userId, CREDIT_COSTS.regenerate, "refund", {
           reason: "regenerate_failed",
         });
       } catch (refundError) {

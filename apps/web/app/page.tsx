@@ -10,13 +10,13 @@ import { CtaSection } from "@/components/marketing/cta";
 
 export default function LandingPage() {
   return (
-    <div className="min-h-screen">
+    <div className="blueprint">
       <SiteHeader />
       <main>
         <Hero />
+        <CommunityTypes />
         <HowItWorks />
         <Features />
-        <CommunityTypes />
         <PricingSection />
         <Faq />
         <CtaSection />

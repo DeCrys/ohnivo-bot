@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { Loader2 } from "lucide-react";
+import { useLocale, useTranslations } from "next-intl";
 import { PLANS, PLAN_ORDER, type BillingInterval, type PlanId } from "@ohnivo/shared";
 import { buttonClasses } from "@/components/ui/button";
 import { Badge } from "@/components/ui/primitives";
@@ -28,9 +28,13 @@ export function PlanPicker({
 }) {
   const t = useTranslations("marketing.pricing");
   const tb = useTranslations("ai.billing");
+  const locale = useLocale();
   const [interval, setInterval] = useState<BillingInterval>(initialInterval);
   const [pending, setPending] = useState<PlanId | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const currency = locale === "en" ? "CZK" : "Kč";
+  const number = new Intl.NumberFormat(locale);
 
   async function checkout(plan: PlanId) {
     if (plan === "free") return;
@@ -42,7 +46,7 @@ export function PlanPicker({
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ plan, interval }),
       });
-      const data = (await response.json()) as { url?: string; error?: { code: string } };
+      const data = (await response.json()) as { url?: string; error?: { code?: string } };
       if (!response.ok || !data.url) {
         setError(data.error?.code === "stripe_missing" ? tb("stripeMissing") : tb("error"));
         return;
@@ -56,22 +60,25 @@ export function PlanPicker({
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-5">
       <div className="flex justify-center">
-        <div className="inline-flex items-center rounded-full border border-line bg-ink-900 p-1">
+        <div className="inline-flex items-center rounded-pill border border-wire bg-void-900 p-1">
           {(["month", "year"] as const).map((value) => (
             <button
               key={value}
               type="button"
               onClick={() => setInterval(value)}
+              aria-pressed={interval === value}
               className={cn(
-                "rounded-full px-4 py-1.5 text-xs font-medium transition-colors",
-                interval === value ? "bg-spark-500 text-white" : "text-spark-100/60 hover:text-white",
+                "focus-ring inline-flex min-h-[40px] items-center gap-2 rounded-pill px-4 text-[13px] font-medium leading-none transition-colors duration-150 motion-reduce:transition-none",
+                interval === value
+                  ? "bg-void-700 text-white"
+                  : "text-chalk-400 hover:text-white motion-reduce:transition-none",
               )}
             >
               {value === "month" ? t("monthly") : t("yearly")}
               {value === "year" ? (
-                <span className="ml-1.5 rounded-full bg-emerald-500/15 px-1.5 py-0.5 text-[10px] text-emerald-300">
+                <span className="rounded-pill border border-wire bg-spark-300/10 px-2 py-0.5 text-[11px] text-spark-200">
                   {t("save")}
                 </span>
               ) : null}
@@ -80,47 +87,57 @@ export function PlanPicker({
         </div>
       </div>
 
-      {error ? <p className="text-center text-xs text-red-300">{error}</p> : null}
+      {error ? <p className="text-center text-[13px] text-red-300">{error}</p> : null}
 
-      <div className="grid gap-3 lg:grid-cols-4">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {PLAN_ORDER.map((planId) => {
           const plan = PLANS[planId];
           const price =
             planId === "free" ? 0 : interval === "month" ? plan.priceMonthCzk : plan.priceYearCzk;
-          const current = currentPlan === planId;
+          const current = planId === currentPlan;
+          const featured = plan.recommended || current || highlightPlan === planId;
           return (
             <div
               key={planId}
               className={cn(
-                "surface relative flex flex-col p-4",
-                plan.recommended && "border-spark-500/50",
-                current && "border-emerald-500/40",
-                highlightPlan === planId && !current && "ring-1 ring-spark-400/60",
+                "surface relative flex flex-col p-6 sm:p-7",
+                featured && "border-wire shadow-glow",
               )}
             >
               {plan.recommended ? (
-                <Badge variant="soon" className="absolute -top-2.5 left-4">
+                <Badge variant="success" className="absolute right-5 top-5">
                   {t("popular")}
                 </Badge>
               ) : null}
-              <h3 className="text-sm font-semibold capitalize text-white">
+              <h3 className="pr-20 text-[18px] font-medium leading-snug text-white">
                 {planId === "free" ? t("freeName") : planId}
               </h3>
-              <p className="mt-2 text-2xl font-semibold text-white">
-                {price === 0 ? t("freePrice") : `${price.toLocaleString("cs-CZ")} Kč`}
+              <p className="mt-5 text-[28px] font-medium leading-none tracking-display text-white">
+                {price === 0 ? t("freePrice") : `${number.format(price)} ${currency}`}
               </p>
-              <p className="mt-0.5 text-[11px] text-spark-100/40">
+              <p className="mt-2 text-[13px] text-chalk-500">
                 {price > 0 ? (interval === "month" ? t("perMonth") : t("perYear")) : "—"}
               </p>
-              <p className="mt-2 text-[11px] text-spark-300">
-                {plan.monthlyCredits > 0
-                  ? `${plan.monthlyCredits.toLocaleString("cs-CZ")} ${t("creditsSuffix")}`
+              <p className="mt-3 text-[13px] text-spark-200">
+                {plan.monthlyGenerations > 0
+                  ? t("generationsPerMonth", { count: plan.monthlyGenerations })
                   : t("freeFeature2")}
               </p>
-              <ul className="mt-3 flex-1 space-y-1.5">
+              <p className="mt-1 text-[13px] text-chalk-500">
+                {plan.monthlyCredits > 0
+                  ? `${number.format(plan.monthlyCredits)} ${t("creditsSuffix")}`
+                  : null}
+              </p>
+              <ul className="mt-5 flex-1 space-y-2.5">
                 {FEATURES[planId].map((key) => (
-                  <li key={key} className="flex gap-1.5 text-[11px] text-spark-100/60">
-                    <Check className="mt-0.5 h-3 w-3 shrink-0 text-emerald-400" />
+                  <li
+                    key={key}
+                    className="flex items-start gap-2.5 text-[13px] leading-relaxed text-chalk-400"
+                  >
+                    <span
+                      className="mt-[7px] h-1.5 w-1.5 shrink-0 rounded-pill bg-spark-300"
+                      aria-hidden="true"
+                    />
                     {t(key)}
                   </li>
                 ))}
@@ -132,17 +149,19 @@ export function PlanPicker({
                 className={buttonClasses(
                   plan.recommended && !current ? "primary" : "secondary",
                   "sm",
-                  "mt-4 w-full",
+                  "mt-6 w-full",
                 )}
               >
-                {pending === planId ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : null}
+                {pending === planId ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
+                ) : null}
                 {current ? t("current") : planId === "free" ? t("freeName") : t("choose")}
               </button>
             </div>
           );
         })}
       </div>
-      <p className="text-center text-[11px] text-spark-100/40">{t("vat")}</p>
+      <p className="text-center text-[12px] text-chalk-500">{t("vat")}</p>
     </div>
   );
 }

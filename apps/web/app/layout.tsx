@@ -1,33 +1,23 @@
 import type { Metadata } from "next";
 import { NextIntlClientProvider } from "next-intl";
 import { getLocale, getMessages } from "next-intl/server";
-import { IBM_Plex_Mono, Instrument_Serif, Inter_Tight } from "next/font/google";
+import { Inter, Fragment_Mono } from "next/font/google";
 import { BRAND } from "@ohnivo/shared";
 import "./globals.css";
 
 /**
- * Three faces, all open source, all with latin-ext so Czech diacritics stay in
- * the same family. Serif display + grotesk body + mono labels is the same
- * pairing the reference studios use (basar.studio, 12ft.studio/lab).
+ * Inter for all reading and headings; the mono face is reserved for real
+ * code and IDs. Both are OFL and include latin-ext for Czech diacritics.
  */
-const serif = Instrument_Serif({
+const sans = Inter({
   subsets: ["latin", "latin-ext"],
-  weight: "400",
-  style: ["normal", "italic"],
-  variable: "--font-serif",
-  display: "swap",
-});
-
-const sans = Inter_Tight({
-  subsets: ["latin", "latin-ext"],
-  weight: ["400", "500", "600"],
   variable: "--font-sans",
   display: "swap",
 });
 
-const mono = IBM_Plex_Mono({
+const mono = Fragment_Mono({
   subsets: ["latin", "latin-ext"],
-  weight: ["400", "500"],
+  weight: "400",
   variable: "--font-mono",
   display: "swap",
 });
@@ -67,10 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   const messages = await getMessages();
 
   return (
-    <html
-      lang={locale}
-      className={`${serif.variable} ${sans.variable} ${mono.variable}`}
-    >
+    <html lang={locale} className={`${sans.variable} ${mono.variable}`}>
       <body>
         <NextIntlClientProvider locale={locale} messages={messages}>
           {children}

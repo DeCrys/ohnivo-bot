@@ -454,6 +454,42 @@ export function normalizeBlueprint(raw: unknown): NormalizedBlueprint {
   };
 }
 
+/**
+ * A deliberately small starting point for blueprints built without AI.
+ * Everything here is editable user data in the blueprint editor — it is not UI copy.
+ */
+export function createStarterBlueprint(serverName: string): ServerBlueprint {
+  return blueprintSchema.parse({
+    serverName: serverName.slice(0, 400),
+    categories: [
+      {
+        name: "Information",
+        emoji: "📢",
+        channels: [
+          { name: "rules", type: "text", nsfw: false, permissionOverwrites: [] },
+          {
+            name: "announcements",
+            type: "announcement",
+            nsfw: false,
+            permissionOverwrites: [],
+          },
+        ],
+      },
+      {
+        name: "Community",
+        emoji: "💬",
+        channels: [
+          { name: "general", type: "text", nsfw: false, permissionOverwrites: [] },
+          { name: "voice", type: "voice", nsfw: false, permissionOverwrites: [] },
+        ],
+      },
+    ],
+    roles: [],
+    welcome: { channel: "general", message: "" },
+    rules: [],
+  });
+}
+
 export interface BlueprintStats {
   categories: number;
   textChannels: number;

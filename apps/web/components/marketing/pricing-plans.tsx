@@ -3,8 +3,8 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { CREDIT_COSTS, PLANS, type BillingInterval, type PlanId } from "@ohnivo/shared";
-import { ArrowUpRight } from "@/components/marketing/ui";
+import { PLANS, type BillingInterval, type PlanId } from "@ohnivo/shared";
+import { ArrowRight, Section } from "@/components/marketing/ui";
 import { cn } from "@/lib/utils";
 
 const PAID_PLANS: PlanId[] = ["starter", "premium", "pro"];
@@ -36,135 +36,136 @@ export function PricingPlans() {
   const topCredits = PLANS.pro.monthlyCredits;
 
   return (
-    <section id="plans" className="shell scroll-mt-24 pb-16 lg:pb-24">
-      <div className="flex flex-col gap-4 border border-graphite/15 bg-paper-sand/50 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex flex-wrap items-baseline gap-x-4 gap-y-1">
-          <h3 className="display text-2xl text-graphite">{t("freeTitle")}</h3>
-          <p className="font-mono text-[11px] uppercase tracking-label text-graphite/50">
-            {t("freeLead")}
-          </p>
+    <Section id="plans">
+      <div className="pad flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <h2 className="tag">{t("freeTitle")}</h2>
+          <p className="text-[15px] leading-relaxed text-chalk-2">{t("freeLead")}</p>
         </div>
         <Link
           href="/login"
-          className="link-rule shrink-0 font-mono text-[11px] uppercase tracking-label text-graphite hover:text-spark-600"
+          className="focus-ring inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-control text-[13px] text-white transition-colors hover:text-spark-200 motion-reduce:transition-none"
         >
-          {t("freeCta")} →
+          <span className="link-rule py-1">{t("freeCta")}</span>
+          <ArrowRight />
         </Link>
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-4 border-b border-graphite/15 pb-4">
-        <div role="group" aria-label={t("billingLabel")} className="flex items-center gap-5">
-          {(["month", "year"] as const).map((value) => (
-            <button
-              key={value}
-              type="button"
-              aria-pressed={interval === value}
-              onClick={() => setInterval(value)}
-              className={cn(
-                "focus-ring font-mono text-[11px] uppercase tracking-label transition-colors",
-                interval === value
-                  ? "text-graphite underline decoration-1 underline-offset-[6px]"
-                  : "text-graphite/60 hover:text-graphite",
-              )}
-            >
-              {value === "month" ? t("monthly") : t("yearly")}
-            </button>
-          ))}
-          {interval === "year" ? (
-            <span className="bg-acid px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-label text-graphite">
-              {t("yearlyBadge")}
-            </span>
-          ) : null}
+      <div className="pad flex flex-wrap items-center justify-between gap-4 py-4">
+        <div className="flex flex-wrap items-center gap-3">
+          <div
+            role="group"
+            aria-label={t("billingLabel")}
+            className="inline-flex items-center rounded-pill border border-wire bg-void-900 p-1"
+          >
+            {(["month", "year"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={interval === value}
+                onClick={() => setInterval(value)}
+                className={cn(
+                  "focus-ring inline-flex h-10 min-w-[44px] items-center justify-center rounded-pill px-4 text-[13px] font-medium leading-none transition-colors duration-150 motion-reduce:transition-none",
+                  interval === value ? "bg-void-700 text-white" : "text-chalk-400 hover:text-white",
+                )}
+              >
+                {value === "month" ? t("monthly") : t("yearly")}
+              </button>
+            ))}
+          </div>
+          {interval === "year" ? <span className="tag-accent">{t("yearlyBadge")}</span> : null}
         </div>
-        <p className="font-mono text-[11px] uppercase tracking-label text-graphite/60">
-          {t("conversionHint")}
-        </p>
+        <p className="text-[13px] leading-relaxed text-chalk-500">{t("conversionHint")}</p>
       </div>
 
-      <div className="grid gap-px border-x border-b border-graphite/15 bg-graphite/15 lg:grid-cols-3">
+      <div className="grid gap-4 lg:grid-cols-3">
         {PAID_PLANS.map((planId) => {
           const plan = PLANS[planId];
           const price = interval === "month" ? plan.priceMonthCzk : plan.priceYearCzk;
-          const drafts = Math.floor(plan.monthlyCredits / CREDIT_COSTS.generate);
+          const drafts = plan.monthlyGenerations;
           const yearlySaving = plan.priceMonthCzk * 12 - plan.priceYearCzk;
           const featured = Boolean(plan.recommended);
 
           return (
             <div
               key={planId}
-              className={cn("flex flex-col bg-paper p-5 lg:p-7", featured && "bg-lilac/35")}
+              className={cn(
+                "surface flex flex-col p-6 sm:p-8",
+                featured && "border-wire shadow-glow",
+              )}
             >
-              <div className="flex items-baseline justify-between gap-2">
-                <h3 className="font-mono text-[11px] uppercase tracking-label text-graphite/70">
-                  {planId}
-                </h3>
-                {featured ? (
-                  <span className="bg-graphite px-1.5 py-0.5 font-mono text-[9px] uppercase tracking-label text-paper">
-                    {t("recommended")}
-                  </span>
-                ) : null}
+              <div className="flex min-h-[28px] items-center justify-between gap-2">
+                <h3 className="text-[18px] font-medium leading-snug text-white">{planId}</h3>
+                {featured ? <span className="tag-accent">{t("recommended")}</span> : null}
               </div>
 
-              <p className="display mt-6 text-[clamp(2.4rem,4vw,3.2rem)] leading-none text-graphite">
+              <p className="mt-8 text-[40px] font-medium leading-none tracking-display text-white">
                 {formatCzk(price, locale)}
               </p>
-              <p className="mt-2 font-mono text-[11px] uppercase tracking-label text-graphite/60">
+              <p className="mt-3 text-[13px] text-chalk-500">
                 {interval === "month" ? t("perMonth") : t("perYear")} · {t("priceNote")}
               </p>
               {interval === "year" ? (
-                <p className="mt-1 font-mono text-[11px] text-graphite-500">
+                <p className="mt-2 text-[13px] text-spark-200">
                   {t("yearlySaving", { amount: formatCzk(yearlySaving, locale) })}
                 </p>
               ) : null}
 
-              <p className="mt-5 text-[15px] leading-relaxed text-graphite-500">
+              <p className="mt-6 text-[15px] leading-relaxed text-chalk-400">
                 {t(LEAD_KEY[planId])}
               </p>
 
-              <div className="mt-6 border-t border-graphite/15 pt-4">
-                <p className="text-[14px] font-medium text-graphite">
-                  {t("creditsPerMonth", { count: plan.monthlyCredits })}
-                </p>
-                <p className="mt-0.5 font-mono text-[11px] text-graphite-500">
-                  {t("draftsCount", { count: drafts })}
-                </p>
-                <div className="mt-3 h-px w-full bg-graphite/20" aria-hidden="true">
+              <div className="mt-7">
+                <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                  <p className="text-[15px] text-white">
+                    {t("creditsPerMonth", { count: plan.monthlyCredits })}
+                  </p>
+                  <p className="text-[13px] text-chalk-400">
+                    {t("draftsCount", { count: drafts })}
+                  </p>
+                </div>
+                <div
+                  className="mt-4 h-1.5 w-full overflow-hidden rounded-pill bg-white/5"
+                  aria-hidden="true"
+                >
                   <div
-                    className="h-px bg-graphite transition-[width] duration-300 ease-out motion-reduce:transition-none"
+                    className={cn(
+                      "h-full rounded-pill transition-[width] duration-300 ease-out motion-reduce:transition-none",
+                      featured ? "bg-spark-300" : "bg-chalk-400",
+                    )}
                     style={{ width: `${Math.round((plan.monthlyCredits / topCredits) * 100)}%` }}
                   />
                 </div>
               </div>
 
-              <ul className="mt-5 flex-1 space-y-2">
-                {PAID_FEATURES.map((key) => (
-                  <li key={key} className="flex gap-2 text-[13px] leading-relaxed text-graphite-500">
-                    <span className="mt-[7px] h-px w-3 shrink-0 bg-graphite/40" aria-hidden="true" />
+              <ul className="mt-6 flex-1 space-y-2.5">
+                {[...PAID_FEATURES, "rowSubscription" as const].map((key) => (
+                  <li key={key} className="flex gap-2.5 text-[14px] leading-relaxed text-chalk-400">
+                    <span
+                      className={cn(
+                        "mt-[9px] h-1.5 w-1.5 shrink-0 rounded-pill",
+                        featured ? "bg-spark-300" : "bg-wire-strong",
+                      )}
+                      aria-hidden="true"
+                    />
                     {t(key)}
                   </li>
                 ))}
-                <li className="flex gap-2 text-[13px] leading-relaxed text-graphite-500">
-                  <span className="mt-[7px] h-px w-3 shrink-0 bg-graphite/40" aria-hidden="true" />
-                  {t("rowSubscription")}
-                </li>
               </ul>
 
               <Link
                 href={billingHref(planId, interval)}
                 className={cn(
-                  "focus-ring group mt-6 inline-flex h-12 items-center justify-between gap-2 border px-4 font-mono text-[11px] uppercase tracking-label transition-colors",
-                  featured
-                    ? "border-graphite bg-graphite text-paper hover:bg-spark-600"
-                    : "border-graphite/30 text-graphite hover:border-graphite hover:bg-graphite hover:text-paper",
+                  "focus-ring mt-8 inline-flex h-12 items-center justify-center",
+                  featured ? "btn-hatch" : "btn-wire w-full",
                 )}
               >
                 {t("choose")}
-                <ArrowUpRight className="transition-transform duration-300 group-hover:-translate-y-0.5 group-hover:translate-x-0.5 motion-reduce:transition-none" />
               </Link>
             </div>
           );
         })}
       </div>
-    </section>
+    </Section>
   );
 }

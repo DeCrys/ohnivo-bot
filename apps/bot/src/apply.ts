@@ -74,6 +74,43 @@ function errorMessage(error: unknown): string {
   return String(error);
 }
 
+/** Free drafts have no charge to refund, so never imply a refund failed. */
+function refundMessage(
+  locale: "cs" | "en",
+  cost: number,
+  refunded: boolean,
+  withRollback: boolean,
+): string {
+  if (cost <= 0) {
+    if (locale === "en") {
+      return withRollback
+        ? "No credits were charged; created objects were rolled back where possible."
+        : "No credits were charged for this build.";
+    }
+    return withRollback
+      ? "Za tuto stavbu nebyly účtovány kredity; vytvořené objekty jsme uklidili, kde to šlo."
+      : "Za tuto stavbu nebyly účtovány kredity.";
+  }
+  if (refunded) {
+    if (locale === "en") {
+      return withRollback
+        ? "Credits were refunded and created objects were rolled back."
+        : "Credits were refunded.";
+    }
+    return withRollback
+      ? "Kredity jsme vrátili a vytvořené objekty uklidili."
+      : "Kredity byly vráceny.";
+  }
+  if (locale === "en") {
+    return withRollback
+      ? "Created objects were rolled back where possible, but the credit refund failed. Contact support and provide the build ID."
+      : "The credit refund failed; contact support and provide the build ID.";
+  }
+  return withRollback
+    ? "Vytvořené objekty jsme uklidili, kde to šlo, ale vrácení kreditů se nepodařilo. Kontaktuj podporu a uveď ID stavby."
+    : "Vrácení kreditů se nepodařilo; kontaktuj podporu a uveď ID stavby.";
+}
+
 function discordChannelType(type: BlueprintChannel["type"]): ChannelType {
   if (type === "voice") return ChannelType.GuildVoice;
   if (type === "forum") return ChannelType.GuildForum;
@@ -710,10 +747,11 @@ export async function runJob(client: Client, job: ClaimedJob): Promise<void> {
     await notifyUser(job.user_id, {
       type: "apply_failed",
       title: locale === "en" ? "Build failed" : "Stavba selhala",
-      body:
+      body: `${
         locale === "en"
-          ? `The bot is no longer on the server, so the build could not start. ${refunded ? "Credits were refunded." : "The credit refund failed; contact support and provide the build ID."}`
-          : `Bot už na serveru není, stavbu proto nešlo spustit. ${refunded ? "Kredity byly vráceny." : "Vrácení kreditů se nepodařilo; kontaktuj podporu a uveď ID stavby."}`,
+          ? "The bot is no longer on the server, so the build could not start."
+          : "Bot už na serveru není, stavbu proto nešlo spustit."
+      } ${refundMessage(locale, job.cost, refunded, false)}`,
       href: `/dashboard/${job.guild_id}`,
     });
     return;
@@ -751,15 +789,7 @@ export async function runJob(client: Client, job: ClaimedJob): Promise<void> {
     await notifyUser(job.user_id, {
       type: "apply_failed",
       title: locale === "en" ? "Build failed" : "Stavba selhala",
-      body: `${message} ${
-        locale === "en"
-          ? refunded
-            ? "Credits were refunded."
-            : "The credit refund failed; contact support and provide the build ID."
-          : refunded
-            ? "Kredity byly vráceny."
-            : "Vrácení kreditů se nepodařilo; kontaktuj podporu a uveď ID stavby."
-      }`,
+      body: `${message} ${refundMessage(locale, job.cost, refunded, false)}`,
       href: `/dashboard/${job.guild_id}/apply/${job.id}`,
     });
     await audit({
@@ -932,16 +962,8 @@ export async function runJob(client: Client, job: ClaimedJob): Promise<void> {
           ? `The new structure on ${guild.name} was created, but removing the old structure did not finish. The new objects were kept; review the server and finish cleanup manually. No automatic credit refund was issued because cleanup had started.`
           : `Nová struktura na serveru ${guild.name} vznikla, ale úklid původní struktury se nedokončil. Nové objekty zůstaly; zkontroluj server a dokonči úklid ručně. Kredity se automaticky nevrátily, protože úklid už začal.`
         : locale === "en"
-          ? `The build on ${guild.name} failed. ${
-              refunded
-                ? "Credits were refunded and created objects were rolled back."
-                : "Created objects were rolled back where possible, but the credit refund failed. Contact support and provide the build ID."
-            } Reason: ${message}`
-          : `Stavba na serveru ${guild.name} selhala. ${
-              refunded
-                ? "Kredity jsme vrátili a vytvořené objekty uklidili."
-                : "Vytvořené objekty jsme uklidili, kde to šlo, ale vrácení kreditů se nepodařilo. Kontaktuj podporu a uveď ID stavby."
-            } Důvod: ${message}`,
+          ? `The build on ${guild.name} failed. ${refundMessage(locale, job.cost, refunded, true)} Reason: ${message}`
+          : `Stavba na serveru ${guild.name} selhala. ${refundMessage(locale, job.cost, refunded, true)} Důvod: ${message}`,
       href: `/dashboard/${job.guild_id}/apply/${job.id}`,
     });
     await audit({

@@ -9,142 +9,142 @@ any screen, and keep new work inside these tokens instead of inventing new ones.
 - **Product:** Discord bot + web dashboard for generating and applying Discord
   server blueprints ("AI tools hub", blueprint editor, apply progress).
 
-## Two surfaces, one brand
+## One soft, premium surface everywhere
 
-| Surface | Routes | Language |
+Landing pages, `/dashboard/**`, billing, builder and every component share one
+material: a near-black canvas with softly rounded, barely outlined cards. There
+is no second "app shell" vocabulary, no blueprint hatch, no hairline frame, no
+selection-handle corners and no dashed guides.
+
+The earlier blueprint system (hatched margins, 2px corners, uppercase mono
+labels, square markers, inverted rows) and the violet Ink panels were retired.
+Their token names survive as aliases so call sites stay stable while the values
+come from one place.
+
+### Where the direction comes from
+
+Reference: Raycast's AI core-features cards — near-black canvas, one tonal step
+per surface, whisper-thin borders, large radii, inset top highlight, quiet
+type and a single restrained violet accent. Direction only; no assets copied.
+
+## Tokens (source of truth: `apps/web/tailwind.config.ts` + `app/globals.css`)
+
+Every colour resolves to a CSS variable declared in `:root` in `globals.css`.
+The `*-rgb` channel variables exist so Tailwind opacity modifiers keep working
+(`bg-void-900/60`, `text-chalk-400/80`). Add a new token to both files, never
+inline in a component.
+
+| CSS variable | Value | Use |
 | --- | --- | --- |
-| **Paper** (editorial, marketing) | `/`, `/pricing`, `/login`, `/privacy`, `/terms` | Warm paper, ink type, hard 1px rules, one accent, serif display |
-| **Ink** (application shell) | `/dashboard/**` | Dark `ink-950`, violet `spark`, soft surfaces, rounded cards |
+| `--bg` | `#08090a` | page canvas, flat, no pattern |
+| `--card` | `#0e0f11` | cards, panels, billing plans |
+| `--card-2` / `--card-3` | `#121316` / `#17181b` | nested rows, controls, disabled fills |
+| `--card-border` | `rgba(255,255,255,0.06)` | every 1px outline |
+| `--card-border-hover` | `rgba(255,255,255,0.10)` | hover ceiling |
+| `--inner-bg` / `--inner-border` | `rgba(255,255,255,0.03/0.05)` | list rows, inputs |
+| `--text` | `#ffffff` | headlines, primary values |
+| `--text-secondary` | `#d4d5d9` | supporting copy |
+| `--text-muted` | `#9a9ca2` | descriptions, labels |
+| `--text-subtle` | `#8b8d93` | fine print, header cells |
+| `--accent` | `#8b5cf6` | primary button, active state, small icons only |
+| `--accent-soft` | `#a78bfa` | accent text on dark, tiny dots |
+| `--radius-card` | `24px` | cards, panels, plan columns |
+| `--radius-inner` | `14px` | nested boxes, rows, inputs, alerts, menus |
+| `--radius-control` | `10px` | buttons |
+| `--radius-pill` | `999px` | badges, tags, toggles, pills |
+| `--highlight` | `inset 0 1px 0 rgba(255,255,255,0.04)` | top edge on every card |
+| `--shadow-soft` | `0 24px 60px -32px rgba(0,0,0,0.4)` | large soft depth only |
 
-Both are legitimate. Do not mix them: a paper page never gets a glowing card, a
-dashboard screen never gets a serif display headline. The only bridge is
-`.panel-ink` — a dark product panel embedded inside a paper page (hero blueprint,
-CTA band, login aside).
-
-## Tokens (source of truth: `apps/web/tailwind.config.ts`)
-
-### Paper surface (marketing)
-
-| Token | Hex | Use |
-| --- | --- | --- |
-| `paper` | `#FBFBF2` | page background (also `body` default) |
-| `paper-deep` | `#F4F1E6` | inset blocks, form fields |
-| `paper-sand` | `#EAE7DB` | full-bleed band (community types) |
-| `graphite` | `#1B1B1C` | primary text, ink buttons, 1px rules at `/15` |
-| `graphite-500` | `#595959` | body copy, secondary text |
-| `graphite-400` | `#8A8A8A` | fine print only (never body copy) |
-| `lilac` | `#C6BDFF` | one highlight per view (featured plan, small marks) |
-| `acid` | `#FFF96F` | rare badge (yearly saving); never large areas |
-
-Rules are `border-graphite/15` (hairline) and `bg-graphite/15` (1px dividers).
-No gradients, no glass, no blurred cards, no rounded corners on paper. Radius is
-`0` everywhere on the marketing surface except the mascot and the logo tile.
-
-### Ink surface (dashboard, unchanged)
-
-| Token | Hex | Use |
-| --- | --- | --- |
-| `ink-950` | `#07070D` | page background, focus-ring offset |
-| `ink-900` | `#0B0B14` | muted surfaces |
-| `ink-850` | `#10101C` | `.surface` background (80% alpha + blur) |
-| `ink-800` | `#141423` | secondary buttons, raised blocks |
-| `ink-700` | `#1C1C2E` | hover state of `ink-800` |
-| `ink-600` | `#26263B` | deepest raised block |
-| `line` | `#2A2A40` | borders, scrollbar thumb |
-
-### Brand — "spark" (violet, primary accent)
-
-`50 #F2EFFF` · `100 #E4DDFF` · `200 #C9BBFF` · `300 #A98FFF` · `400 #8B6BFF` ·
-`500 #7450F5` (primary) · `600 #5E3ADB` (active) · `700 #4A2CB0` · `800 #371F86` · `900 #24145C`
-
-On paper, `spark-600` is only a hover state for ink buttons and the full stop in
-the wordmark. It never fills a block.
-
-### Accent — "ember" (cyan, secondary highlight)
-
-`400 #54C7FF` · `500 #22A8F0` — dashboard only.
+Tailwind aliases: `void` → canvas/cards, `chalk` → text, `wire` → borders,
+`ink` → nested fills, `line` → editor separators, `spark` → accent. Radius
+utilities: `rounded-card`, `rounded-inner` (`rounded-panel`), `rounded-control`
+(`rounded-tick`), `rounded-pill`.
 
 ### Effects
 
-- `shadow-glow`, `shadow-card`, `bg-spark-radial`, `.grid-bg` — ink surface only.
-- Paper uses no shadow at all. Depth comes from rules, not elevation.
+- No hatch, grid, dot or diagonal background. `bg-hatch*` and `.grid-bg` are
+  retained as class names for compatibility but render as soft tonal washes.
+- No square selection handles: `.rule-nodes` and `.rule-nodes-bottom` are plain
+  1px separators with no `::before` / `::after` nodes.
+- No hard shadows. Cards use `--highlight` plus `--shadow-soft`.
+- `.list-fade` / `.carousel-fade` fade long lists and carousels at the edges
+  (`mask-image: linear-gradient(...)`). Never clip abruptly.
+- `focus-ring` has **no outline at rest**. Keyboard focus only: 2px
+  `rgba(139,92,246,0.5)` outline with 2px offset on `:focus-visible`; it inherits
+  the element's radius. Mouse clicks never paint an outline.
 
 ## Typography
 
-Three faces, loaded with `next/font/google` in `apps/web/app/layout.tsx`
-(`latin` + `latin-ext`, so Czech diacritics stay in the same family):
+`Inter` (`--font-sans`) is loaded in `apps/web/app/layout.tsx` for `latin` +
+`latin-ext`, so Czech diacritics stay in the family. `Fragment Mono`
+(`--font-mono`) is reserved for **real code and IDs** — never for labels,
+navigation, buttons or headings.
 
-| Role | Family | CSS var | Use |
-| --- | --- | --- | --- |
-| Display | `Instrument Serif` | `--font-serif` | h1/h2, plan prices, the footer wordmark |
-| Body | `Inter Tight` | `--font-sans` | paragraphs, buttons, navigation |
-| Meta | `IBM Plex Mono` | `--font-mono` | 11px uppercase labels, counters, `/show` |
+| Role | Treatment |
+| --- | --- |
+| Card / section heading | Inter, 18–20px (section up to 28px), weight 500–600, `#fff`, no uppercase, `tracking-display` (-0.02em) |
+| Description | Inter, 15–16px, weight 400, `#9a9ca2`, line-height ~1.55 |
+| Small label | Inter, 12–13px, `#8b8d93`, normal case, no letter-spacing |
+| Code / ID only | Fragment Mono, original case, `tracking-mono: 0` |
 
-- `.display` = serif, normal weight, `tracking-display` (`-0.03em`), `leading-[0.98–1.1]`.
-- `.mono-label` = 11px mono, uppercase, `tracking-label` (`0.14em`), `graphite/70`.
-- Marketing h1: `clamp(2.7rem, 7.2vw, 6.4rem)`, second line in italic `graphite/75`.
-- Body copy on paper: 15–17px, `leading-relaxed`, `graphite-500`.
-- Numbers in tables: `tabular-nums` mono.
-- Dashboard keeps Tailwind's default scale and the existing `gradient-text`.
+`.mono-label` and `.display` keep their names but now render in Inter with
+normal case. Sentence case everywhere in UI copy.
 
 ## Layout
 
-- `.shell` = `max-w-[1680px]`, gutters `20px → 32px → 70px`. Every marketing page
-  section sits inside it; full-bleed bands put the background on the section and
-  the `.shell` inside.
-- Section rhythm: `py-16 lg:py-24`, with 100–140px between blocks.
-- `SectionHeader` (`components/marketing/ui.tsx`): mono index + label, serif
-  statement, short lead — `10rem | 1fr | 22rem` on `lg`. Indices run `01…06`.
-- Lists and ledgers are rows separated by 1px rules, never cards.
-- Asymmetry is deliberate: a wide statement with a narrow offset column beats a
-  centered stack.
+- `.blueprint` / `.app-surface` = the flat `--bg` canvas.
+- `.frame` = a centered `max-w-[1280px]` column, no side borders; full-bleed on
+  phones.
+- `.pad` is the shared horizontal gutter: `20px → 32px → 40px`.
+- Sections are separated by `--inner-border` rules or by space, never by
+  painted grids or framed cells.
+- Card padding 24–32px (`p-6 sm:p-8` on `Card`); gaps between cards 16–24px.
+- Nested rows: `--inner-bg` fill, `--inner-border` border, `rounded-inner`.
+- Concentric radius rule: outer radius = inner radius + inset padding.
 
 ## Components
 
 Reuse before building. Never hand-roll a variant that already exists.
 
-### Paper (marketing)
-
-- `components/marketing/ui.tsx` — `SectionHeader`, `ArrowUpRight`, `ArrowRight`, `Rule`.
-- `components/marketing/*` — `site-header`, `hero`, `how-it-works`, `features`,
-  `community-types`, `pricing-section`, `faq`, `cta`, `site-footer`,
-  `pricing-plans`, `pricing-ledger`, `pricing-faq`, `legal-page`.
-- Utilities from `globals.css`: `.shell`, `.hairline`, `.mono-label`, `.display`,
-  `.panel-ink`, `.link-rule` (underline that grows on hover/focus), `.reveal-line`,
-  `.focus-ring`.
-- Buttons on paper are **square** mono uppercase bars: `h-11/h-12`, `px-4/6`,
-  `bg-graphite text-paper`, hover `bg-spark-600`. Secondary = `border-graphite/30`,
-  hover fills ink.
-- `Logo` and `LocaleSwitcher` take `tone="dark" | "light"`. Marketing uses
-  `tone="light"`; the dashboard keeps the default.
-
-### Ink (dashboard)
-
 - `components/ui/button.tsx` — `Button` / `buttonClasses`, variants
   `primary | secondary | ghost | danger | outline`, sizes `sm | md | lg`.
-  Primary = `bg-spark-500` + `shadow-glow`; `rounded-xl`, `focus-ring`,
-  `transition-colors`, disabled at `opacity-50`.
-- `components/ui/primitives.tsx` — cards, badges, inputs. `components/ui/field.tsx`
-  — label + error wrapper.
-- Surfaces: `.surface` (`rounded-2xl`, `border-line/70`, `bg-ink-850/80`,
-  `shadow-card`, blur) and `.surface-muted` (`rounded-xl`, `border-line/60`,
-  `bg-ink-900/70`).
-- `.focus-ring` — `ring-2 ring-spark-400 ring-offset-2 ring-offset-ink-950` on ink;
-  on paper it is `outline-2 outline-offset-2 outline-spark-500`.
+  `primary` = `.btn-hatch` (violet gradient, 12px radius, 44px hit area),
+  `secondary` = `.btn-wire` (transparent, soft border), the rest are quiet text
+  actions. 180ms transitions, subtle press feedback.
+- `components/ui/primitives.tsx` — `Card`, `SectionTitle`, `Badge`, `Alert`,
+  `Spinner`, `EmptyState`. `Card` owns the 24px surface; `Badge` is a pill.
+- `components/ui/field.tsx` — `Label`, `Input`, `Textarea`, `FieldError`. Inputs
+  are slightly inset (`--inner-bg`), 14px radius, 15px text.
+- `components/ui/page-header.tsx` — `PageHeader` with small label, statement,
+  lead and right-aligned actions.
+- `globals.css` utilities: `.surface`, `.surface-muted`, `.panel`, `.tag`,
+  `.tag-accent`, `.tag-warn`, `.btn-hatch`, `.btn-wire`, `.index-row`,
+  `.menu-panel`, `.menu-item`, `.ledger-head`, `.ledger-row`, `.list-fade`,
+  `.carousel-fade`, `.focus-ring`, `.gradient-text`.
+- `components/marketing/*`, `components/dashboard/*`, `components/ai/*`,
+  `components/admin/*` and `components/brand/*` all consume those primitives.
+
+### Billing
+
+Four plans are 24px cards with `--card-border`. The current/recommended plan
+gets a soft violet ring (`rgba(139,92,246,0.4)`) or a gentle glow — never a
+hard green/violet bar. "Nejčastější volba" is a small pill inside or above the
+card, not a framed label on its edge.
+
+### Navigation and history
+
+Top bars are borderless, muted text only; server/navigation actions are pills
+with a soft border. Credit history is a plain list: grey sentence-case headers,
+`--inner-border` row separators, no inner grids.
 
 ## Motion
 
-- Paper has **one** authored moment per page: the hero headline rises through a
-  mask (`.reveal-line`, 900ms, `cubic-bezier(0.2, 0, 0, 1)`, 90ms stagger).
-  Everything else is a 300ms colour or transform change on hover.
-- Ambient loops: `animate-float` (6s) and `animate-pulse-soft` (2.4s) on ink.
-- The role-hierarchy demo (`.role-drag-clone`, 2.4s) and `.skeleton` shimmer live
-  in `globals.css`.
-- Motion must explain state or hierarchy. No scroll-triggered reveal on every
-  section, no parallax, no animated gradients.
-- `prefers-reduced-motion: reduce` is mandatory: every animation/loop needs a
-  branch (hide or freeze, never remove meaning). `.reveal-line`, `.link-rule`,
-  `animate-float` and the role demo already handle it.
+- 150–200ms colour/filter feedback on interactive elements. No ambient loops
+  except the existing diagram twinkle, role-drag demo and skeleton shimmer.
+- Only `transform` and `opacity` animate for movement; never `transition: all`.
+- `prefers-reduced-motion: reduce` must cover every animation and transition
+  (freeze or hide, never remove meaning). Overlay scrolls use
+  `overscroll-behavior: contain`.
 
 ## Internationalization (hard rules)
 
@@ -165,19 +165,17 @@ Reuse before building. Never hand-roll a variant that already exists.
 
 - WCAG 2.2 AA target: visible focus rings, 4.5:1 text contrast, 44px hit areas
   for primary actions, real `<button>`/`<a>` semantics, labelled form errors.
-- `graphite-400` is for fine print at 11px only; body copy never drops below
-  `graphite-500` (4.9:1 on paper).
+- `--text-subtle` is the dimmest text colour; do not dim it further.
 - Every icon-only control needs a localized accessible name; decorative SVG gets
   `aria-hidden="true"`.
 - Respect reduced motion and zoom; never hide content behind hover-only affordances.
-- Do not add a third surface or a dark-mode toggle. Paper and ink are fixed roles.
+- Do not add a light-mode toggle. The canvas is fixed and dark.
 
 ## Guardrails
 
-- Do not add a new color, shadow, or radius outside the token table. If a new
-  value is genuinely needed, add it to `tailwind.config.ts` first.
-- Keep the `.surface` / `.surface-muted` / `Button` vocabulary on ink; keep
-  `.shell` / `.mono-label` / `.display` / `.link-rule` on paper.
-- Marketing may be expressive, but only through type, rules and spacing —
-  not through effects. Dashboard and admin screens stay quiet, dense and legible.
+- Do not add a new colour, shadow or radius outside the token table. Add it to
+  `tailwind.config.ts` and `globals.css` first.
+- No `border-radius: 0`, no painted 1px frames with visible colour, no patterns,
+  no dashed borders, no uppercase mono labels, no large violet fills.
+- Violet is a scarce accent: primary button, active state, tiny icons.
 - Pre-existing `npm test` and `npm run typecheck` must stay green.

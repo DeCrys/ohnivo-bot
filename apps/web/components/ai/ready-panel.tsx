@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
-import { Coins, Play, X } from "lucide-react";
+import { Play, X } from "lucide-react";
 import type { ApplyMode } from "@ohnivo/shared";
 import { Button } from "@/components/ui/button";
 import { Alert } from "@/components/ui/primitives";
@@ -13,20 +13,10 @@ import { cn } from "@/lib/utils";
 interface ReadyPanelProps {
   guildId: string;
   blueprintId: string;
-  cost: number;
-  balance: number;
-  canUseAi: boolean;
   botPresent: boolean;
 }
 
-export function ReadyPanel({
-  guildId,
-  blueprintId,
-  cost,
-  balance,
-  canUseAi,
-  botPresent,
-}: ReadyPanelProps) {
+export function ReadyPanel({ guildId, blueprintId, botPresent }: ReadyPanelProps) {
   const t = useTranslations("ai.ready");
   const te = useTranslations("ai.errors");
   const router = useRouter();
@@ -38,8 +28,7 @@ export function ReadyPanel({
   const [error, setError] = useState<string | null>(null);
   const submitting = useRef(false);
 
-  const enough = balance >= cost;
-  const blocked = !canUseAi || !enough || !botPresent || pending;
+  const blocked = !botPresent || pending;
 
   useEffect(() => {
     if (seconds === null) return;
@@ -88,8 +77,8 @@ export function ReadyPanel({
 
   return (
     <div className="space-y-4">
-      <div className="surface p-4">
-        <h2 className="text-sm font-semibold text-white">{t("modeTitle")}</h2>
+      <div className="surface p-6">
+        <h2 className="text-[16px] font-medium text-white">{t("modeTitle")}</h2>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {(["replace", "append"] as const).map((value) => (
             <button
@@ -103,27 +92,27 @@ export function ReadyPanel({
               }}
               disabled={pending || seconds !== null || confirmingReplace}
               className={cn(
-                "rounded-xl border px-4 py-3 text-left transition-colors",
+                "rounded-inner border px-4 py-4 text-left transition-colors",
                 mode === value
-                  ? "border-spark-500/60 bg-spark-500/10"
-                  : "border-line bg-ink-900/50 hover:border-spark-500/30",
+                  ? "border-wire bg-spark-500/[0.12]"
+                  : "border-wire bg-void-800 hover:border-white/[0.12]",
                 "disabled:cursor-not-allowed disabled:opacity-60",
               )}
             >
-              <p className="text-xs font-medium text-white">
+              <p className="text-[13px] font-medium text-white">
                 {value === "replace" ? t("modeReplace") : t("modeAppend")}
               </p>
-              <p className="mt-1 text-[11px] leading-relaxed text-spark-100/50">
+              <p className="mt-1 text-[12px] leading-relaxed text-chalk-400">
                 {value === "replace" ? t("modeReplaceBody") : t("modeAppendBody")}
               </p>
             </button>
           ))}
         </div>
-        <p className="mt-2 text-[11px] text-spark-100/40">{t("modeHint")}</p>
+        <p className="mt-2 text-[11px] text-chalk-500">{t("modeHint")}</p>
       </div>
 
       {confirmingReplace ? (
-        <div className="space-y-3 rounded-xl border border-red-500/30 bg-red-500/5 p-4">
+        <div className="space-y-3 rounded-inner border border-red-500/20 bg-red-500/[0.05] p-5">
           <Alert variant="danger" title={t("replaceConfirmTitle")}>
             {t("replaceConfirmBody")}
           </Alert>
@@ -163,18 +152,11 @@ export function ReadyPanel({
         </div>
       ) : null}
 
-      <div className="surface flex flex-wrap items-center justify-between gap-4 p-4">
-        <div className="flex items-center gap-6 text-sm">
-          <div>
-            <p className="text-[11px] uppercase tracking-wide text-spark-100/40">{t("price")}</p>
-            <p className="mt-0.5 flex items-center gap-1.5 text-lg font-semibold text-white">
-              <Coins className="h-4 w-4 text-spark-300" /> {cost}
-            </p>
-          </div>
-          <div>
-            <p className="text-[11px] uppercase tracking-wide text-spark-100/40">{t("balance")}</p>
-            <p className="mt-0.5 text-lg font-semibold text-spark-100/80">{balance}</p>
-          </div>
+      <div className="surface flex flex-wrap items-center justify-between gap-4 p-6">
+        <div className="text-sm">
+          <p className="text-[12px] text-chalk-500">{t("price")}</p>
+          <p className="mt-0.5 text-[18px] font-medium text-white">{t("freePrice")}</p>
+          <p className="mt-1 text-[12px] leading-relaxed text-chalk-500">{t("freeNote")}</p>
         </div>
 
         {seconds !== null ? (
@@ -204,13 +186,8 @@ export function ReadyPanel({
       </div>
 
       {!botPresent ? <Alert variant="warning">{t("botMissing")}</Alert> : null}
-      {!enough ? (
-        <Alert variant="warning" title={t("notEnough")}>
-          {t("notEnoughBody", { cost, balance })}
-        </Alert>
-      ) : null}
       {error ? <Alert variant="danger">{error}</Alert> : null}
-      <p className="text-[11px] leading-relaxed text-spark-100/40">{t("stepsNote")}</p>
+      <p className="text-[11px] leading-relaxed text-chalk-500">{t("stepsNote")}</p>
     </div>
   );
 }

@@ -1,13 +1,13 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
-import { ArrowRight, Plus } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 import { requireUser } from "@/lib/auth/session";
 import { getManagedGuilds } from "@/lib/guilds";
 import { getBotInviteUrl } from "@/lib/discord";
-import { GuildCard } from "@/components/dashboard/guild-card";
+import { GuildRow } from "@/components/dashboard/guild-row";
 import { RefreshGuildsButton } from "@/components/dashboard/refresh-guilds";
 import { EmptyState } from "@/components/ui/primitives";
-import { buttonClasses } from "@/components/ui/button";
+import { PageHeader } from "@/components/ui/page-header";
 
 export const dynamic = "force-dynamic";
 
@@ -18,42 +18,58 @@ export default async function DashboardPage() {
   const genericInvite = getBotInviteUrl();
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-3xl">{t("title")}</h1>
-          <p className="mt-1 text-sm text-spark-100/60">{t("subtitle")}</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <RefreshGuildsButton label={t("refresh")} doneLabel={t("refreshDone")} />
-          <Link href="/dashboard/new" className={buttonClasses("primary", "sm")}>
-            <Plus className="h-4 w-4" /> {t("newServer")}
-          </Link>
-        </div>
-      </div>
+    <div>
+      <PageHeader
+        index="01"
+        label={t("indexLabel")}
+        lead={t("statementLead")}
+        title={t("statement")}
+        subtitle={t("subtitle")}
+        actions={
+          <>
+            <Link href="/dashboard/new" className="btn-hatch focus-ring">
+              {t("newServer")}
+            </Link>
+            <RefreshGuildsButton label={t("refresh")} doneLabel={t("refreshDone")} />
+          </>
+        }
+      />
 
       {guilds.length === 0 ? (
-        <EmptyState
-          title={t("emptyTitle")}
-          body={t("emptyBody")}
-          action={
-            genericInvite ? (
-              <a
-                href={genericInvite}
-                target="_blank"
-                rel="noreferrer"
-                className={buttonClasses("primary", "md")}
-              >
-                {t("addBot")} <ArrowRight className="h-4 w-4" />
-              </a>
-            ) : null
-          }
-        />
+        <div className="pad py-10 lg:py-14">
+          <EmptyState
+            title={t("emptyTitle")}
+            body={t("emptyBody")}
+            action={
+              genericInvite ? (
+                <a href={genericInvite} target="_blank" rel="noreferrer" className="btn-hatch focus-ring">
+                  {t("addBot")} <ArrowRight className="h-3.5 w-3.5" aria-hidden="true" />
+                </a>
+              ) : null
+            }
+          />
+        </div>
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {guilds.map((guild) => (
-            <GuildCard key={guild.id} guild={guild} inviteUrl={getBotInviteUrl(guild.id)} />
+        <div>
+          <div className="ledger-head pad hidden grid-cols-[3rem_minmax(0,1fr)_11rem_auto] sm:grid">
+            <span className="mono-label">{t("ledgerIndex")}</span>
+            <span className="mono-label">{t("ledgerServer")}</span>
+            <span className="mono-label">{t("botStatus")}</span>
+            <span className="mono-label sm:text-right">{t("ledgerAction")}</span>
+          </div>
+
+          {guilds.map((guild, index) => (
+            <GuildRow
+              key={guild.id}
+              guild={guild}
+              index={index + 1}
+              inviteUrl={getBotInviteUrl(guild.id)}
+            />
           ))}
+
+          <p className="pad py-4 text-[13px] text-chalk-500">
+            {t("serversCount", { count: guilds.length })}
+          </p>
         </div>
       )}
     </div>

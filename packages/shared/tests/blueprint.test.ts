@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   blueprintSchema,
   blueprintStats,
+  createStarterBlueprint,
   normalizeBlueprint,
   slugifyChannelName,
   withEmojiPrefix,
@@ -161,5 +162,21 @@ describe("blueprint validation", () => {
     expect(overwrites).toHaveLength(1);
     expect(overwrites[0]?.role).toBe("Člen");
     expect(issues.some((issue) => issue.code === "unknown_role_reference")).toBe(true);
+  });
+});
+
+describe("createStarterBlueprint", () => {
+  it("builds a valid, editable blueprint without AI", () => {
+    const blueprint = createStarterBlueprint("Moje komunita");
+    expect(blueprint.serverName).toBe("Moje komunita");
+    expect(blueprintStats(blueprint).channels).toBe(4);
+    expect(blueprint.roles).toEqual([]);
+    expect(blueprint.welcome.channel).toBe("general");
+    expect(blueprintSchema.safeParse(blueprint).success).toBe(true);
+  });
+
+  it("keeps the blueprint within Discord limits for long guild names", () => {
+    const blueprint = createStarterBlueprint("x".repeat(1000));
+    expect(blueprint.serverName).toHaveLength(400);
   });
 });

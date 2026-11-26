@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { CREDIT_COSTS } from "@ohnivo/shared";
-import { canUsePaidAi } from "@/lib/auth/admin";
 import { requireApiUser } from "@/lib/auth/session";
 import { logAudit } from "@/lib/audit";
-import { getCreditBalance, grantCredits, spendCredits } from "@/lib/credits";
+import { isManualBlueprint } from "@/lib/blueprint-source";
 import { checkBotPresence } from "@/lib/discord";
 import { AppError } from "@/lib/errors";
 import { assertGuildAccess } from "@/lib/guild-access";
@@ -16,6 +14,7 @@ import {
   requireBotPresent,
 } from "@/lib/jobs";
 import { getServiceClient } from "@/lib/supabase/service";
+import { assertApplyRateLimit } from "@/lib/usage-limits";
 
 export const dynamic = "force-dynamic";
 
@@ -28,12 +27,9 @@ export async function POST(
   request: Request,
   { params }: { params: { blueprintId: string } },
 ) {
-  let userId: string | null = null;
-  let charged = false;
   try {
     assertSameOrigin(request);
     const session = await requireApiUser();
-    userId = session.user.id;
     const body = await parseJson(request, (value) => bodySchema.parse(value));
     if (body.mode === "replace" && !body.confirmReplace) {
       throw new AppError("invalid_input", "Replacing the existing structure requires confirmation");
@@ -42,9 +38,8 @@ export async function POST(
     const blueprint = await getOwnedBlueprint(params.blueprintId, session.user.id);
     const access = await assertGuildAccess(session.user.id, blueprint.guild_id);
 
-    if (!canUsePaidAi(session.user)) {
-      throw new AppError("plan_required", "Applying a blueprint requires a paid plan");
-    }
+    // Applying your own draft is free for everyone; only the bot work is rate limited.
+    await assertApplyRateLimit(session.user.id);
 
     const { data: activeJob } = await getServiceClient()
       .from("apply_jobs")
@@ -56,18 +51,6 @@ export async function POST(
 
     const botPresent = await requireBotPresent(access.guild, checkBotPresence);
     if (!botPresent) throw new AppError("bot_missing", "The bot is not on this guild");
-
-    const balance = await getCreditBalance(session.user.id);
-    if (balance < CREDIT_COSTS.apply) {
-      throw new AppError("insufficient_credits", "Not enough credits");
-    }
-
-    await spendCredits(session.user.id, CREDIT_COSTS.apply, "apply", {
-      guildId: access.guild.id,
-      blueprintId: blueprint.id,
-      mode: body.mode,
-    });
-    charged = true;
 
     const { data: job, error } = await getServiceClient()
       .from("apply_jobs")
@@ -81,7 +64,7 @@ export async function POST(
         status: "queued",
         progress: initialProgress(blueprint.data, body.mode),
         summary: applySummary(blueprint.data, body.mode),
-        cost: CREDIT_COSTS.apply,
+        cost: 0,
       })
       .select("*")
       .single();
@@ -118,23 +101,14 @@ export async function POST(
         blueprintId: blueprint.id,
         revision: blueprint.revision,
         mode: body.mode,
-        cost: CREDIT_COSTS.apply,
+        cost: 0,
+        source: isManualBlueprint(blueprint) ? "manual" : "ai",
         destructiveConfirmed: body.mode === "replace" && body.confirmReplace !== undefined,
       },
     });
 
-    return NextResponse.json({
-      jobId: job.id,
-      balance: balance - CREDIT_COSTS.apply,
-    });
+    return NextResponse.json({ jobId: job.id });
   } catch (error) {
-    if (charged && userId) {
-      try {
-        await grantCredits(userId, CREDIT_COSTS.apply, "refund", { reason: "apply_queue_failed" });
-      } catch (refundError) {
-        console.error("[credits] apply refund failed", refundError);
-      }
-    }
     return errorResponse(error);
   }
 }

@@ -1,50 +1,78 @@
 import type { Config } from "tailwindcss";
 
+/**
+ * All visual values resolve to the CSS variables in app/globals.css.
+ * Component classes keep their old names where possible, so a single token
+ * change here updates every surface across landing, dashboard and builder.
+ */
 const config: Config = {
   content: ["./app/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}"],
   theme: {
     extend: {
       colors: {
-        // Dashboard (dark application shell) - unchanged.
+        // Uniform page canvas.
+        bg: "var(--bg)",
+
+        // Generic application shell (legacy dashboard tokens).
         ink: {
-          950: "#07070D",
-          900: "#0B0B14",
-          850: "#10101C",
-          800: "#141423",
-          700: "#1C1C2E",
-          600: "#26263B",
+          950: "var(--bg)",
+          900: "var(--card)",
+          850: "var(--card-2)",
+          800: "var(--card-3)",
+          700: "#24252a",
+          600: "#2e2f35",
         },
-        line: "#2A2A40",
+        line: "var(--card-border)",
+
+        // Violet accent scale - used for the primary action and highlights.
         spark: {
-          50: "#F2EFFF",
-          100: "#E4DDFF",
-          200: "#C9BBFF",
-          300: "#A98FFF",
-          400: "#8B6BFF",
-          500: "#7450F5",
-          600: "#5E3ADB",
-          700: "#4A2CB0",
-          800: "#371F86",
-          900: "#24145C",
+          50: "#f4f1ff",
+          100: "#e9e2ff",
+          200: "#cbbaff",
+          300: "var(--accent-soft)",
+          400: "#8b5cf6",
+          500: "var(--accent)",
+          600: "#6d3fd4",
+          700: "#5630aa",
+          800: "#3f2481",
+          900: "#2a1858",
         },
         ember: {
-          400: "#54C7FF",
-          500: "#22A8F0",
+          400: "#54c7ff",
+          500: "#22a8f0",
         },
-        // Marketing (editorial paper surface).
-        // Palette sampled from basar.studio (Minimal.gallery) and 12ft.studio/lab.
-        paper: {
-          DEFAULT: "#FBFBF2",
-          deep: "#F4F1E6",
-          sand: "#EAE7DB",
+
+        // Marketing surfaces (formerly "void"/"chalk"/"wire" blueprint).
+        void: {
+          DEFAULT: "var(--bg)",
+          900: "var(--card)",
+          800: "var(--card-2)",
+          700: "var(--card-3)",
+          600: "#24252a",
         },
-        graphite: {
-          DEFAULT: "#1B1B1C",
-          500: "#595959",
-          400: "#8A8A8A",
+        chalk: {
+          DEFAULT: "var(--text)",
+          2: "var(--text-secondary)",
+          300: "var(--text-secondary)",
+          400: "var(--text-muted)",
+          500: "var(--text-subtle)",
+          muted: "var(--text-muted)",
+          dim: "var(--text-subtle)",
         },
-        lilac: "#C6BDFF",
-        acid: "#FFF96F",
+        wire: {
+          DEFAULT: "var(--card-border)",
+          strong: "var(--card-border-hover)",
+          bright: "rgba(255,255,255,0.16)",
+        },
+      },
+      borderRadius: {
+        // Soft geometry everywhere: no 0px or 2px frames left.
+        tick: "var(--radius-control)",
+        panel: "var(--radius-inner)",
+        card: "var(--radius-card)",
+        inner: "var(--radius-inner)",
+        control: "var(--radius-control)",
+        pill: "var(--radius-pill)",
       },
       fontFamily: {
         sans: [
@@ -58,20 +86,29 @@ const config: Config = {
           "Arial",
           "sans-serif",
         ],
-        serif: ["var(--font-serif)", "Georgia", "Times New Roman", "serif"],
+        // Monospace is reserved for real code and IDs only.
         mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
       },
       letterSpacing: {
-        label: "0.14em",
-        display: "-0.03em",
+        label: "0",
+        display: "-0.02em",
+        mono: "0",
       },
       boxShadow: {
-        glow: "0 0 60px -12px rgba(116, 80, 245, 0.55)",
-        card: "0 20px 60px -30px rgba(0, 0, 0, 0.9)",
+        glow: "0 20px 60px -30px rgba(var(--accent-rgb), 0.35)",
+        card: "var(--shadow-soft)",
+        hatch: "0 10px 30px -14px rgba(var(--accent-rgb), 0.35)",
+        panel: "var(--shadow-soft)",
+        soft: "var(--highlight), var(--shadow-soft)",
       },
       backgroundImage: {
+        // A single very quiet glow; the page itself stays uniform #08090a.
         "spark-radial":
-          "radial-gradient(circle at 20% 10%, rgba(116,80,245,0.22), transparent 45%), radial-gradient(circle at 85% 20%, rgba(34,168,240,0.14), transparent 40%)",
+          "radial-gradient(60% 40% at 50% 0%, rgba(var(--accent-rgb), 0.05), transparent 100%)",
+        // Old hatch backgrounds are gone; keys remain for compatibility.
+        hatch: "none",
+        "hatch-ink": "none",
+        "hatch-spark": "none",
       },
       keyframes: {
         float: {
@@ -86,6 +123,13 @@ const config: Config = {
           from: { transform: "translateY(115%)" },
           to: { transform: "translateY(0)" },
         },
+        dashFlow: {
+          to: { strokeDashoffset: "-24" },
+        },
+        twinkle: {
+          "0%, 100%": { opacity: "var(--dot-opacity, 0.6)" },
+          "50%": { opacity: "0.08" },
+        },
         fadeUp: {
           from: { opacity: "0", transform: "translateY(12px)" },
           to: { opacity: "1", transform: "translateY(0)" },
@@ -96,6 +140,8 @@ const config: Config = {
         "pulse-soft": "pulseSoft 2.4s ease-in-out infinite",
         rise: "rise 0.9s cubic-bezier(0.2, 0, 0, 1) both",
         "fade-up": "fadeUp 0.7s cubic-bezier(0.2, 0, 0, 1) both",
+        "dash-flow": "dashFlow 1.6s linear infinite",
+        twinkle: "twinkle 4.8s ease-in-out infinite",
       },
     },
   },

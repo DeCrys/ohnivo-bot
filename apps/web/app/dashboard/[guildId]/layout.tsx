@@ -25,21 +25,27 @@ export default async function GuildLayout({
   const t = await getTranslations("dashboard");
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
+    <div className="pad grid gap-8 py-10 lg:grid-cols-[220px_minmax(0,1fr)] lg:py-12">
       <GuildSidebar
         guildId={access.guild.id}
         guildName={access.guild.name}
         guildIcon={guildIconUrl(access.guild.id, access.guild.icon, 64)}
       />
       <div className="min-w-0">
-        <div className="mb-5 flex flex-wrap items-center gap-2">
-          <h1 className="truncate text-xl font-semibold tracking-tight text-white">
+        <div className="mb-8 flex flex-wrap items-center gap-3 border-b border-wire pb-5">
+          <h1 className="display truncate text-[clamp(1.35rem,2.2vw,1.75rem)] leading-tight text-chalk">
             {access.guild.name}
           </h1>
           {access.guild.bot_present ? (
-            <Badge variant="success">● {t("botOnline")}</Badge>
+            <Badge variant="success">
+              <span className="h-1.5 w-1.5 rounded-pill bg-spark-300" aria-hidden="true" />
+              {t("botOnline")}
+            </Badge>
           ) : (
-            <Badge variant="warning">{t("botOffline")}</Badge>
+            <Badge variant="warning">
+              <span className="h-1.5 w-1.5 rounded-pill bg-amber-400" aria-hidden="true" />
+              {t("botOffline")}
+            </Badge>
           )}
         </div>
         {children}

@@ -1,8 +1,12 @@
 import Stripe from "stripe";
-import type { BillingInterval } from "@ohnivo/shared";
+import type { BillingInterval, CreditPackDefinition } from "@ohnivo/shared";
 import { env } from "./env";
 import { AppError } from "./errors";
-import { stripePriceDetails, type PaidPlanId } from "./stripe-price-data";
+import {
+  creditPackPriceDetails,
+  stripePriceDetails,
+  type PaidPlanId,
+} from "./stripe-price-data";
 
 let cached: Stripe | null = null;
 
@@ -38,6 +42,35 @@ export async function getOrCreateStripePrice(
       metadata: {
         ohnivo_plan: plan,
         ohnivo_interval: interval,
+      },
+    },
+    { idempotencyKey: `ohnivo-${details.lookupKey}` },
+  );
+  return price.id;
+}
+
+export async function getOrCreateCreditPackPrice(pack: CreditPackDefinition): Promise<string> {
+  const stripe = getStripe();
+  const details = creditPackPriceDetails(pack);
+  const existing = await stripe.prices.list({
+    active: true,
+    lookup_keys: [details.lookupKey],
+    limit: 1,
+  });
+  if (existing.data[0]) return existing.data[0].id;
+
+  const price = await stripe.prices.create(
+    {
+      currency: "czk",
+      unit_amount: details.unitAmount,
+      lookup_key: details.lookupKey,
+      product_data: {
+        name: details.productName,
+        metadata: { ohnivo_credit_pack: pack.id, ohnivo_credits: String(pack.credits) },
+      },
+      metadata: {
+        ohnivo_credit_pack: pack.id,
+        ohnivo_credits: String(pack.credits),
       },
     },
     { idempotencyKey: `ohnivo-${details.lookupKey}` },

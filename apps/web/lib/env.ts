@@ -26,6 +26,7 @@ const envSchema = z.object({
   ADMIN_DISCORD_IDS: z.string().optional(),
   DEV_ADMIN_ENABLED: z.enum(["true", "false"]).default("false"),
   AI_RATE_LIMIT_PER_HOUR: z.coerce.number().int().positive().default(20),
+  APPLY_RATE_LIMIT_PER_HOUR: z.coerce.number().int().positive().default(10),
   STRIPE_SECRET_KEY: z.string().min(1).optional(),
   STRIPE_WEBHOOK_SECRET: z.string().min(1).optional(),
 });

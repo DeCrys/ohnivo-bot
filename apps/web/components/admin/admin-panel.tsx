@@ -2,7 +2,7 @@
 
 import type { FormEvent } from "react";
 import { useState, useTransition } from "react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Coins } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/field";
@@ -11,6 +11,8 @@ import { Alert, Card } from "@/components/ui/primitives";
 export function AdminPanel({ initialBalance }: { initialBalance: number }) {
   const t = useTranslations("admin");
   const tc = useTranslations("common");
+  const locale = useLocale();
+  const number = new Intl.NumberFormat(locale);
   const [balance, setBalance] = useState(initialBalance);
   const [amount, setAmount] = useState("1000");
   const [reason, setReason] = useState("");
@@ -48,11 +50,11 @@ export function AdminPanel({ initialBalance }: { initialBalance: number }) {
 
   return (
     <Card>
-      <h2 className="text-sm font-semibold text-white">{t("creditsTitle")}</h2>
-      <p className="mt-1 text-xs leading-relaxed text-spark-100/55">{t("creditsBody")}</p>
-      <p className="mt-4 flex items-center gap-2 text-sm text-spark-100/70">
+      <h2 className="text-[16px] font-medium text-white">{t("creditsTitle")}</h2>
+      <p className="mt-1 text-xs leading-relaxed text-chalk-400">{t("creditsBody")}</p>
+      <p className="mt-4 flex items-center gap-2 text-sm text-chalk-300">
         <Coins className="h-4 w-4 text-spark-300" />
-        {t("currentBalance")}: <strong className="text-white">{balance.toLocaleString("cs-CZ")}</strong>{" "}
+        {t("currentBalance")}: <strong className="text-chalk">{number.format(balance)}</strong>{" "}
         {tc("credits")}
       </p>
 

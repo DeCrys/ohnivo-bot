@@ -1,8 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useTranslations } from "next-intl";
 import { ArrowRight, Server } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
@@ -14,48 +12,50 @@ interface GuildOption {
 }
 
 export function PromptHandoff({ guilds }: { guilds: GuildOption[] }) {
-  const router = useRouter();
   const t = useTranslations("dashboard");
 
-  useEffect(() => {
-    if (guilds.length === 1 && guilds[0]) {
-      router.replace(`/dashboard/${guilds[0].id}/ai/new`);
-    }
-  }, [guilds, router]);
-
   return (
-    <div className="grid gap-3 sm:grid-cols-2">
-      {guilds.map((guild) => (
-        <Link
-          key={guild.id}
-          href={`/dashboard/${guild.id}/ai/new`}
-          className="surface flex items-center gap-3 p-4 transition-colors hover:border-spark-500/40"
-        >
-          <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-lg border border-line bg-ink-800">
-            {guild.icon ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={guild.icon} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <Server className="h-4 w-4 text-spark-300" />
-            )}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium text-white">{guild.name}</p>
-            <p className="text-xs text-spark-100/45">{t("aiBuilder")}</p>
-          </div>
-          <ArrowRight className="h-4 w-4 text-spark-300" />
-        </Link>
-      ))}
+    <div>
       {guilds.length === 0 ? (
-        <p className="text-sm text-spark-100/50">{t("emptyBody")}</p>
-      ) : null}
-      {guilds.length > 1 ? (
-        <div className="sm:col-span-2">
-          <Link href="/dashboard" className={buttonClasses("ghost", "sm")}>
-            {t("nav.backToServers")}
-          </Link>
+        <p className="text-[13px] text-chalk-500">{t("emptyBody")}</p>
+      ) : (
+        <div className="space-y-2">
+          {guilds.map((guild, index) => (
+            <Link
+              key={guild.id}
+              href={`/dashboard/new/${guild.id}`}
+              className="ledger-row pad grid grid-cols-[3rem_minmax(0,1fr)_auto] items-center gap-4"
+            >
+              <span className="text-[12px] leading-none tabular-nums text-chalk-500">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <div className="flex min-w-0 items-center gap-3">
+                <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-inner border border-wire bg-void-800">
+                  {guild.icon ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={guild.icon} alt="" className="h-full w-full object-cover" />
+                  ) : (
+                    <Server className="h-4 w-4 text-spark-300" aria-hidden="true" />
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-[15px] font-medium leading-snug text-white">
+                    {guild.name}
+                  </p>
+                  <p className="mt-1 text-[12px] text-chalk-500">{t("chooseMethodHint")}</p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-spark-300" aria-hidden="true" />
+            </Link>
+          ))}
         </div>
-      ) : null}
+      )}
+
+      <div className="mt-8">
+        <Link href="/dashboard" className={buttonClasses("secondary", "sm")}>
+          {t("nav.backToServers")}
+        </Link>
+      </div>
     </div>
   );
 }

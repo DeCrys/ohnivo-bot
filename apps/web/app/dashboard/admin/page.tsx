@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { Card } from "@/components/ui/primitives";
+import { PageHeader } from "@/components/ui/page-header";
 import { requireUser } from "@/lib/auth/session";
 import { isAdminUser } from "@/lib/auth/admin";
 import { env } from "@/lib/env";
@@ -14,6 +15,7 @@ export default async function AdminPage() {
   if (!isAdminUser(session.user)) notFound();
 
   const t = await getTranslations("admin");
+  const td = await getTranslations("dashboard");
   const balance = await getCreditBalance(session.user.id);
   const provider =
     env.AI_PROVIDER === "auto"
@@ -41,27 +43,31 @@ export default async function AdminPage() {
         : "—";
 
   return (
-    <div className="mx-auto max-w-3xl space-y-5">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight text-white">{t("title")}</h1>
-        <p className="mt-1 text-sm text-spark-100/60">{t("subtitle")}</p>
-      </div>
+    <div>
+      <PageHeader
+        index="01"
+        label={td("admin")}
+        title={t("title")}
+        subtitle={t("subtitle")}
+      />
 
-      <Card>
-        <h2 className="text-sm font-semibold text-white">{t("aiTitle")}</h2>
-        <p className="mt-2 text-sm text-spark-100/70">
-          {configured
-            ? t("aiReady", { provider, model })
-            : t("aiMissing", { provider })}
-        </p>
-        {!configured ? (
-          <p className="mt-3 whitespace-pre-wrap rounded-lg border border-line/60 bg-ink-900/60 p-3 font-mono text-xs leading-relaxed text-spark-100/60">
-            {t("aiSetup")}
+      <div className="pad mx-auto max-w-3xl space-y-5 py-10 lg:py-12">
+        <Card>
+          <h2 className="text-[15px] font-medium text-chalk">{t("aiTitle")}</h2>
+          <p className="mt-2 text-[15px] leading-relaxed text-chalk-400">
+            {configured
+              ? t("aiReady", { provider, model })
+              : t("aiMissing", { provider })}
           </p>
-        ) : null}
-      </Card>
+          {!configured ? (
+            <p className="font-code mt-3 whitespace-pre-wrap rounded-inner border border-wire bg-void-800 p-4 text-[13px] leading-relaxed text-chalk-400">
+              {t("aiSetup")}
+            </p>
+          ) : null}
+        </Card>
 
-      <AdminPanel initialBalance={balance} />
+        <AdminPanel initialBalance={balance} />
+      </div>
     </div>
   );
 }

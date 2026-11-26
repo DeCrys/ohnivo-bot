@@ -44,25 +44,27 @@ export function GuildSidebar({
   ];
 
   return (
-    <aside className="space-y-4">
+    <aside className="space-y-5">
       <Link
         href="/dashboard"
-        className="inline-flex items-center gap-1.5 text-xs text-spark-100/45 transition-colors hover:text-white"
+        className="mono-label focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-control text-chalk-500 transition-colors hover:text-chalk motion-reduce:transition-none"
       >
-        <ArrowLeft className="h-3.5 w-3.5" /> {t("backToServers")}
+        <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" /> {t("backToServers")}
       </Link>
-      <div className="surface-muted flex items-center gap-2.5 p-3">
-        <div className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-lg border border-line bg-ink-800">
+
+      <div className="panel flex items-center gap-3 p-4">
+        <div className="grid h-10 w-10 shrink-0 place-items-center overflow-hidden rounded-inner border border-wire bg-void-800">
           {guildIcon ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img src={guildIcon} alt="" className="h-full w-full object-cover" />
           ) : (
-            <Server className="h-4 w-4 text-spark-300" />
+            <Server className="h-4 w-4 text-spark-300" aria-hidden="true" />
           )}
         </div>
-        <p className="min-w-0 flex-1 truncate text-xs font-medium text-white">{guildName}</p>
+        <p className="min-w-0 flex-1 truncate text-[14px] font-medium text-white">{guildName}</p>
       </div>
-      <nav className="flex gap-1 overflow-x-auto lg:flex-col">
+
+      <nav className="space-y-1">
         {items.map((item) => {
           const active = item.exact
             ? pathname === item.href
@@ -72,27 +74,31 @@ export function GuildSidebar({
               <Link
                 href={item.href}
                 className={cn(
-                  "flex shrink-0 items-center gap-2 rounded-lg px-3 py-2 text-xs transition-colors",
+                  "focus-ring flex min-h-[44px] items-center gap-3 rounded-control px-3 text-[13px] transition-colors duration-150 motion-reduce:transition-none",
                   active
-                    ? "bg-spark-500/15 text-white"
-                    : "text-spark-100/55 hover:bg-ink-800/60 hover:text-white",
+                    ? "bg-white/[0.05] text-white"
+                    : "text-chalk-500 hover:bg-white/[0.03] hover:text-white",
                 )}
               >
-                <item.icon className="h-3.5 w-3.5" />
+                <span
+                  className={cn("h-1.5 w-1.5 rounded-pill", active ? "bg-spark-300" : "bg-wire-strong")}
+                  aria-hidden="true"
+                />
+                <item.icon className="h-3.5 w-3.5" aria-hidden="true" />
                 <span className="flex-1">{item.label}</span>
                 {item.soon ? <Badge variant="soon">{tc("comingSoon")}</Badge> : null}
               </Link>
               {item.ai && active ? (
-                <div className="ml-5 mt-1 hidden space-y-1 border-l border-line/70 pl-3 lg:block">
+                <div className="space-y-0.5 py-1 pl-5">
                   {aiItems.map((aiItem) => (
                     <Link
                       key={aiItem.href}
                       href={aiItem.href}
                       className={cn(
-                        "block rounded-md px-2.5 py-2 text-[11px] transition-colors",
+                        "focus-ring flex min-h-[36px] items-center rounded-control px-3 text-[13px] transition-colors duration-150 motion-reduce:transition-none",
                         aiItem.active
-                          ? "bg-spark-500/10 text-white"
-                          : "text-spark-100/45 hover:bg-ink-800/60 hover:text-white",
+                          ? "bg-white/[0.05] text-spark-200"
+                          : "text-chalk-500 hover:bg-white/[0.03] hover:text-white",
                       )}
                     >
                       {aiItem.label}

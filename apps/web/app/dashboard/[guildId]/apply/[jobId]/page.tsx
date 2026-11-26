@@ -38,13 +38,13 @@ export default async function ApplyJobPage({
     <div className="mx-auto max-w-3xl space-y-5">
       <Link
         href={`/dashboard/${params.guildId}`}
-        className="inline-flex items-center gap-1.5 text-xs text-spark-100/45 hover:text-white"
+        className="inline-flex items-center gap-1.5 text-xs text-chalk-400 hover:text-chalk"
       >
         <ArrowLeft className="h-3.5 w-3.5" /> {tc("back")}
       </Link>
       <div>
-        <h2 className="text-xl font-semibold tracking-tight text-white">{t("title")}</h2>
-        <p className="mt-1 text-sm leading-relaxed text-spark-100/60">{t("subtitle")}</p>
+        <h2 className="text-[20px] font-medium tracking-display text-white">{t("title")}</h2>
+        <p className="mt-1 text-sm leading-relaxed text-chalk-400">{t("subtitle")}</p>
       </div>
 
       <ApplyProgress
