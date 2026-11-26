@@ -1,6 +1,7 @@
 "use client";
 
 import { useId } from "react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/lib/utils";
 
 /**
@@ -18,6 +19,7 @@ export function Mascot({
 }) {
   const rawId = useId();
   const uid = rawId.replace(/[^a-zA-Z0-9]/g, "");
+  const t = useTranslations("common");
   const bodyId = `mascot-body-${uid}`;
   const coreId = `mascot-core-${uid}`;
   const glowId = `mascot-glow-${uid}`;
@@ -27,7 +29,7 @@ export function Mascot({
       viewBox="0 0 240 240"
       className={cn("h-40 w-40", className)}
       role="img"
-      aria-label="Jiskřík, maskot Ohniva"
+      aria-label={t("mascotAlt")}
     >
       <defs>
         <radialGradient id={bodyId} cx="50%" cy="35%" r="75%">
@@ -51,7 +53,7 @@ export function Mascot({
 
       <ellipse cx="120" cy="215" rx="52" ry="10" fill="#000" opacity="0.35" />
 
-      <g className={floating ? "animate-float" : undefined}>
+      <g className={floating ? "animate-float motion-reduce:animate-none" : undefined}>
         <path
           d="M120 30 C 139 66, 177 88, 177 145 C 177 189, 152 210, 120 210 C 88 210, 63 189, 63 145 C 63 88, 101 66, 120 30 Z"
           fill={`url(#${bodyId})`}

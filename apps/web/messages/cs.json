@@ -45,7 +45,8 @@
       "failed": "Selhalo",
       "cancelled": "Zrušeno",
       "rolled_back": "Vráceno"
-    }
+    },
+    "mascotAlt": "Jiskřík, maskot Ohniva"
   },
   "marketing": {
     "nav": {
@@ -60,14 +61,38 @@
       "title1": "Popiš komunitu.",
       "title2": "Ohnivo postaví server.",
       "subtitle": "Napiš běžnou řečí, co řešíš. Jiskřík z toho udělá kategorie, kanály, role, oprávnění i první uvítání. Ty jen schválíš náhled.",
-      "placeholder": "Např. Minecraft server pro stavitele a malý SMP. Chci kategorie na novinky, pravidla, stavby, hledání spoluhráčů a hlasovky. Přátelská komunita, mírná moderace.",
+      "placeholder": "Např. Minecraft server pro stavitele a malý SMP. Kategorie na novinky, pravidla, stavby, hlasovky a přátelská komunita.",
       "cta": "Postavit server",
       "note": "Bez instalace. Bot se připojí až po tvém potvrzení.",
       "builtIn": "Vytvořeno za 8 s",
       "example1": "Minecraft SMP pro stavitele",
       "example2": "FiveM RP komunita",
       "example3": "Esport tým a scrimy",
-      "example4": "Startup a produktová komunita"
+      "example4": "Startup a produktová komunita",
+      "label": "AI stavitel Discord komunit",
+      "promptHint": "Minimálně 3 znaky",
+      "examplesLabel": "Zkus:",
+      "demoTitle": "Návrh serveru",
+      "demoMeta": "40 kreditů · 8 s",
+      "demoCategories": "Kategorie",
+      "demoCategory1": "#novinky",
+      "demoCategory2": "#pravidla",
+      "demoCategory3": "#stavby",
+      "demoRoles": "Role",
+      "demoRole1": "👑 Majitel",
+      "demoRole2": "🛡️ Moderátor",
+      "demoRole3": "🎨 Stavitel",
+      "demoPermissions": "Oprávnění",
+      "demoPerm1": "Spravovat kanály",
+      "demoPerm2": "Spravovat zprávy",
+      "demoPerm3": "Kickovat členy",
+      "demoBuild": "Průběh stavby",
+      "demoStep1": "Role a oprávnění",
+      "demoStep2": "Kategorie a kanály",
+      "demoStep3": "Uvítání",
+      "demoDone": "Hotovo",
+      "demoLink": "Otevřít builder",
+      "flow": "popis / návrh / stavba"
     },
     "steps": {
       "eyebrow": "Jak to funguje",
@@ -105,38 +130,41 @@
       "fivem": "FiveM / RP",
       "creators": "Tvůrci",
       "esport": "Esport",
-      "startup": "Startup"
+      "startup": "Startup",
+      "eyebrow": "Typy komunit"
     },
     "pricing": {
       "eyebrow": "Ceník",
       "title": "Kredity, které se počítají",
-      "subtitle": "Free plán je pro moduly a správu. AI builder odemkneš předplatným s měsíčními kredity.",
+      "subtitle": "Plán Zdarma je pro moduly a správu. AI builder odemkneš předplatným s měsíčními kredity.",
       "monthly": "Měsíčně",
       "yearly": "Ročně",
       "save": "2 měsíce zdarma",
-      "perMonth": "Kč / měsíc",
-      "perYear": "Kč / rok",
+      "perMonth": "/ měsíc",
+      "perYear": "/ rok",
       "creditsSuffix": "kreditů měsíčně",
       "choose": "Vybrat plán",
       "current": "Aktuální plán",
       "popular": "Nejčastější volba",
       "vat": "Ceny jsou včetně DPH. Předplatné můžeš kdykoli zrušit.",
       "freeName": "Free",
-      "freePrice": "0 Kč",
+      "freePrice": "Zdarma",
       "freeFeature1": "Moduly a správa serveru",
       "freeFeature2": "Bez AI generování",
       "freeFeature3": "Přehled serverů a bota",
-      "starterFeature1": "AI generování a úpravy",
+      "starterFeature1": "AI návrh serveru a úpravy",
       "starterFeature2": "Grafika za kredity",
       "starterFeature3": "Živý průběh stavby",
-      "premiumFeature1": "Vše ze Starteru",
-      "premiumFeature2": "Server editor a dávkové úpravy",
-      "premiumFeature3": "Prioritní fronta",
-      "proFeature1": "Vše z Premium",
-      "proFeature2": "Pro agentury a sítě serverů",
-      "proFeature3": "Nejvíc kreditů na akci",
+      "premiumFeature1": "AI návrh serveru a úpravy",
+      "premiumFeature2": "Grafika za kredity",
+      "premiumFeature3": "Živý průběh stavby",
+      "proFeature1": "AI návrh serveru a úpravy",
+      "proFeature2": "Grafika za kredity",
+      "proFeature3": "Živý průběh stavby",
       "loginToChoose": "Přihlas se a vyber plán",
-      "detailCta": "Podrobný ceník a porovnání plánů"
+      "detailCta": "Podrobný ceník a porovnání plánů",
+      "freeNote": "bez AI kreditů",
+      "freeParagraph": "Všechno kromě AI. Ideální na první server."
     },
     "pricingPage": {
       "metaTitle": "Ceník — plány, kredity a předplatné",
@@ -157,8 +185,8 @@
       "costGenerate": "Návrh serveru",
       "costRefine": "Úprava blueprintu",
       "costApply": "Aplikace na Discord",
-      "freeTitle": "Free",
-      "freeLead": "Moduly, správa serverů a přehled. Bez AI kredity.",
+      "freeTitle": "Zdarma",
+      "freeLead": "Moduly, správa serverů a přehled. Bez AI kreditů.",
       "freeCta": "Začít bez kredity",
       "creditsPerMonth": "{count, plural, one {# kredit měsíčně} few {# kredity měsíčně} other {# kreditů měsíčně}}",
       "includedAi": "AI návrh serveru a úpravy blueprintu",
@@ -210,7 +238,9 @@
       "ctaTitle": "První server můžeš postavit dnes",
       "ctaSubtitle": "Začni na Free plánu a přepni se nahoru, až budeš potřebovat AI.",
       "ctaButton": "Začít zdarma",
-      "ctaNote": "Bez plateb do začátku · rušení kdykoli · ceny včetně DPH"
+      "ctaNote": "Bez plateb do začátku · rušení kdykoli · ceny včetně DPH",
+      "compareEyebrow": "Srovnání",
+      "creditsUnit": "kreditů"
     },
     "faq": {
       "eyebrow": "Časté otázky",
@@ -226,7 +256,9 @@
       "q5": "Umí to i anglicky?",
       "a5": "Ano. Web má přepínač češtiny a angličtiny a bot posílá uvítání v jazyce serveru.",
       "q6": "Kde běží bot?",
-      "a6": "Samostatná služba v Dockeru, která komunikuje s webem přes frontu v Supabase. Web běží na Vercelu, bot ne."
+      "a6": "Samostatná služba v Dockeru, která komunikuje s webem přes frontu v Supabase. Web běží na Vercelu, bot ne.",
+      "show": "ukaž",
+      "hide": "skryj"
     },
     "cta": {
       "title": "Tvůj server může stát do minuty",
@@ -241,7 +273,43 @@
       "terms": "Podmínky",
       "privacy": "Soukromí",
       "rights": "Všechna práva vyhrazena.",
-      "made": "Postaveno na Next.js, Supabase a Discord.js."
+      "made": "Postaveno na Next.js, Supabase a Discord.js.",
+      "legal": "Právní",
+      "contact": "Kontakt"
+    },
+    "legal": {
+      "privacy": {
+        "title": "Soukromí",
+        "updated": "Naposledy upraveno: 24. 11. 2026",
+        "contact": "Ohledně soukromí piš na",
+        "s1t": "Co ukládáme",
+        "s1b": "Discord ID, uživatelské jméno, zobrazované jméno, avatar a seznam serverů, které spravuješ. Dále ukládáme návrhy serverů, průběh staveb, zůstatek kreditů a historii plateb.",
+        "s2t": "Proč to ukládáme",
+        "s2b": "Abychom tě poznali při přihlášení, ověřili oprávnění k serveru, mohli ti ukázat návrhy a stavby a správně účtovali kredity. Nic z toho neprodáváme.",
+        "s3t": "Discord tokeny",
+        "s3b": "Přístupové tokeny z Discordu šifrujeme symetrickým klíčem a ukládáme jen na serveru. Nikdy se nedostanou do prohlížeče. Relace má httpOnly cookie a dá se kdykoli zrušit odhlášením.",
+        "s4t": "AI a zpracování",
+        "s4b": "Popis komunity posíláme poskytovateli AI pouze za účelem vygenerování návrhu. Neposíláme mu tvůj Discord token ani platební údaje. Pokud AI klíč není nastavený, běží deterministický demo režim.",
+        "s5t": "Tvoje práva",
+        "s5b": "Můžeš požádat o výpis, opravu nebo smazání svých údajů. Napiš na support e-mail a ozveme se. Některé záznamy (například účetní ledger) musíme ze zákona uchovat.",
+        "s6t": "Cookies",
+        "s6b": "Používáme jen technické cookies pro přihlášení a volbu jazyka. Žádná reklamní ani sledovací cookie třetích stran."
+      },
+      "terms": {
+        "title": "Podmínky používání",
+        "updated": "Naposledy upraveno: 24. 11. 2026",
+        "contact": "Dotazy? Napiš nám na",
+        "s1t": "1. Služba",
+        "s1b": "Ohnivo je nástroj, který na základě tvého popisu navrhne strukturu Discord serveru a po tvém potvrzení ji nechá bota vytvořit. Ohnivo není spojené s Discordem ani s ním není nijak propojené nad rámec standardního OAuth přihlášení a bota.",
+        "s2t": "2. Účet a oprávnění",
+        "s2b": "Přihlašuješ se přes Discord. Pracujeme jen se servery, kde máš oprávnění Manage Server. Za obsah serveru a za to, komu dáš přístup, odpovídáš ty.",
+        "s3t": "3. Kredity a platby",
+        "s3b": "AI akce spotřebovávají kredity podle zveřejněného ceníku. Předplatné se obnovuje automaticky, dokud ho nezrušíš. Nevyčerpané kredity zůstávají na účtu. Ceny jsou uvedené včetně DPH.",
+        "s4t": "4. Odpovědnost",
+        "s4b": "Návrh od AI může obsahovat chyby. Vždy si projdi náhled, než stavbu spustíš. Bot nikdy nemaže existující kanály ani role bez výslovného potvrzení. Službu poskytujeme tak, jak je.",
+        "s5t": "5. Zrušení",
+        "s5b": "Předplatné můžeš kdykoli zrušit v zákaznickém portálu. Přístup k AI funkcím skončí na konci zaplaceného období. Účet můžeš nechat smazat na support e-mailu."
+      }
     }
   },
   "auth": {

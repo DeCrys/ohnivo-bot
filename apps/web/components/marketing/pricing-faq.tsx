@@ -1,32 +1,33 @@
 import { getTranslations } from "next-intl/server";
-import { ChevronDown } from "lucide-react";
+import { SectionHeader } from "@/components/marketing/ui";
 
 const ITEMS = ["faq1", "faq2", "faq3", "faq4", "faq5", "faq6"] as const;
 
 export async function PricingFaq() {
   const t = await getTranslations("marketing.pricingPage");
+  const tf = await getTranslations("marketing.faq");
 
   return (
-    <section id="faq" className="mx-auto max-w-3xl px-4 pb-16 sm:px-6 lg:pb-24">
-      <h2 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-        {t("faqTitle")}
-      </h2>
-      <p className="mt-3 text-sm leading-relaxed text-spark-100/70">{t("faqSubtitle")}</p>
+    <section id="faq" className="shell scroll-mt-24 pb-16 lg:pb-24">
+      <SectionHeader index="03" label={t("faqTitle")} title={t("faqSubtitle")} />
 
-      <div className="mt-8 space-y-2">
+      <div className="mt-10 border-t border-graphite/15">
         {ITEMS.map((item) => (
-          <details
-            key={item}
-            className="group rounded-xl border border-line/70 bg-ink-850/70 px-5 py-4 open:border-spark-500/30"
-          >
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 text-sm font-medium text-white">
-              {t(`${item}q`)}
-              <ChevronDown
-                className="h-4 w-4 shrink-0 text-spark-300 transition-transform group-open:rotate-180"
-                aria-hidden="true"
-              />
+          <details key={item} className="group border-b border-graphite/15">
+            <summary className="focus-ring flex cursor-pointer list-none items-baseline justify-between gap-6 py-6 [&::-webkit-details-marker]:hidden">
+              <span className="display max-w-[46ch] text-[clamp(1.15rem,1.9vw,1.55rem)] leading-snug text-graphite">
+                {t(`${item}q`)}
+              </span>
+              <span className="mono-label shrink-0 text-graphite/60 group-open:hidden">
+                /{tf("show")}
+              </span>
+              <span className="mono-label hidden shrink-0 text-graphite/60 group-open:inline">
+                /{tf("hide")}
+              </span>
             </summary>
-            <p className="mt-3 text-sm leading-relaxed text-spark-100/60">{t(`${item}a`)}</p>
+            <p className="max-w-2xl pb-6 text-[15px] leading-relaxed text-graphite-500">
+              {t(`${item}a`)}
+            </p>
           </details>
         ))}
       </div>

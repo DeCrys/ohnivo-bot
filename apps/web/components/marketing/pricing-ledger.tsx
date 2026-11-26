@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import { getLocale, getTranslations } from "next-intl/server";
-import { Check, Minus } from "lucide-react";
 import { CREDIT_COSTS, PLANS, type PlanId } from "@ohnivo/shared";
+import { SectionHeader } from "@/components/marketing/ui";
 
 type Value = "yes" | "no" | string;
 
@@ -68,7 +68,9 @@ export async function PricingLedger() {
     if (value === "yes") {
       return (
         <span className="inline-flex items-center">
-          <Check className="h-4 w-4 text-emerald-400" aria-hidden="true" />
+          <span aria-hidden="true" className="text-[15px] leading-none text-graphite">
+            ✓
+          </span>
           <span className="sr-only">{t("included")}</span>
         </span>
       );
@@ -76,45 +78,47 @@ export async function PricingLedger() {
     if (value === "no") {
       return (
         <span className="inline-flex items-center">
-          <Minus className="h-4 w-4 text-spark-100/25" aria-hidden="true" />
+          <span aria-hidden="true" className="text-[15px] leading-none text-graphite/25">
+            —
+          </span>
           <span className="sr-only">{t("notIncluded")}</span>
         </span>
       );
     }
     return (
-      <span className="font-medium tabular-nums text-spark-100">
+      <span className="font-mono text-[12px] tabular-nums text-graphite">
         {Number(value).toLocaleString(locale === "cs" ? "cs-CZ" : "en-US")}
       </span>
     );
   }
 
   return (
-    <section id="compare" className="mx-auto max-w-6xl px-4 pb-16 sm:px-6 lg:pb-24">
-      <div className="max-w-2xl">
-        <h2 className="text-balance text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-          {t("ledgerTitle")}
-        </h2>
-        <p className="mt-3 text-sm leading-relaxed text-spark-100/70">{t("ledgerSubtitle")}</p>
-      </div>
+    <section id="compare" className="shell scroll-mt-24 pb-16 lg:pb-24">
+      <SectionHeader
+        index="02"
+        label={t("compareEyebrow")}
+        title={t("ledgerTitle")}
+        lead={t("ledgerSubtitle")}
+      />
 
-      <div className="surface mt-8 hidden overflow-hidden md:block">
-        <table className="w-full text-left text-sm">
+      <div className="mt-10 hidden border border-graphite/15 md:block">
+        <table className="w-full text-left">
           <thead>
-            <tr className="border-b border-line/60">
-              <th scope="col" className="w-[38%] px-5 py-4 text-xs font-medium text-spark-100/45">
-                {t("ledgerColumn")}
+            <tr className="border-b border-graphite/20">
+              <th scope="col" className="w-[40%] px-5 py-4">
+                <span className="mono-label text-graphite/60">{t("ledgerColumn")}</span>
               </th>
               {COLUMNS.map((plan) => (
-                <th
-                  key={plan}
-                  scope="col"
-                  className={
-                    plan === "premium"
-                      ? "px-3 py-4 text-center text-xs font-semibold capitalize text-spark-200"
-                      : "px-3 py-4 text-center text-xs font-medium capitalize text-spark-100/60"
-                  }
-                >
-                  {plan}
+                <th key={plan} scope="col" className="px-3 py-4 text-center">
+                  <span
+                    className={
+                      plan === "premium"
+                        ? "font-mono text-[11px] uppercase tracking-label text-graphite"
+                        : "font-mono text-[11px] uppercase tracking-label text-graphite/50"
+                    }
+                  >
+                    {plan}
+                  </span>
                 </th>
               ))}
             </tr>
@@ -126,14 +130,14 @@ export async function PricingLedger() {
                   <th
                     scope="colgroup"
                     colSpan={COLUMNS.length + 1}
-                    className="px-5 pb-2 pt-6 text-left text-xs font-semibold text-spark-300/70"
+                    className="border-t border-graphite/20 bg-paper-deep/60 px-5 py-2 text-left"
                   >
-                    {t(group.key)}
+                    <span className="mono-label text-graphite/60">{t(group.key)}</span>
                   </th>
                 </tr>
                 {group.rows.map((row) => (
-                  <tr key={row.key} className="border-t border-line/40">
-                    <th scope="row" className="px-5 py-3 pr-4 text-sm font-normal text-spark-100/70">
+                  <tr key={row.key} className="border-t border-graphite/10">
+                    <th scope="row" className="px-5 py-3 text-[14px] font-normal text-graphite-500">
                       {t(row.key)}
                     </th>
                     {COLUMNS.map((plan) => (
@@ -141,7 +145,7 @@ export async function PricingLedger() {
                         key={plan}
                         className={
                           plan === "premium"
-                            ? "bg-spark-500/[0.04] px-3 py-3 text-center"
+                            ? "bg-lilac/20 px-3 py-3 text-center"
                             : "px-3 py-3 text-center"
                         }
                       >
@@ -156,26 +160,31 @@ export async function PricingLedger() {
         </table>
       </div>
 
-      <div className="mt-8 space-y-4 md:hidden">
+      <div className="mt-10 space-y-4 md:hidden">
         {COLUMNS.map((plan) => (
-          <div key={plan} className="surface-muted p-4">
+          <div key={plan} className="border border-graphite/15 p-4">
             <div className="flex items-baseline justify-between gap-3">
-              <h3 className="text-sm font-semibold capitalize text-white">{plan}</h3>
-              <p className="text-xs text-spark-100/50">
+              <h3 className="font-mono text-[11px] uppercase tracking-label text-graphite">
+                {plan}
+              </h3>
+              <p className="font-mono text-[11px] text-graphite-500">
                 {plan === "free"
                   ? t("included")
                   : t("creditsPerMonth", { count: PLANS[plan].monthlyCredits })}
               </p>
             </div>
-            <dl className="mt-3 space-y-2.5">
+            <dl className="mt-3 space-y-2">
               {GROUPS.flatMap((group) =>
                 group.rows.map((row) => (
-                  <div key={row.key} className="flex items-start justify-between gap-4">
-                    <dt className="text-xs text-spark-100/55">
-                      <span className="text-spark-100/30">{t(group.key)} · </span>
+                  <div
+                    key={row.key}
+                    className="flex items-start justify-between gap-4 border-t border-graphite/10 pt-2"
+                  >
+                    <dt className="text-[12px] leading-relaxed text-graphite-500">
+                      <span className="text-graphite/60">{t(group.key)} · </span>
                       {t(row.key)}
                     </dt>
-                    <dd className="shrink-0 text-xs">{renderValue(row.values[plan])}</dd>
+                    <dd className="shrink-0">{renderValue(row.values[plan])}</dd>
                   </div>
                 )),
               )}

@@ -5,6 +5,7 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
+        // Dashboard (dark application shell) - unchanged.
         ink: {
           950: "#07070D",
           900: "#0B0B14",
@@ -30,9 +31,24 @@ const config: Config = {
           400: "#54C7FF",
           500: "#22A8F0",
         },
+        // Marketing (editorial paper surface).
+        // Palette sampled from basar.studio (Minimal.gallery) and 12ft.studio/lab.
+        paper: {
+          DEFAULT: "#FBFBF2",
+          deep: "#F4F1E6",
+          sand: "#EAE7DB",
+        },
+        graphite: {
+          DEFAULT: "#1B1B1C",
+          500: "#595959",
+          400: "#8A8A8A",
+        },
+        lilac: "#C6BDFF",
+        acid: "#FFF96F",
       },
       fontFamily: {
         sans: [
+          "var(--font-sans)",
           "Inter",
           "Segoe UI",
           "system-ui",
@@ -42,6 +58,12 @@ const config: Config = {
           "Arial",
           "sans-serif",
         ],
+        serif: ["var(--font-serif)", "Georgia", "Times New Roman", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "SFMono-Regular", "Menlo", "monospace"],
+      },
+      letterSpacing: {
+        label: "0.14em",
+        display: "-0.03em",
       },
       boxShadow: {
         glow: "0 0 60px -12px rgba(116, 80, 245, 0.55)",
@@ -60,10 +82,20 @@ const config: Config = {
           "0%, 100%": { opacity: "1" },
           "50%": { opacity: "0.55" },
         },
+        rise: {
+          from: { transform: "translateY(115%)" },
+          to: { transform: "translateY(0)" },
+        },
+        fadeUp: {
+          from: { opacity: "0", transform: "translateY(12px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         float: "float 6s ease-in-out infinite",
         "pulse-soft": "pulseSoft 2.4s ease-in-out infinite",
+        rise: "rise 0.9s cubic-bezier(0.2, 0, 0, 1) both",
+        "fade-up": "fadeUp 0.7s cubic-bezier(0.2, 0, 0, 1) both",
       },
     },
   },

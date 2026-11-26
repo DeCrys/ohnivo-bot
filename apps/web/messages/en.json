@@ -45,7 +45,8 @@
       "failed": "Failed",
       "cancelled": "Cancelled",
       "rolled_back": "Rolled back"
-    }
+    },
+    "mascotAlt": "Sparky, the Ohnivo mascot"
   },
   "marketing": {
     "nav": {
@@ -60,14 +61,38 @@
       "title1": "Describe your community.",
       "title2": "Ohnivo builds the server.",
       "subtitle": "Write in plain language what you are building. Sparky turns it into categories, channels, roles, permissions and a first welcome. You just approve the preview.",
-      "placeholder": "e.g. A Minecraft server for builders and a small SMP. I want categories for news, rules, builds, looking for players and voice channels. Friendly community, light moderation.",
+      "placeholder": "e.g. A Minecraft server for builders and a small SMP. Categories for news, rules, builds, voice channels and a friendly crowd.",
       "cta": "Build my server",
       "note": "No install needed. The bot joins only after you confirm.",
       "builtIn": "Built in 8 s",
       "example1": "Minecraft SMP for builders",
       "example2": "FiveM RP community",
       "example3": "Esports team and scrims",
-      "example4": "Startup product community"
+      "example4": "Startup product community",
+      "label": "AI builder for Discord communities",
+      "promptHint": "At least 3 characters",
+      "examplesLabel": "Try:",
+      "demoTitle": "Server blueprint",
+      "demoMeta": "40 credits · 8 s",
+      "demoCategories": "Categories",
+      "demoCategory1": "#news",
+      "demoCategory2": "#rules",
+      "demoCategory3": "#builds",
+      "demoRoles": "Roles",
+      "demoRole1": "👑 Owner",
+      "demoRole2": "🛡️ Moderator",
+      "demoRole3": "🎨 Builder",
+      "demoPermissions": "Permissions",
+      "demoPerm1": "Manage Channels",
+      "demoPerm2": "Manage Messages",
+      "demoPerm3": "Kick Members",
+      "demoBuild": "Build progress",
+      "demoStep1": "Roles and permissions",
+      "demoStep2": "Categories and channels",
+      "demoStep3": "Welcome message",
+      "demoDone": "Done",
+      "demoLink": "Open the builder",
+      "flow": "describe / blueprint / build"
     },
     "steps": {
       "eyebrow": "How it works",
@@ -105,7 +130,8 @@
       "fivem": "FiveM / RP",
       "creators": "Creators",
       "esport": "Esports",
-      "startup": "Startup"
+      "startup": "Startup",
+      "eyebrow": "Community types"
     },
     "pricing": {
       "eyebrow": "Pricing",
@@ -114,29 +140,31 @@
       "monthly": "Monthly",
       "yearly": "Yearly",
       "save": "2 months free",
-      "perMonth": "CZK / month",
-      "perYear": "CZK / year",
+      "perMonth": "/ month",
+      "perYear": "/ year",
       "creditsSuffix": "credits per month",
       "choose": "Choose plan",
       "current": "Current plan",
       "popular": "Most popular",
       "vat": "Prices include VAT. Cancel anytime.",
       "freeName": "Free",
-      "freePrice": "0 CZK",
+      "freePrice": "Free",
       "freeFeature1": "Modules and server management",
       "freeFeature2": "No AI generation",
       "freeFeature3": "Server and bot overview",
-      "starterFeature1": "AI generation and edits",
+      "starterFeature1": "AI server blueprint and edits",
       "starterFeature2": "Graphics for credits",
       "starterFeature3": "Live build progress",
-      "premiumFeature1": "Everything in Starter",
-      "premiumFeature2": "Server editor and batch edits",
-      "premiumFeature3": "Priority queue",
-      "proFeature1": "Everything in Premium",
-      "proFeature2": "For agencies and server networks",
-      "proFeature3": "Most credits per action",
+      "premiumFeature1": "AI server blueprint and edits",
+      "premiumFeature2": "Graphics for credits",
+      "premiumFeature3": "Live build progress",
+      "proFeature1": "AI server blueprint and edits",
+      "proFeature2": "Graphics for credits",
+      "proFeature3": "Live build progress",
       "loginToChoose": "Sign in to choose a plan",
-      "detailCta": "Full pricing and plan comparison"
+      "detailCta": "Full pricing and plan comparison",
+      "freeNote": "no AI credits",
+      "freeParagraph": "Everything except AI. A good first server."
     },
     "pricingPage": {
       "metaTitle": "Pricing — plans, credits and subscriptions",
@@ -210,7 +238,9 @@
       "ctaTitle": "You can build your first server today",
       "ctaSubtitle": "Start on the Free plan and upgrade when you need AI.",
       "ctaButton": "Start free",
-      "ctaNote": "No payments upfront · cancel anytime · prices include VAT"
+      "ctaNote": "No payments upfront · cancel anytime · prices include VAT",
+      "compareEyebrow": "Comparison",
+      "creditsUnit": "credits"
     },
     "faq": {
       "eyebrow": "FAQ",
@@ -226,7 +256,9 @@
       "q5": "Does it support English?",
       "a5": "Yes. The web app has a Czech/English switch and the bot sends welcomes in the server language.",
       "q6": "Where does the bot run?",
-      "a6": "A standalone Docker service that talks to the web app through a Supabase queue. The web runs on Vercel, the bot does not."
+      "a6": "A standalone Docker service that talks to the web app through a Supabase queue. The web runs on Vercel, the bot does not.",
+      "show": "show",
+      "hide": "hide"
     },
     "cta": {
       "title": "Your server can be live in a minute",
@@ -241,7 +273,43 @@
       "terms": "Terms",
       "privacy": "Privacy",
       "rights": "All rights reserved.",
-      "made": "Built on Next.js, Supabase and Discord.js."
+      "made": "Built on Next.js, Supabase and Discord.js.",
+      "legal": "Legal",
+      "contact": "Contact"
+    },
+    "legal": {
+      "privacy": {
+        "title": "Privacy",
+        "updated": "Last updated: 24 November 2026",
+        "contact": "Privacy questions:",
+        "s1t": "What we store",
+        "s1b": "Discord ID, username, display name, avatar and the list of servers you manage. We also store server blueprints, build progress, credit balance and payment history.",
+        "s2t": "Why we store it",
+        "s2b": "To recognise you at login, verify guild permissions, show your blueprints and builds, and charge credits correctly. We never sell any of it.",
+        "s3t": "Discord tokens",
+        "s3b": "Discord access tokens are encrypted with a symmetric key and stored server-side only. They never reach the browser. Sessions use an httpOnly cookie and can be revoked by signing out.",
+        "s4t": "AI processing",
+        "s4b": "We send your community description to the AI provider only to generate a blueprint. We never send your Discord token or payment details. Without an AI key the app runs a deterministic demo mode.",
+        "s5t": "Your rights",
+        "s5b": "You can request an export, correction or deletion of your data. Email support and we will respond. Some records (such as the accounting ledger) must be retained by law.",
+        "s6t": "Cookies",
+        "s6b": "We only use technical cookies for login and language preference. No advertising or third-party tracking cookies."
+      },
+      "terms": {
+        "title": "Terms of service",
+        "updated": "Last updated: 24 November 2026",
+        "contact": "Questions? Write to us at",
+        "s1t": "1. The service",
+        "s1b": "Ohnivo turns your description into a Discord server blueprint and, after you confirm it, lets the bot create it. Ohnivo is not affiliated with Discord beyond the standard OAuth login and bot installation.",
+        "s2t": "2. Account and permissions",
+        "s2b": "You sign in with Discord. We only work with servers where you have Manage Server. You are responsible for the server content and for who you give access to.",
+        "s3t": "3. Credits and payments",
+        "s3b": "AI actions consume credits according to the published pricing. Subscriptions renew automatically until cancelled. Unused credits stay on your account. Prices include VAT.",
+        "s4t": "4. Responsibility",
+        "s4b": "AI output can contain mistakes. Always review the preview before starting a build. The bot never deletes existing channels or roles without explicit confirmation. The service is provided as is.",
+        "s5t": "5. Cancellation",
+        "s5b": "You can cancel a subscription in the customer portal at any time. AI access ends at the end of the paid period. You can request account deletion by email."
+      }
     }
   },
   "auth": {
