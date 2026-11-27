@@ -18,8 +18,9 @@ import { formatDate, formatDateTime } from "@/lib/utils";
 export const dynamic = "force-dynamic";
 
 const KIND_KEYS: Record<string, string> = {
+  // Legacy kinds remain mapped so historical ledger rows keep a readable label.
   generate: "kindGenerate",
-  regenerate: "kindGenerate",
+  regenerate: "kindRegenerate",
   refine: "kindRefine",
   apply: "kindApply",
   credit_pack: "kindCreditPack",

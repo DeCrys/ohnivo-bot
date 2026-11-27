@@ -76,8 +76,8 @@ function toValidated(result: AiTextResult): ValidatedBlueprint {
 
 /**
  * One retry with the validation error appended, as required by the spec.
- * Anything still invalid after that is a hard failure (credits are refunded
- * by the calling route).
+ * Anything still invalid after that is a hard failure; paid refine/regenerate
+ * routes refund their credit charge, while generation itself is plan-quota based.
  */
 export async function generateValidatedBlueprint(prompt: string): Promise<ValidatedBlueprint> {
   const ai = getAiProvider();

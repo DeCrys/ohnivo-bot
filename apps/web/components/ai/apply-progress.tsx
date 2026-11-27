@@ -257,7 +257,9 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
               <p className="mt-1 text-sm text-chalk-400">
                 {job.status === "rolled_back" ? t("rolledBackBody") : t("failedBody")}
               </p>
-              {job.refunded ? <p className="mt-2 text-xs text-emerald-300">{t("refunded")}</p> : null}
+              {job.refunded && job.cost > 0 ? (
+                <p className="mt-2 text-xs text-emerald-300">{t("refunded")}</p>
+              ) : null}
               {refundWasExpected && !job.refunded && job.cost > 0 ? (
                 <p className="mt-2 text-xs text-red-300">{t("refundFailed")}</p>
               ) : null}

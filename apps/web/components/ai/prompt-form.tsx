@@ -78,7 +78,7 @@ export function PromptForm({ guildId, quota, demo }: PromptFormProps) {
         <Alert variant="warning" title={t("quotaRequired")}>
           <p>{t("quotaRequiredBody", { used: quota.used, limit: quota.limit })}</p>
           <Link href="/dashboard/billing" className={buttonClasses("primary", "sm", "mt-3")}>
-            {t("buyCredits")}
+            {t("viewPlans")}
           </Link>
         </Alert>
       ) : null}

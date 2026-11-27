@@ -16,7 +16,7 @@ const LEAD_KEY: Record<PlanId, string> = {
   pro: "proLead",
 };
 
-/** What every paid plan includes - the plans differ only in credit volume. */
+/** What every paid plan includes - plans differ in monthly generation quota and credit volume. */
 const PAID_FEATURES = ["includedAi", "includedGraphics", "includedLiveBuild"] as const;
 
 function formatCzk(value: number, locale: string): string {

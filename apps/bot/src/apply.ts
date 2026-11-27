@@ -954,13 +954,21 @@ export async function runJob(client: Client, job: ClaimedJob): Promise<void> {
     } else {
       await setBlueprintStatus(job.blueprint_id, "applied");
     }
+    const cleanupRefundNote =
+      job.cost > 0
+        ? locale === "en"
+          ? " No automatic credit refund was issued because cleanup had started."
+          : " Kredity se automaticky nevrátily, protože úklid už začal."
+        : locale === "en"
+          ? " No credits were charged for this build."
+          : " Za tuto stavbu nebyly účtovány kredity.";
     await notifyUser(job.user_id, {
       type: "apply_failed",
       title: locale === "en" ? "Build failed" : "Stavba selhala",
       body: context.destructivePhaseStarted
         ? locale === "en"
-          ? `The new structure on ${guild.name} was created, but removing the old structure did not finish. The new objects were kept; review the server and finish cleanup manually. No automatic credit refund was issued because cleanup had started.`
-          : `Nová struktura na serveru ${guild.name} vznikla, ale úklid původní struktury se nedokončil. Nové objekty zůstaly; zkontroluj server a dokonči úklid ručně. Kredity se automaticky nevrátily, protože úklid už začal.`
+          ? `The new structure on ${guild.name} was created, but removing the old structure did not finish. The new objects were kept; review the server and finish cleanup manually.${cleanupRefundNote}`
+          : `Nová struktura na serveru ${guild.name} vznikla, ale úklid původní struktury se nedokončil. Nové objekty zůstaly; zkontroluj server a dokonči úklid ručně.${cleanupRefundNote}`
         : locale === "en"
           ? `The build on ${guild.name} failed. ${refundMessage(locale, job.cost, refunded, true)} Reason: ${message}`
           : `Stavba na serveru ${guild.name} selhala. ${refundMessage(locale, job.cost, refunded, true)} Důvod: ${message}`,
