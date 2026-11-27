@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { getLocale, getTranslations } from "next-intl/server";
-import { BRAND } from "@ohnivo/shared";
 import { Logo } from "@/components/brand/logo";
 import { LocaleSwitcher } from "@/components/dashboard/locale-switcher";
-import { LocalClock } from "@/components/marketing/local-clock";
 
 const LINKS = [
   { href: "/#jak-to-funguje", key: "how" },
@@ -13,18 +11,11 @@ const LINKS = [
 
 export async function SiteHeader() {
   const t = await getTranslations("marketing.nav");
-  const th = await getTranslations("marketing.hero");
   const locale = await getLocale();
 
   return (
     <>
-      {/* Meta bar: scrolls away. On small screens it carries the section links. */}
       <div className="frame">
-        <div className="pad hidden h-9 items-center justify-between gap-6 lg:flex">
-          <p className="mono-label">{th("label")}</p>
-          <p className="mono-label text-chalk-500">{BRAND.domain}</p>
-          <LocalClock label={t("localTime")} />
-        </div>
         <nav aria-label={t("sections")} className="carousel-fade pad flex items-center gap-5 overflow-x-auto lg:hidden">
           {LINKS.map((link, index) => (
             <Link

@@ -55,7 +55,6 @@
       "faq": "FAQ",
       "login": "Sign in",
       "dashboard": "My servers",
-      "localTime": "Local time",
       "sections": "Page sections"
     },
     "hero": {
@@ -71,7 +70,6 @@
       "example2": "FiveM RP community",
       "example3": "Esports team and scrims",
       "example4": "Startup product community",
-      "label": "AI builder for Discord communities",
       "promptHint": "At least 3 characters",
       "examplesLabel": "Try:",
       "demoTitle": "Server blueprint",

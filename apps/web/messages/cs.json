@@ -55,7 +55,6 @@
       "faq": "Časté otázky",
       "login": "Přihlásit se",
       "dashboard": "Moje servery",
-      "localTime": "Místní čas",
       "sections": "Sekce stránky"
     },
     "hero": {
@@ -71,7 +70,6 @@
       "example2": "FiveM RP komunita",
       "example3": "Esport tým a scrimy",
       "example4": "Startup a produktová komunita",
-      "label": "AI stavitel Discord komunit",
       "promptHint": "Minimálně 3 znaky",
       "examplesLabel": "Zkus:",
       "demoTitle": "Návrh serveru",
