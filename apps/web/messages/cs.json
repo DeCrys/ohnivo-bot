@@ -374,7 +374,6 @@
   "dashboard": {
     "title": "Moje servery",
     "subtitle": "Servery, které spravuješ. Připoj bota a nech Ohnivo postavit strukturu.",
-    "panelLabel": "Řídicí panel",
     "indexLabel": "Servery",
     "statementLead": "Vyber server,",
     "statement": "na kterém staví Jiskřík.",

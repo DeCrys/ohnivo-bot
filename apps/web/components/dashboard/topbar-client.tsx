@@ -17,7 +17,6 @@ interface NotificationItem {
 }
 
 interface TopbarClientProps {
-  balance: string;
   unread: number;
   notifications: NotificationItem[];
   user: { name: string; username: string; avatar: string };
@@ -25,7 +24,6 @@ interface TopbarClientProps {
 }
 
 export function TopbarClient({
-  balance,
   unread,
   notifications,
   user,
@@ -47,15 +45,6 @@ export function TopbarClient({
 
   return (
     <div className="flex items-center gap-2 sm:gap-3">
-      <Link
-        href="/dashboard/billing"
-        className="mono-label focus-ring inline-flex min-h-[40px] items-center gap-2 rounded-pill px-2 text-chalk-400 transition-colors hover:bg-white/[0.04] hover:text-white motion-reduce:transition-none lg:hidden"
-        title={t("creditsLeft")}
-      >
-        <Coins className="h-3.5 w-3.5 text-spark-300" aria-hidden="true" />
-        <span className="tabular-nums">{balance}</span>
-      </Link>
-
       <div className="relative">
         <details className="group">
           <summary
