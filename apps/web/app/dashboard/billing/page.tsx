@@ -28,6 +28,7 @@ const KIND_KEYS: Record<string, string> = {
   subscription: "kindSubscription",
   grant: "kindGrant",
   admin_grant: "kindAdminGrant",
+  admin_plan_grant: "kindAdminPlanGrant",
   image: "kindImage",
 };
 
@@ -128,7 +129,11 @@ export default async function BillingPage({
                 <p className="mt-3 text-[20px] font-medium capitalize leading-snug text-white">
                   {plan === "free" ? tc("free") : plan}
                 </p>
-                {subscription ? (
+                {session.user.plan_source === "manual" ? (
+                  <p className="mt-2 text-[13px] leading-relaxed text-chalk-500">
+                    {t("manualPlanBody")}
+                  </p>
+                ) : subscription ? (
                   <p className="mt-2 text-[13px] leading-relaxed text-chalk-500">
                     {subscription.current_period_end
                       ? `${subscription.cancel_at_period_end ? t("activeUntil") : t("renews")} ${formatDate(
@@ -143,7 +148,11 @@ export default async function BillingPage({
                   <p className="mt-2 text-[13px] text-chalk-500">{t("noPlan")}</p>
                 )}
               </div>
-              {subscription ? <Badge variant="success">{t("current")}</Badge> : null}
+              {session.user.plan_source === "manual" ? (
+                <Badge variant="info">{t("manualPlan")}</Badge>
+              ) : subscription ? (
+                <Badge variant="success">{t("current")}</Badge>
+              ) : null}
             </div>
             {session.user.stripe_customer_id ? (
               <div className="mt-5 flex justify-end">

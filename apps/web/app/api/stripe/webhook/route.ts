@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type Stripe from "stripe";
 import { findCreditPack, PLANS, type BillingInterval } from "@ohnivo/shared";
+import { shouldStripeOverridePlan } from "@/lib/admin-plan";
 import { logAudit } from "@/lib/audit";
 import { env } from "@/lib/env";
 import { grantCredits } from "@/lib/credits";
@@ -51,6 +52,15 @@ function periodEnd(subscription: Stripe.Subscription): string | null {
     : null;
 }
 
+async function planSource(userId: string): Promise<string | null> {
+  const { data } = await getServiceClient()
+    .from("users")
+    .select("plan_source")
+    .eq("id", userId)
+    .maybeSingle();
+  return (data as { plan_source?: string | null } | null)?.plan_source ?? null;
+}
+
 async function applySubscription(
   subscription: Stripe.Subscription,
   fallbackUserId?: string | null,
@@ -82,6 +92,16 @@ async function applySubscription(
   );
 
   if (!userId) return;
+  const stripeWins = shouldStripeOverridePlan(await planSource(userId), active);
+  if (!stripeWins) {
+    // Keep the admin-granted plan, but still link the Stripe customer.
+    await service
+      .from("users")
+      .update({ stripe_customer_id: customerId(subscription.customer) })
+      .eq("id", userId);
+    return;
+  }
+
   await service
     .from("users")
     .update({
@@ -89,6 +109,11 @@ async function applySubscription(
       plan_interval: active ? resolved.interval : null,
       plan_renews_at: active ? periodEnd(subscription) : null,
       stripe_customer_id: customerId(subscription.customer),
+      plan_source: "stripe",
+      manual_plan: null,
+      manual_plan_interval: null,
+      manual_plan_granted_by: null,
+      manual_plan_granted_at: null,
     })
     .eq("id", userId);
 }
@@ -157,6 +182,8 @@ async function grantInvoiceCredits(invoice: Stripe.Invoice): Promise<void> {
     console.warn("[stripe] invoice without a linked user", invoice.id);
     return;
   }
+  // A manual plan already grants its own credits; do not stack subscription credits.
+  if ((await planSource(userId)) === "manual") return;
 
   const months = resolved.interval === "year" ? 12 : 1;
   const amount = PLANS[resolved.plan].monthlyCredits * months;
@@ -236,10 +263,18 @@ export async function POST(request: Request) {
             .from("subscriptions")
             .update({ status: "canceled", cancel_at_period_end: false })
             .eq("stripe_subscription_id", subscription.id);
-          if (subscription.metadata.userId) {
+          if (
+            subscription.metadata.userId &&
+            shouldStripeOverridePlan(await planSource(subscription.metadata.userId), false)
+          ) {
             await serviceLocal
               .from("users")
-              .update({ plan: "free", plan_interval: null, plan_renews_at: null })
+              .update({
+                plan: "free",
+                plan_interval: null,
+                plan_renews_at: null,
+                plan_source: "stripe",
+              })
               .eq("id", subscription.metadata.userId);
           }
         } else {

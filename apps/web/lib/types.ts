@@ -8,6 +8,11 @@ export interface UserRow {
   plan: "free" | "starter" | "premium" | "pro";
   plan_interval: "month" | "year" | null;
   plan_renews_at: string | null;
+  plan_source: "stripe" | "manual";
+  manual_plan: "free" | "starter" | "premium" | "pro" | null;
+  manual_plan_interval: "month" | "year" | null;
+  manual_plan_granted_by: string | null;
+  manual_plan_granted_at: string | null;
   stripe_customer_id: string | null;
   is_admin: boolean;
   created_at: string;

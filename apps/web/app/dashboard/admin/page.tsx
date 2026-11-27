@@ -5,8 +5,7 @@ import { PageHeader } from "@/components/ui/page-header";
 import { requireUser } from "@/lib/auth/session";
 import { isAdminUser } from "@/lib/auth/admin";
 import { env } from "@/lib/env";
-import { getCreditBalance } from "@/lib/credits";
-import { AdminPanel } from "@/components/admin/admin-panel";
+import { AdminTools } from "@/components/admin/admin-tools";
 
 export const dynamic = "force-dynamic";
 
@@ -16,7 +15,6 @@ export default async function AdminPage() {
 
   const t = await getTranslations("admin");
   const td = await getTranslations("dashboard");
-  const balance = await getCreditBalance(session.user.id);
   const provider =
     env.AI_PROVIDER === "auto"
       ? env.NVIDIA_API_KEY
@@ -66,7 +64,17 @@ export default async function AdminPage() {
           ) : null}
         </Card>
 
-        <AdminPanel initialBalance={balance} />
+        <AdminTools
+          currentUser={{
+            id: session.user.id,
+            discord_id: session.user.discord_id,
+            username: session.user.username,
+            global_name: session.user.global_name,
+            plan: session.user.plan,
+            plan_source: session.user.plan_source,
+            is_admin: session.user.is_admin,
+          }}
+        />
       </div>
     </div>
   );
