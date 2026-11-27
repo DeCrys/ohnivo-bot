@@ -1,4 +1,7 @@
 import { NextResponse } from "next/server";
+import { createTranslator } from "next-intl";
+import csMessages from "@/messages/cs.json";
+import enMessages from "@/messages/en.json";
 import { requireApiUser } from "@/lib/auth/session";
 import { logAudit } from "@/lib/audit";
 import { grantCredits } from "@/lib/credits";
@@ -41,7 +44,7 @@ export async function POST(
       .from("apply_jobs")
       .update({
         status: "cancelled",
-        refunded: true,
+        refunded: job.cost > 0,
         finished_at: new Date().toISOString(),
       })
       .eq("id", job.id)
@@ -52,19 +55,33 @@ export async function POST(
     if (updateError) throw new AppError("unknown", `Cancel failed: ${updateError.message}`);
 
     if (updated) {
-      await grantCredits(session.user.id, job.cost, "refund", {
-        reason: "job_cancelled",
-        jobId: job.id,
-      });
+      const refunded = job.cost > 0;
+      if (refunded) {
+        await grantCredits(session.user.id, job.cost, "refund", {
+          reason: "job_cancelled",
+          jobId: job.id,
+        });
+      }
       await service
         .from("blueprints")
         .update({ status: "draft" })
         .eq("id", job.blueprint_id)
         .eq("user_id", session.user.id);
+      const localeRow = (
+        await service
+          .from("users")
+          .select("locale")
+          .eq("id", session.user.id)
+          .maybeSingle()
+      ).data;
+      const locale = localeRow?.locale === "en" ? "en" : "cs";
+      const t = createTranslator({ locale, messages: locale === "en" ? enMessages : csMessages });
       await notify(session.user.id, {
         type: "job_cancelled",
-        title: "Stavba zrušena",
-        body: `Job byl zrušen před spuštěním a ${job.cost} kreditů se vrátilo na účet.`,
+        title: t("ai.apply.cancelledTitle"),
+        body: refunded
+          ? t("ai.apply.cancelledRefundedBody", { count: job.cost })
+          : t("ai.apply.cancelledBody"),
         href: `/dashboard/${job.guild_id}`,
       });
       await logAudit({
@@ -72,14 +89,14 @@ export async function POST(
         action: "apply.cancel",
         guildId: job.guild_id,
         jobId: job.id,
-        meta: { refunded: job.cost },
+        meta: { refunded: refunded ? job.cost : 0 },
       });
     }
 
     return NextResponse.json({
       ok: true,
       status: updated ? "cancelled" : job.status,
-      refunded: Boolean(updated),
+      refunded: Boolean(updated && job.cost > 0),
     });
   } catch (error) {
     return errorResponse(error);

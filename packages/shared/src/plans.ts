@@ -44,23 +44,15 @@ export function isPaidPlan(plan: string): plan is Exclude<PlanId, "free"> {
   return plan === "starter" || plan === "premium" || plan === "pro";
 }
 
+/** Credits pay only for extras; generation is plan-quota based and apply is free. */
 export const CREDIT_COSTS = {
-  /** Blueprint generation is included in a plan, not paid for with credits. */
-  generate: 40,
   regenerate: 40,
   refine: 20,
-  apply: 30,
   imageIcon: 60,
   imageBanner: 45,
   imageEmoji: 15,
   imageSticker: 25,
 } as const;
-
-export type CreditCostKey = keyof typeof CREDIT_COSTS;
-
-export function creditsForPlan(plan: PlanId): number {
-  return PLANS[plan].monthlyCredits;
-}
 
 export function generationQuotaForPlan(plan: PlanId): number {
   return PLANS[plan].monthlyGenerations;

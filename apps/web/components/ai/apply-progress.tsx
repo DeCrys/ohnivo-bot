@@ -120,7 +120,12 @@ export function ApplyProgress({ job: initialJob, guildId, realtime }: ApplyProgr
     try {
       const response = await fetch(`/api/jobs/${initialJob.id}/cancel`, { method: "POST" });
       if (response.ok) {
-        setJob((current) => ({ ...current, status: "cancelled", refunded: true }));
+        const result = (await response.json()) as { refunded?: boolean };
+        setJob((current) => ({
+          ...current,
+          status: "cancelled",
+          refunded: result.refunded ?? false,
+        }));
         router.refresh();
       }
     } finally {
