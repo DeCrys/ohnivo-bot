@@ -600,6 +600,7 @@
       "noWarnings": "Bez upozornění. Návrh prošel validací.",
       "removedTitle": "Odebratá oprávnění",
       "removedBody": "Tato oprávnění nejsou v whitelistu, a tak je AI nedostane:",
+      "hierarchyGuideLead": "Než návrh aplikuješ, zkontroluj, kde je bot v hierarchii rolí:",
       "saved": "Uloženo",
       "unsaved": "Neuložené změny",
       "save": "Uložit změny",

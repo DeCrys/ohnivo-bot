@@ -600,6 +600,7 @@
       "noWarnings": "No warnings. The proposal passed validation.",
       "removedTitle": "Removed permissions",
       "removedBody": "These permissions are not whitelisted, so the AI will not get them:",
+      "hierarchyGuideLead": "Before you apply the proposal, check where the bot sits in the role hierarchy:",
       "saved": "Saved",
       "unsaved": "Unsaved changes",
       "save": "Save changes",

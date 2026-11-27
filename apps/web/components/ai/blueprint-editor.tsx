@@ -28,6 +28,7 @@ import { LIMITS } from "@ohnivo/shared";
 import { Button } from "@/components/ui/button";
 import { Badge, Alert } from "@/components/ui/primitives";
 import { Input, Textarea } from "@/components/ui/field";
+import { RoleHierarchyGuide } from "@/components/ai/role-hierarchy-guide";
 import { moveArrayItem } from "@/lib/array-order";
 import { cn } from "@/lib/utils";
 
@@ -799,6 +800,12 @@ export function BlueprintEditor({
               </ul>
             </div>
           ) : null}
+          <div className="pt-1">
+            <p className="mb-3 text-xs leading-relaxed text-chalk-500">
+              {t("hierarchyGuideLead")}
+            </p>
+            <RoleHierarchyGuide guildId={guildId} />
+          </div>
         </section>
       ) : (
         <p className="text-xs text-emerald-300/80">{t("noWarnings")}</p>
