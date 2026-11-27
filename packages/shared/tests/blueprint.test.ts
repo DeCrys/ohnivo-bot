@@ -163,6 +163,28 @@ describe("blueprint validation", () => {
     expect(overwrites[0]?.role).toBe("Člen");
     expect(issues.some((issue) => issue.code === "unknown_role_reference")).toBe(true);
   });
+
+  it("treats an everyone overwrite as @everyone", () => {
+    const raw = minimalBlueprint({
+      categories: [
+        {
+          name: "A",
+          channels: [
+            {
+              name: "tajne",
+              type: "text",
+              permissionOverwrites: [{ role: "everyone", deny: ["ViewChannel"] }],
+            },
+          ],
+        },
+      ],
+    });
+    const { blueprint, issues } = normalizeBlueprint(raw);
+    const overwrites = blueprint.categories[0]?.channels[0]?.permissionOverwrites ?? [];
+    expect(overwrites).toHaveLength(1);
+    expect(overwrites[0]?.role).toBe("@everyone");
+    expect(issues.some((issue) => issue.code === "unknown_role_reference")).toBe(false);
+  });
 });
 
 describe("createStarterBlueprint", () => {

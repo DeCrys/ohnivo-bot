@@ -318,7 +318,9 @@ export function normalizeBlueprint(raw: unknown): NormalizedBlueprint {
       for (const rawOverwrite of rawChannel.permissionOverwrites) {
         if (overwrites.length >= LIMITS.maxPermissionOverwritesPerChannel) break;
         const ref = cleanText(rawOverwrite.role, LIMITS.maxNameLength);
-        const isEveryone = ref.toLowerCase() === "@everyone";
+        const normalizedRef = ref.toLowerCase();
+        // Models often emit "everyone" instead of Discord's "@everyone".
+        const isEveryone = normalizedRef === "@everyone" || normalizedRef === "everyone";
         const targetRole = isEveryone ? null : roleLookup.get(ref.toLowerCase());
         if (!isEveryone && !targetRole) {
           issues.push({
