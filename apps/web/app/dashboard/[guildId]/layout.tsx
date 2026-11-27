@@ -20,7 +20,7 @@ export default async function GuildLayout({
   try {
     access = await assertGuildAccess(session.user.id, params.guildId);
   } catch {
-    redirect("/dashboard");
+    redirect("/dashboard/servers");
   }
   const t = await getTranslations("dashboard");
 

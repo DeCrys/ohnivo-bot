@@ -132,7 +132,7 @@ export function TopbarClient({
               <p className="truncate text-sm text-chalk">{user.name}</p>
               <p className="truncate text-[12px] text-chalk-500">@{user.username}</p>
             </div>
-            <Link href="/dashboard" className="menu-item">
+            <Link href="/dashboard/servers" className="menu-item">
               <UserRound className="h-3.5 w-3.5" aria-hidden="true" /> {t("title")}
             </Link>
             <Link href="/dashboard/billing" className="menu-item">

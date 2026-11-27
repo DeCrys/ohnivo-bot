@@ -9,7 +9,7 @@ import { errorResponse } from "@/lib/http";
 export const dynamic = "force-dynamic";
 
 function safeNext(value: string | null): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard/new";
   return value;
 }
 

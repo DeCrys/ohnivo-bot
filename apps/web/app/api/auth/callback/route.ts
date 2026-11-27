@@ -83,7 +83,7 @@ export async function GET(request: Request) {
         type: "welcome",
         title,
         body,
-        href: "/dashboard",
+        href: "/dashboard/new",
       });
     }
 

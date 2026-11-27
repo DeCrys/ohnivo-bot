@@ -34,7 +34,7 @@ export default async function SetupMethodPage({ params }: { params: { guildId: s
             className="focus-ring inline-flex min-h-[44px] items-center gap-1.5 rounded-control text-[13px] text-chalk-400 transition-colors hover:text-chalk motion-reduce:transition-none"
           >
             <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" />
-            {t("nav.backToServers")}
+            {t("chooseServer")}
           </Link>
           <span className="text-[12px] text-chalk-500">{t("nav.server")}</span>
           <Badge>{access.guild.name}</Badge>

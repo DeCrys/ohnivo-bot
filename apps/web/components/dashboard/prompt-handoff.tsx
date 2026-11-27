@@ -52,7 +52,7 @@ export function PromptHandoff({ guilds }: { guilds: GuildOption[] }) {
       )}
 
       <div className="mt-8">
-        <Link href="/dashboard" className={buttonClasses("secondary", "sm")}>
+        <Link href="/dashboard/servers" className={buttonClasses("secondary", "sm")}>
           {t("nav.backToServers")}
         </Link>
       </div>

@@ -46,7 +46,7 @@ export function GuildSidebar({
   return (
     <aside className="space-y-5">
       <Link
-        href="/dashboard"
+        href="/dashboard/servers"
         className="mono-label focus-ring inline-flex min-h-[44px] items-center gap-2 rounded-control text-chalk-500 transition-colors hover:text-chalk motion-reduce:transition-none"
       >
         <ArrowLeft className="h-3.5 w-3.5" aria-hidden="true" /> {t("backToServers")}

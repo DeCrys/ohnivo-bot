@@ -12,8 +12,8 @@ import { LocaleSwitcher } from "@/components/dashboard/locale-switcher";
 import { TopbarClient } from "./topbar-client";
 
 const NAV = [
-  { href: "/dashboard", key: "servers" },
   { href: "/dashboard/new", key: "new" },
+  { href: "/dashboard/servers", key: "servers" },
   { href: "/dashboard/billing", key: "billing" },
 ] as const;
 

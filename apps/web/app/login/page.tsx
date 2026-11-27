@@ -6,7 +6,7 @@ import { Logo } from "@/components/brand/logo";
 import { getSession } from "@/lib/auth/session";
 
 function safeNext(value: string | undefined): string {
-  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard";
+  if (!value || !value.startsWith("/") || value.startsWith("//")) return "/dashboard/new";
   return value;
 }
 

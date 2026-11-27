@@ -54,8 +54,8 @@ export default async function GuildHomePage({ params }: { params: { guildId: str
   const tools = [
     {
       icon: Sparkles,
-      title: tg("build"),
-      body: t("aiBuilderBody"),
+      title: t("setup.aiTitle"),
+      body: t("setup.aiBody"),
       href: `/dashboard/${access.guild.id}/ai/new`,
       enabled: true,
     },
@@ -63,7 +63,7 @@ export default async function GuildHomePage({ params }: { params: { guildId: str
       icon: Blocks,
       title: t("setup.manualTitle"),
       body: t("setup.manualBody"),
-      href: `/dashboard/${access.guild.id}/new`,
+      href: `/dashboard/new/${access.guild.id}`,
       enabled: true,
     },
     { icon: ImageIcon, title: tg("graphics"), body: tg("aiBody"), href: "#", enabled: false },
@@ -164,7 +164,7 @@ export default async function GuildHomePage({ params }: { params: { guildId: str
           <div className="mb-3 flex items-center justify-between gap-3">
             <h2 className="text-[18px] font-medium text-white">{t("recentBlueprints")}</h2>
             <Link
-              href={`/dashboard/${access.guild.id}/ai/new`}
+              href={`/dashboard/new/${access.guild.id}`}
               className="text-[13px] text-chalk-400 transition-colors hover:text-white motion-reduce:transition-none"
             >
               <span className="link-rule py-1">+ {t("newServer")}</span>
